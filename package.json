@@ -9,6 +9,15 @@
     "clean": "rm -rf dist",
     "test": "ava"
   },
+  "xo": {
+    "ignores": [
+      "test/fixtures",
+      "test/temp",
+      "coverage"
+    ],
+    "prettier": true,
+    "space": true
+  },
   "ava": {
     "files": [
       "!test/temp"
@@ -20,7 +29,10 @@
     "@eslint/eslintrc": "^1.4.1",
     "@typescript-eslint/eslint-plugin": "^5.53.0",
     "@typescript-eslint/parser": "^5.53.0",
-    "eslint": "latest",
+    "arrify": "^3.0.0",
+    "cosmiconfig": "^8.0.0",
+    "define-lazy-prop": "^3.0.0",
+    "eslint": "^8.34.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-config-xo": "^0.43.1",
     "eslint-config-xo-space": "^0.34.0",
@@ -34,7 +46,25 @@
     "eslint-plugin-n": "^15.6.1",
     "eslint-plugin-no-use-extend-native": "^0.5.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-unicorn": "^45.0.2"
+    "eslint-plugin-unicorn": "^45.0.2",
+    "esm-utils": "^4.1.1",
+    "find-cache-dir": "^4.0.0",
+    "find-up": "^6.3.0",
+    "get-stdin": "^9.0.0",
+    "globals": "^13.20.0",
+    "globby": "^13.1.3",
+    "imurmurhash": "^0.1.4",
+    "json-stable-stringify-without-jsonify": "^1.0.1",
+    "json5": "^2.2.3",
+    "lodash-es": "^4.17.21",
+    "meow": "^11.0.0",
+    "micromatch": "^4.0.5",
+    "open-editor": "^4.0.0",
+    "prettier": "^2.8.4",
+    "semver": "^7.3.8",
+    "slash": "^5.0.0",
+    "to-absolute-glob": "^3.0.0",
+    "typescript": "^4.9.5"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.4.4",

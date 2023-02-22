@@ -1,28 +1,66 @@
+// @ts-check
+import path from 'node:path';
+import os from 'node:os';
 import process from 'node:process';
-import pkg from 'eslint/use-at-your-own-risk';
-import createConfig from './config.js';
+import pkg from 'eslint/use-at-your-own-risk'; // eslint-disable-line n/file-extension-in-import
+import findCacheDir from 'find-cache-dir';
+import {cosmiconfig} from 'cosmiconfig';
+import createConfig from './lib/config.js';
 
+// @ts-ignore
 const {FlatESLint} = pkg;
 
-const eslint = new FlatESLint({
-	cwd: process.cwd(),
-	overrideConfigFile: true,
-	overrideConfig: createConfig(),
-});
+const CACHE_DIR_NAME = 'xo-linter';
 
-const lintText = async (files, options) => {
-	const {filePath, warnIgnored} = options || {};
+class XO {
+  static findXoConfig = async (options) => {
+    const configExplorer = cosmiconfig('xo', {
+      searchPlaces: [`xo.config.js`, `xo.config.cjs`],
+      stopDir: options.cwd,
+      loaders: {
+        async '.js'(fp) {
+          const {default: module} = await import(fp);
+          return module;
+        },
+      },
+    });
+    const searchPath = options.filePath || options.cwd;
+    const {config: xoOptions} = (await configExplorer.search(searchPath)) || {};
+    return xoOptions;
+  };
 
-	const results = await eslint.lintText(files, {filePath, warnIgnored});
+  constructor({cwd}, config) {
+    this.eslint = new FlatESLint({
+      cwd: process.cwd(),
+      overrideConfigFile: true,
+      overrideConfig: createConfig(config),
+      cache: true,
+      cacheLocation: path.join(
+        findCacheDir({name: CACHE_DIR_NAME, cwd}) ||
+          path.join(os.homedir() || os.tmpdir(), '.xo-cache/'),
+        'flat-xo-cache.json',
+      ),
+    });
+  }
 
-	// Console.log(results);
+  lintFiles = async (globs) => {
+    const results = await this.eslint.lintFiles(globs);
+    return {
+      results,
+      ...results[0],
+    };
+  };
 
-	return {
-		results,
-		...results[0],
-	};
-};
+  lintText = async (code, {filePath = '', warnIgnored = false} = {}) => {
+    const results = await this.eslint.lintText(code, {filePath, warnIgnored});
 
-export default {
-	lintText,
-};
+    console.log(results);
+
+    return {
+      results,
+      ...results[0],
+    };
+  };
+}
+
+export default XO;
