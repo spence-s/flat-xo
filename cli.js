@@ -6,7 +6,7 @@ import meow from 'meow';
 import formatterPretty from 'eslint-formatter-pretty';
 import semver from 'semver';
 // Import openReport from './lib/open-report.js';
-import XO from './index.js';
+import xo from './index.js';
 
 const cli = meow(
   `
@@ -117,19 +117,18 @@ const cli = meow(
   },
 );
 
-const {input, flags: options, showVersion} = cli;
+const {input, flags, showVersion} = cli;
 
-// TODO: Fix this properly instead of the below workaround.
-// Revert behavior of meow >8 to pre-8 (7.1.1) for flags using `isMultiple: true`.
-// Otherwise, options defined in package.json can't be merged by lib/options-manager.js `mergeOptions()`.
-for (const key in options) {
-  if (Array.isArray(options[key]) && options[key].length === 0) {
-    delete options[key];
+for (const key of Object.keys(flags)) {
+  // @ts-ignore
+  if (Array.isArray(flags[key]) && flags[key].length === 0) {
+    delete flags[key];
   }
 }
 
+const options = /** @type {import('./types.js').CliOptions} */ (flags);
+
 // Make data types for `options.space` match those of the API
-// Check for string type because `xo --no-space` sets `options.space` to `false`
 if (typeof options.space === 'string') {
   if (/^\d+$/u.test(options.space)) {
     options.space = Number.parseInt(options.space, 10);
@@ -147,13 +146,18 @@ if (typeof options.space === 'string') {
   }
 }
 
+// @ts-ignore
 if (process.env.GITHUB_ACTIONS && !options.fix && !options.reporter) {
   options.quiet = true;
 }
 
+/** @param {import('./types.js').XoResults} report */
 const log = async (report) => {
-  // Const reporter = options.reporter || process.env.GITHUB_ACTIONS ? await xo.getFormatter(options.reporter || 'compact') : formatterPretty;
-  const reporter = formatterPretty;
+  const reporter =
+    // eslint-disable-next-line dot-notation
+    options.reporter || process.env['GITHUB_ACTIONS']
+      ? await xo.getFormatter(options.reporter || 'compact')
+      : formatterPretty;
   process.stdout.write(reporter(report.results, {rulesMeta: report.rulesMeta}));
   process.exitCode = report.errorCount === 0 ? 0 : 1;
 };
@@ -171,7 +175,10 @@ if (options.version) {
 if (options.nodeVersion) {
   if (options.nodeVersion === 'false') {
     options.nodeVersion = false;
-  } else if (!semver.validRange(options.nodeVersion)) {
+  } else if (
+    typeof options.nodeVersion === 'string' &&
+    !semver.validRange(options.nodeVersion)
+  ) {
     console.error(
       'The `--node-engine` flag must be a valid semver range (for example `>=6`)',
     );
@@ -194,9 +201,9 @@ if (options.nodeVersion) {
     }
 
     options.filePath = options.printConfig;
-    // TODO: re-enable this
-    // const config = await xo.getConfig(options);
-    // console.log(JSON.stringify(config, undefined, '\t'));
+
+    const config = await xo.getConfig(options);
+    console.log(JSON.stringify(config, undefined, '\t'));
   } else if (options.stdin) {
     const stdin = await getStdin();
 
@@ -218,21 +225,18 @@ if (options.nodeVersion) {
       process.exit(1);
     }
 
-    const config = await XO.findXoConfig(options);
-    const xo = new XO(options, config);
     await log(await xo.lintText(stdin, options));
   } else {
-    const config = await XO.findXoConfig(options);
-    const xo = new XO(options, config);
-    const report = await xo.lintFiles(input);
+    const report = await xo.lintFiles(input, options);
 
     if (options.fix) {
       await xo.outputFixes(report);
     }
 
-    if (options.open) {
-      // OpenReport(report);
-    }
+    // TODO: figure this out
+    // if (options.open) {
+    // openReport(report);
+    // }
 
     await log(report);
   }
