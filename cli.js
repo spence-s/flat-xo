@@ -126,7 +126,7 @@ for (const key of Object.keys(flags)) {
   }
 }
 
-const options = /** @type {import('./types.js').CliOptions} */ (flags);
+const options = /** @type {XO.CliOptions} */ (flags);
 
 // Make data types for `options.space` match those of the API
 if (typeof options.space === 'string') {
@@ -146,19 +146,24 @@ if (typeof options.space === 'string') {
   }
 }
 
-// @ts-ignore
-if (process.env.GITHUB_ACTIONS && !options.fix && !options.reporter) {
+// eslint-disable-next-line dot-notation
+if (process.env['GITHUB_ACTIONS'] && !options.fix && !options.reporter) {
   options.quiet = true;
 }
 
-/** @param {import('./types.js').XoResults} report */
+/** @param {XO.LintResult} report */
 const log = async (report) => {
   const reporter =
     // eslint-disable-next-line dot-notation
     options.reporter || process.env['GITHUB_ACTIONS']
       ? await xo.getFormatter(options.reporter || 'compact')
       : formatterPretty;
-  process.stdout.write(reporter(report.results, {rulesMeta: report.rulesMeta}));
+  process.stdout.write(
+    reporter(report.results, {
+      rulesMeta: report.rulesMeta,
+      cwd: options.cwd ?? process.cwd(),
+    }),
+  );
   process.exitCode = report.errorCount === 0 ? 0 : 1;
 };
 
