@@ -1,7 +1,37 @@
-import {type ESLint, type Linter} from 'eslint';
+import type {ESLint, Linter} from 'eslint';
+import type {
+  FlatESLintConfigItem,
+  PredefinedConfig,
+  FlatESLintConfig,
+} from 'eslint-define-config';
 
 declare global {
   namespace XO {
+    export type Config = {
+      space?: boolean | number;
+      env?: string[];
+      extends?: string[];
+      global?: string[];
+      nodeVersion?: string | boolean;
+      ignore?: string[];
+      plugins?: string[];
+      rules?: Record<string, unknown>;
+      semicolon?: boolean;
+      prettier?: boolean;
+      parser?: string;
+      processor?: string;
+      webpack?: boolean | Record<string, unknown>;
+    };
+
+    export type FlatConfig =
+      | PredefinedConfig // eslint-disable-line @typescript-eslint/no-redundant-type-constituents
+      | (Omit<FlatESLintConfigItem, 'settings'> & {
+          space?: boolean | number;
+          prettier?: boolean;
+          env?: string[];
+          settings?: Record<string, unknown>;
+        });
+
     export type CliOptions = {
       cwd?: string;
       reporter?: string;
