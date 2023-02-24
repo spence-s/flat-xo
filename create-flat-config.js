@@ -1,5 +1,4 @@
 /* eslint-disable complexity */
-/** eslint-disable complexity */
 import pluginAva from 'eslint-plugin-ava';
 import pluginUnicorn from 'eslint-plugin-unicorn';
 import pluginImport from 'eslint-plugin-import';
@@ -37,6 +36,7 @@ const tsLanguageOptions = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ...configXoTypescript.parserOptions,
+    project: './tsconfig.json',
   },
 };
 
@@ -133,6 +133,18 @@ async function createConfig(userConfigs = []) {
       config.rules['n/no-unsupported-features/node-builtins'] = [
         'error',
         {version: config.nodeVersion},
+      ];
+    }
+
+    if (config.semicolon === false && !config.prettier) {
+      config.rules['@typescript-eslint/semi'] = ['error', 'never'];
+      config.rules.semi = ['error', 'never'];
+      config.rules['semi-spacing'] = [
+        'error',
+        {
+          before: false,
+          after: true,
+        },
       ];
     }
 
