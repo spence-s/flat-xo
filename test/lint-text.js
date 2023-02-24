@@ -8,12 +8,14 @@ import xo from '../index.js';
 const {__dirname} = createEsmUtils(import.meta);
 process.chdir(__dirname);
 
-const hasRule = (results, expectedRuleId) => {
+const hasRule = (results, expectedRuleId, rulesMeta) => {
   const hasRuleInResults = results[0].messages.some(
     ({ruleId}) => ruleId === expectedRuleId,
   );
-  // Const hasRuleInMeta = rulesMeta ? typeof rulesMeta[expectedRuleId] === 'object' : true;
-  return hasRuleInResults;
+  const hasRuleInMeta = rulesMeta
+    ? typeof rulesMeta[expectedRuleId] === 'object'
+    : true;
+  return hasRuleInResults && hasRuleInMeta;
 };
 
 test('.lintText()', async (t) => {
@@ -46,6 +48,25 @@ test('`ignores` option without cwd', async (t) => {
     ignores: ['ignored/**/*.js'],
   });
   t.is(result.errorCount, 0);
+  t.is(result.warningCount, 0);
+});
+
+test('respect overrides', async (t) => {
+  const result = await xo.lintText("'use strict'\nconsole.log('unicorn');\n", {
+    filePath: 'ignored/index.js',
+    ignores: ['ignored/**/*.js'],
+    overrides: [
+      {
+        files: ['ignored/**/*.js'],
+        ignores: [],
+      },
+    ],
+    rules: {
+      'unicorn/prefer-module': 'off',
+      'unicorn/prefer-node-protocol': 'off',
+    },
+  });
+  t.is(result.errorCount, 1);
   t.is(result.warningCount, 0);
 });
 
@@ -208,13 +229,13 @@ test('multiple negative patterns should act as positive patterns', async (t) => 
   t.is(results[0].errorCount, 0);
 });
 
-// Test('lint negatively gitignored files', async t => {
-// 	const cwd = path.join(__dirname, 'fixtures/negative-gitignore');
-// 	const glob = path.posix.join(cwd, '*');
-// 	const {results} = await xo.lintFiles(glob, {cwd});
+test('lint negatively gitignored files', async (t) => {
+  const cwd = path.join(__dirname, 'fixtures/negative-gitignore');
+  const glob = path.posix.join(cwd, '*');
+  const {results} = await xo.lintFiles(glob, {cwd});
 
-// 	t.true(results[0].errorCount > 0);
-// });
+  t.true(results[0].errorCount > 0);
+});
 
 test('do not lint eslintignored files if filename is given', async (t) => {
   const cwd = path.join(__dirname, 'fixtures/eslintignore');
@@ -401,3 +422,20 @@ test('deprecated rules', async (t) => {
     t.true(Array.isArray(replacedBy));
   }
 });
+
+async function configType(t, {dir}) {
+  const {results, rulesMeta} = await xo.lintText('var obj = { a: 1 };\n', {
+    cwd: path.resolve('fixtures', 'config-files', dir),
+    filePath: 'file.js',
+  });
+  t.true(hasRule(results, 'no-var', rulesMeta));
+}
+
+configType.title = (_, {type}) => `load config from ${type}`.trim();
+
+test(configType, {type: 'xo.config.js', dir: 'xo-config_js'});
+test(configType, {type: 'xo.config.cjs', dir: 'xo-config_cjs'});
+test(configType, {type: '.xo-config.js', dir: 'xo-config_js'});
+test(configType, {type: '.xo-config.cjs', dir: 'xo-config_cjs'});
+test(configType, {type: '.xo-config.json', dir: 'xo-config_json'});
+test(configType, {type: '.xo-config', dir: 'xo-config'});

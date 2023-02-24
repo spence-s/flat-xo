@@ -44,16 +44,16 @@ const findXoConfig = async (options) => {
  * @return {Promise<XO.LintResult>}
  */
 const lintFiles = async (globs, options) => {
-  console.log('----LINT FILES----');
+  // console.log('----LINT FILES----');
   const config = await findXoConfig(options);
 
-  console.log('config', config);
+  // console.log('config', config);
 
   options.cwd = options.cwd ?? process.cwd();
 
-  console.log('globs', globs);
+  // console.log('globs', globs);
 
-  console.log('options', options);
+  // console.log('options', options);
 
   const overrideConfig = await createConfig(config);
 
@@ -63,17 +63,17 @@ const lintFiles = async (globs, options) => {
     cwd: options.cwd,
     overrideConfigFile: true,
     overrideConfig,
-    // cache: true,
-    // cacheLocation: path.join(
-    //   findCacheDir({name: CACHE_DIR_NAME, cwd: options.cwd}) ||
-    //     path.join(os.homedir() || os.tmpdir(), '.xo-cache/'),
-    //   'flat-xo-cache.json',
-    // ),
+    cache: true,
+    cacheLocation: path.join(
+      findCacheDir({name: CACHE_DIR_NAME, cwd: options.cwd}) ||
+        path.join(os.homedir() || os.tmpdir(), '.xo-cache/'),
+      'flat-xo-cache.json',
+    ),
   });
 
   const results = await eslint.lintFiles(globs);
 
-  console.log('-------');
+  // console.log('-------');
   return {
     results,
     ...results[0],
@@ -88,11 +88,25 @@ const lintFiles = async (globs, options) => {
  * @returns {Promise<XO.LintResult>}
  */
 const lintText = async (code, options) => {
+  // console.log('----LINT FILES----');
   const config = await findXoConfig(options);
+
+  // console.log('config', config);
+
+  options.cwd = options.cwd ?? process.cwd();
+
+  // console.log('code', code);
+
+  // console.log('options', options);
+
+  const overrideConfig = await createConfig(config);
+
+  // console.log('overrideConfig', overrideConfig);
+
   const eslint = new FlatESLint({
     cwd: options.cwd,
     overrideConfigFile: true,
-    overrideConfig: createConfig(config),
+    overrideConfig,
     cache: true,
     cacheLocation: path.join(
       findCacheDir({name: CACHE_DIR_NAME, cwd: options.cwd}) ||
