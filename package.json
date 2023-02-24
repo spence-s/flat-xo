@@ -34,7 +34,6 @@
     "@typescript-eslint/parser": "^5.53.0",
     "arrify": "^3.0.0",
     "cosmiconfig": "^8.0.0",
-    "define-lazy-prop": "^3.0.0",
     "eslint": "^8.34.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-config-xo": "^0.43.1",
@@ -59,7 +58,6 @@
     "imurmurhash": "^0.1.4",
     "json-stable-stringify-without-jsonify": "^1.0.1",
     "json5": "^2.2.3",
-    "lodash-es": "^4.17.21",
     "meow": "^11.0.0",
     "micromatch": "^4.0.5",
     "open-editor": "^4.0.0",
@@ -67,13 +65,13 @@
     "semver": "^7.3.8",
     "slash": "^5.0.0",
     "to-absolute-glob": "^3.0.0",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "webpack": "^5.75.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.4.4",
     "@commitlint/config-conventional": "^17.4.4",
     "@sindresorhus/tsconfig": "^3.0.1",
-    "@types/eslint": "^8.21.1",
     "@types/find-cache-dir": "^3.2.1",
     "ava": "^5.2.0",
     "husky": "^8.0.3",

@@ -25,12 +25,7 @@ declare global {
 
     export type FlatConfig =
       | PredefinedConfig // eslint-disable-line @typescript-eslint/no-redundant-type-constituents
-      | (Omit<FlatESLintConfigItem, 'settings'> & {
-          space?: boolean | number;
-          prettier?: boolean;
-          env?: string[];
-          settings?: Record<string, unknown>;
-        });
+      | (Omit<FlatESLintConfigItem, 'settings'> & Config);
 
     export type CliOptions = {
       cwd?: string;
