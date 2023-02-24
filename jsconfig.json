@@ -1,16 +1,20 @@
 {
-  "extends": "@sindresorhus/tsconfig",
   "compilerOptions": {
-    "outDir": "dist",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ESNext",
     "allowJs": true,
     "checkJs": true,
-    "strict": true
+    "strict": true,
+    "useUnknownInCatchVariables": false,
+    "skipLibCheck": true
   },
-  "include": [
-    "**/*.js"
-  ],
   "exclude": [
     "node_modules",
     "test"
+  ],
+  "include": [
+    "**/*.js",
+    "**/*.ts",
   ],
 }

@@ -6,6 +6,7 @@
   "scripts": {
     "build": "npm run clean && tsc",
     "build:watch": "npm run clean && tsc --watch",
+    "check": "tsc --project ./jsconfig.json",
     "clean": "rm -rf dist",
     "test": "ava"
   },
@@ -71,7 +72,6 @@
   "devDependencies": {
     "@commitlint/cli": "^17.4.4",
     "@commitlint/config-conventional": "^17.4.4",
-    "@sindresorhus/tsconfig": "^3.0.1",
     "@types/find-cache-dir": "^3.2.1",
     "ava": "^5.2.0",
     "husky": "^8.0.3",
