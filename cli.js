@@ -232,6 +232,10 @@ if (options.nodeVersion) {
 
     await log(await xo.lintText(stdin, options));
   } else {
+    console.log('----CLI----');
+    console.log('input', input);
+    console.log('options', options);
+    console.log('-----------');
     const report = await xo.lintFiles(input, options);
 
     if (options.fix) {
