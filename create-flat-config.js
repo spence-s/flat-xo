@@ -15,21 +15,17 @@ import configPrettier from 'eslint-config-prettier';
 import globals from 'globals';
 import prettier from 'prettier';
 import {rules, tsRules} from './lib/rules.js';
-import {ENGINE_RULES, DEFAULT_IGNORES} from './lib/constants.js';
+import {
+  ENGINE_RULES,
+  DEFAULT_IGNORES,
+  DEFAULT_EXTENSION,
+  TYPESCRIPT_EXTENSION,
+} from './lib/constants.js';
 
-const ALL_FILES_GLOB = '**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}';
-const TS_FILES_GLOB = '**/*.{ts,tsx,mts,cts}';
+const ALL_FILES_GLOB = `**/*.{${DEFAULT_EXTENSION.join(',')}}`;
+const TS_FILES_GLOB = `**/*.{${TYPESCRIPT_EXTENSION.join(',')}}`;
 // const JS_FILES_GLOB = '**/*.{js,jsx,jts,jts/}';
 
-const tsPlugins = {
-  '@typescript-eslint': {
-    ...pluginTypescript,
-    // see note below on the parser object in languageOptions
-    parsers: {
-      parser: typescriptParser,
-    },
-  },
-};
 const tsLanguageOptions = {
   // https://github.com/eslint/eslint/issues/16875
   // this should be changing soon to allow the parser object to be added here
@@ -41,6 +37,8 @@ const tsLanguageOptions = {
 };
 
 /** @typedef {import('eslint-define-config').FlatESLintConfig[]} FlatESLintConfigs */
+
+let cachedPrettierConfig;
 
 /**
  * Takes a xo flat config and returns an eslint flat config
@@ -63,6 +61,14 @@ async function createConfig(userConfigs = []) {
         import: pluginImport,
         n: pluginN,
         'eslint-comments': pluginComments,
+        '@typescript-eslint': {
+          ...pluginTypescript,
+          // https://github.com/eslint/eslint/issues/16875
+          // see note above on the parser object in languageOptions
+          parsers: {
+            parser: typescriptParser,
+          },
+        },
       },
       languageOptions: {
         globals: {
@@ -87,10 +93,6 @@ async function createConfig(userConfigs = []) {
     },
     {
       files: [TS_FILES_GLOB],
-      plugins: tsPlugins,
-      // @ts-ignore
-      languageOptions: tsLanguageOptions,
-      // @ts-ignore
       rules: tsRules,
     },
     // @ts-ignore
@@ -154,28 +156,20 @@ async function createConfig(userConfigs = []) {
       config.rules = {
         ...config.rules,
         indent: ['error', spaces, {SwitchCase: 1}],
+        '@typescript-eslint/indent': ['error', spaces, {SwitchCase: 1}],
       };
-
-      // TODO: we need to do a glob match here to make this correct
-      // we just need to prove that it works first
-      // for ts
-      baseConfig.push({
-        files: config.files ?? TS_FILES_GLOB,
-        plugins: tsPlugins,
-        // @ts-ignore
-        languageOptions: tsLanguageOptions,
-        rules: {
-          '@typescript-eslint/indent': ['error', spaces, {SwitchCase: 1}],
-        },
-      });
     }
 
     if (config.prettier) {
       const prettierOptions =
+        cachedPrettierConfig ??
         // eslint-disable-next-line no-await-in-loop, n/prefer-global/process
         (await prettier.resolveConfig(process.cwd(), {
           editorconfig: true,
-        })) || {};
+        })) ??
+        {};
+
+      cachedPrettierConfig = prettierOptions;
 
       if (
         (config.semicolon === true && prettierOptions.semi === false) ||
@@ -237,6 +231,13 @@ async function createConfig(userConfigs = []) {
 
     baseConfig.push(config);
   }
+
+  // esnure all ts files are parsed with the ts parser so this is added last
+  // this makes it easy to add '@typescript-eslint/*' rules anywhere with no worries
+  baseConfig.push({
+    files: [TS_FILES_GLOB],
+    languageOptions: tsLanguageOptions,
+  });
 
   return baseConfig;
 }
