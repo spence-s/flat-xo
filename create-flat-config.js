@@ -8,14 +8,15 @@ import semver from 'semver';
 import pluginComments from 'eslint-plugin-eslint-comments';
 import pluginNoUseExtendNative from 'eslint-plugin-no-use-extend-native';
 import configXoTypescript from 'eslint-config-xo-typescript';
+import configXo from 'eslint-config-xo';
 import pluginTypescript from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 import pluginPrettier from 'eslint-plugin-prettier';
 import configPrettier from 'eslint-config-prettier';
 import globals from 'globals';
 import prettier from 'prettier';
-import {rules, tsRules} from './rules.js';
-import {ENGINE_RULES, DEFAULT_IGNORES} from './constants.js';
+import {rules, tsRules} from './lib/rules.js';
+import {ENGINE_RULES, DEFAULT_IGNORES} from './lib/constants.js';
 
 const ALL_FILES_GLOB = '**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}';
 const TS_FILES_GLOB = '**/*.{ts,tsx,mts,cts}';
@@ -35,7 +36,7 @@ const tsLanguageOptions = {
   // this should be changing soon to allow the parser object to be added here
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: './jsconfig.json',
+    ...configXoTypescript.parserOptions,
   },
 };
 
@@ -70,9 +71,9 @@ async function createConfig(userConfigs = []) {
         },
         ecmaVersion: 'latest',
         sourceType: 'module',
+        // @ts-ignore
         parserOptions: {
-          ecmaVersion: 'latest',
-          sourceType: 'module',
+          ...configXo.parserOptions,
         },
       },
       settings: {
@@ -87,6 +88,7 @@ async function createConfig(userConfigs = []) {
     {
       files: [TS_FILES_GLOB],
       plugins: tsPlugins,
+      // @ts-ignore
       languageOptions: tsLanguageOptions,
       // @ts-ignore
       rules: tsRules,
@@ -148,6 +150,7 @@ async function createConfig(userConfigs = []) {
       baseConfig.push({
         files: config.files ?? TS_FILES_GLOB,
         plugins: tsPlugins,
+        // @ts-ignore
         languageOptions: tsLanguageOptions,
         rules: {
           '@typescript-eslint/indent': ['error', spaces, {SwitchCase: 1}],

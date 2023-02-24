@@ -4,7 +4,7 @@ import process from 'node:process';
 import pkg from 'eslint/use-at-your-own-risk'; // eslint-disable-line n/file-extension-in-import
 import findCacheDir from 'find-cache-dir';
 import {cosmiconfig} from 'cosmiconfig';
-import createConfig from './lib/create-flat-config.js';
+import createConfig from './create-flat-config.js';
 
 // @ts-ignore
 const FlatESLint = pkg.FlatESLint;
