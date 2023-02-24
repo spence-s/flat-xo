@@ -5,18 +5,13 @@ import pkg from 'eslint/use-at-your-own-risk'; // eslint-disable-line n/file-ext
 import findCacheDir from 'find-cache-dir';
 import {cosmiconfig} from 'cosmiconfig';
 import createConfig from './create-flat-config.js';
-import {DEFAULT_EXTENSION} from './lib/constants.js';
+import {DEFAULT_EXTENSION, CACHE_DIR_NAME} from './lib/constants.js';
 
-// @ts-ignore
-const FlatESLint = pkg.FlatESLint;
-
-const CACHE_DIR_NAME = 'xo-linter';
-
+const {FlatESLint} = pkg;
 /**
  * Finds the xo config file
  */
 const findXoConfig = async (options) => {
-  /** @param {string} fp */
   const loadModule = async (fp) => {
     const {default: module, ignores, tsconfig} = await import(fp);
     module.ignores = ignores;

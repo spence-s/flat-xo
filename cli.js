@@ -126,7 +126,7 @@ for (const key of Object.keys(flags)) {
   }
 }
 
-const options = /** @type {XO.CliOptions} */ (flags);
+const options = flags;
 
 // Make data types for `options.space` match those of the API
 if (typeof options.space === 'string') {
@@ -151,7 +151,6 @@ if (process.env['GITHUB_ACTIONS'] && !options.fix && !options.reporter) {
   options.quiet = true;
 }
 
-/** @param {XO.LintResult} report */
 const log = async (report) => {
   const reporter =
     // eslint-disable-next-line dot-notation
