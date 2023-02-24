@@ -12,6 +12,7 @@ import pluginTypescript from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 import pluginPrettier from 'eslint-plugin-prettier';
 import configPrettier from 'eslint-config-prettier';
+import arrify from 'arrify';
 import globals from 'globals';
 import prettier from 'prettier';
 import {rules, tsRules} from './lib/rules.js';
@@ -24,33 +25,16 @@ import {
 
 const ALL_FILES_GLOB = `**/*.{${DEFAULT_EXTENSION.join(',')}}`;
 const TS_FILES_GLOB = `**/*.{${TYPESCRIPT_EXTENSION.join(',')}}`;
-// const JS_FILES_GLOB = '**/*.{js,jsx,jts,jts/}';
-
-const tsLanguageOptions = {
-  // https://github.com/eslint/eslint/issues/16875
-  // this should be changing soon to allow the parser object to be added here
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ...configXoTypescript.parserOptions,
-    project: './tsconfig.json',
-  },
-};
-
-/** @typedef {import('eslint-define-config').FlatESLintConfig[]} FlatESLintConfigs */
 
 let cachedPrettierConfig;
 
 /**
  * Takes a xo flat config and returns an eslint flat config
- *
- * @param {XO.FlatConfig[]} userConfigs
- * @returns {Promise<FlatESLintConfigs>}
  */
 async function createConfig(userConfigs = []) {
-  /** @type {FlatESLintConfigs} */
   const baseConfig = [
     {
-      ignores: DEFAULT_IGNORES,
+      ignores: DEFAULT_IGNORES.concat(userConfigs.ignores),
     },
     {
       files: [ALL_FILES_GLOB],
@@ -77,9 +61,9 @@ async function createConfig(userConfigs = []) {
         },
         ecmaVersion: 'latest',
         sourceType: 'module',
-        // @ts-ignore
         parserOptions: {
           ...configXo.parserOptions,
+          project: userConfigs.tsconfig,
         },
       },
       settings: {
@@ -88,19 +72,30 @@ async function createConfig(userConfigs = []) {
           espree: ['.js', '.cjs', '.mjs', '.jsx'],
         },
       },
-      // @ts-ignore
+      //
       rules,
     },
     {
       files: [TS_FILES_GLOB],
       rules: tsRules,
     },
-    // @ts-ignore
     ...configXoTypescript.overrides,
   ];
 
-  for (const config of userConfigs) {
+  for (const config of arrify(userConfigs)) {
+    // special case
+    // string of built in recommended configs
     if (typeof config === 'string') {
+      baseConfig.push(config);
+      continue;
+    }
+
+    // special case
+    // global ignores
+    if (
+      Object.keys(config).length === 1 &&
+      Object.keys(config)[0] === 'ignores'
+    ) {
       baseConfig.push(config);
       continue;
     }
@@ -200,7 +195,6 @@ async function createConfig(userConfigs = []) {
         );
       }
 
-      // @ts-ignore
       config.plugins = {
         ...config.plugins,
         prettier: pluginPrettier,
@@ -236,7 +230,15 @@ async function createConfig(userConfigs = []) {
   // this makes it easy to add '@typescript-eslint/*' rules anywhere with no worries
   baseConfig.push({
     files: [TS_FILES_GLOB],
-    languageOptions: tsLanguageOptions,
+    languageOptions: {
+      // https://github.com/eslint/eslint/issues/16875
+      // this should be changing soon to allow the parser object to be added here
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        ...configXoTypescript.parserOptions,
+        project: './tsconfig.json',
+      },
+    },
   });
 
   return baseConfig;

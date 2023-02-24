@@ -5,6 +5,7 @@ import pkg from 'eslint/use-at-your-own-risk'; // eslint-disable-line n/file-ext
 import findCacheDir from 'find-cache-dir';
 import {cosmiconfig} from 'cosmiconfig';
 import createConfig from './create-flat-config.js';
+import {DEFAULT_EXTENSION} from './lib/constants.js';
 
 // @ts-ignore
 const FlatESLint = pkg.FlatESLint;
@@ -13,13 +14,13 @@ const CACHE_DIR_NAME = 'xo-linter';
 
 /**
  * Finds the xo config file
- *
- * @param {XO.CliOptions} options
  */
 const findXoConfig = async (options) => {
   /** @param {string} fp */
   const loadModule = async (fp) => {
-    const {default: module} = await import(fp);
+    const {default: module, ignores, tsconfig} = await import(fp);
+    module.ignores = ignores;
+    module.tsconfig = tsconfig;
     return module;
   };
 
@@ -38,10 +39,6 @@ const findXoConfig = async (options) => {
 
 /**
  * lint a file or files
- *
- * @param {string[]} globs
- * @param {XO.CliOptions} options
- * @return {Promise<XO.LintResult>}
  */
 const lintFiles = async (globs, options) => {
   const config = await findXoConfig(options);
@@ -58,6 +55,12 @@ const lintFiles = async (globs, options) => {
       'flat-xo-cache.json',
     ),
   });
+
+  if (!globs || (Array.isArray(globs) && globs.length === 0)) {
+    globs = `**/*.{${DEFAULT_EXTENSION.join(',')}}`;
+  }
+
+  console.log('globs', globs);
   const results = await eslint.lintFiles(globs);
   return {
     results,
@@ -67,10 +70,6 @@ const lintFiles = async (globs, options) => {
 
 /**
  * lint a string of text
- *
- * @param {string} code
- * @param {XO.CliOptions} options
- * @returns {Promise<XO.LintResult>}
  */
 const lintText = async (code, options) => {
   const config = await findXoConfig(options);
@@ -99,30 +98,13 @@ const lintText = async (code, options) => {
   };
 };
 
-/**
- * Applies eslint fixes to all files in results
- *
- * @param {XO.LintResult} options
- * @returns {Promise<void>}
- */
 const outputFixes = async ({results}) => FlatESLint.outputFixes(results);
 
-/**
- *
- * @param {string} name
- * @returns {Promise<((results: readonly import('eslint').ESLint.LintResult[], data?: import('eslint').ESLint.LintResultData | undefined) => string)>}
- */
 const getFormatter = async (name) => {
   const {format} = await new FlatESLint().loadFormatter(name);
   return format;
 };
 
-/**
- * Applies eslint fixes to all files in results
- *
- * @param {XO.CliOptions} options
- * @returns {Promise<void>}
- */
 const getConfig = async (options) => {
   const config = await findXoConfig(options);
   const eslint = new FlatESLint({
