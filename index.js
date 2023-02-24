@@ -38,7 +38,7 @@ const findXoConfig = async (options) => {
 const lintFiles = async (globs, options) => {
   const config = await findXoConfig(options);
   options.cwd = options.cwd ?? process.cwd();
-  const overrideConfig = await createConfig(config);
+  const overrideConfig = await createConfig(config, {cwd: options.cwd});
   const eslint = new FlatESLint({
     cwd: options.cwd,
     overrideConfigFile: true,
@@ -55,7 +55,6 @@ const lintFiles = async (globs, options) => {
     globs = `**/*.{${DEFAULT_EXTENSION.join(',')}}`;
   }
 
-  console.log('globs', globs);
   const results = await eslint.lintFiles(globs);
   return {
     results,

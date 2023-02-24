@@ -1,6 +1,6 @@
 export const ignores = 'test/**/*';
 
-export const tsconfig = './tsconfig.json';
+export const tsconfig = 'tsconfig.json';
 
 const config = [
   {

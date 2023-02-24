@@ -1,4 +1,6 @@
 /* eslint-disable complexity */
+import path from 'node:path';
+import process from 'node:process';
 import pluginAva from 'eslint-plugin-ava';
 import pluginUnicorn from 'eslint-plugin-unicorn';
 import pluginImport from 'eslint-plugin-import';
@@ -31,7 +33,7 @@ let cachedPrettierConfig;
 /**
  * Takes a xo flat config and returns an eslint flat config
  */
-async function createConfig(userConfigs = []) {
+async function createConfig(userConfigs = [], {cwd = process.cwd()}) {
   const baseConfig = [
     {
       ignores: DEFAULT_IGNORES.concat(userConfigs.ignores),
@@ -158,8 +160,8 @@ async function createConfig(userConfigs = []) {
     if (config.prettier) {
       const prettierOptions =
         cachedPrettierConfig ??
-        // eslint-disable-next-line no-await-in-loop, n/prefer-global/process
-        (await prettier.resolveConfig(process.cwd(), {
+        // eslint-disable-next-line no-await-in-loop
+        (await prettier.resolveConfig(cwd, {
           editorconfig: true,
         })) ??
         {};
@@ -236,7 +238,7 @@ async function createConfig(userConfigs = []) {
       parser: '@typescript-eslint/parser',
       parserOptions: {
         ...configXoTypescript.parserOptions,
-        project: './tsconfig.json',
+        project: path.resolve(cwd, userConfigs.tsconfig),
       },
     },
   });
