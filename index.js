@@ -44,21 +44,9 @@ const findXoConfig = async (options) => {
  * @return {Promise<XO.LintResult>}
  */
 const lintFiles = async (globs, options) => {
-  // console.log('----LINT FILES----');
   const config = await findXoConfig(options);
-
-  // console.log('config', config);
-
   options.cwd = options.cwd ?? process.cwd();
-
-  // console.log('globs', globs);
-
-  // console.log('options', options);
-
   const overrideConfig = await createConfig(config);
-
-  // console.log('overrideConfig', overrideConfig);
-
   const eslint = new FlatESLint({
     cwd: options.cwd,
     overrideConfigFile: true,
@@ -70,10 +58,7 @@ const lintFiles = async (globs, options) => {
       'flat-xo-cache.json',
     ),
   });
-
   const results = await eslint.lintFiles(globs);
-
-  // console.log('-------');
   return {
     results,
     ...results[0],
@@ -88,21 +73,9 @@ const lintFiles = async (globs, options) => {
  * @returns {Promise<XO.LintResult>}
  */
 const lintText = async (code, options) => {
-  // console.log('----LINT FILES----');
   const config = await findXoConfig(options);
-
-  // console.log('config', config);
-
   options.cwd = options.cwd ?? process.cwd();
-
-  // console.log('code', code);
-
-  // console.log('options', options);
-
   const overrideConfig = await createConfig(config);
-
-  // console.log('overrideConfig', overrideConfig);
-
   const eslint = new FlatESLint({
     cwd: options.cwd,
     overrideConfigFile: true,
