@@ -33,7 +33,7 @@ let cachedPrettierConfig;
 /**
  * Takes a xo flat config and returns an eslint flat config
  */
-async function createConfig(userConfigs = [], {cwd = process.cwd()}) {
+async function createConfig(userConfigs = [], {cwd = process.cwd()} = {}) {
   const baseConfig = [
     {
       ignores: DEFAULT_IGNORES.concat(userConfigs.ignores),
@@ -84,16 +84,25 @@ async function createConfig(userConfigs = [], {cwd = process.cwd()}) {
     ...configXoTypescript.overrides,
   ];
 
+  /**
+   * since configs are merged and the last config takes precedence
+   * this means we need to handle both true AND false cases for each option.
+   * ie... we need to turn prettier,space,semi,etc... on or off for a specific file
+   */
   for (const config of arrify(userConfigs)) {
-    // special case
-    // string of built in recommended configs
+    /**
+     * special case
+     * string of built in recommended configs
+     */
     if (typeof config === 'string') {
       baseConfig.push(config);
       continue;
     }
 
-    // special case
-    // global ignores
+    /**
+     * special case
+     * global ignores
+     */
     if (
       Object.keys(config).length === 1 &&
       Object.keys(config)[0] === 'ignores'
@@ -166,6 +175,7 @@ async function createConfig(userConfigs = [], {cwd = process.cwd()}) {
         })) ??
         {};
 
+      // only look up prettier once per run
       cachedPrettierConfig = prettierOptions;
 
       if (
