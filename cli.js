@@ -15,22 +15,10 @@ const cli = meow(
 
 	Options
 	  --fix             Automagically fix issues
-	  --reporter        Reporter to use
-	  --env             Environment preset  [Can be set multiple times]
-	  --global          Global variable  [Can be set multiple times]
-	  --ignore          Additional paths to ignore  [Can be set multiple times]
 	  --space           Use space indent instead of tabs  [Default: 2]
 	  --no-semicolon    Prevent use of semicolons
 	  --prettier        Conform to Prettier code style
-	  --node-version    Range of Node.js version to support
-	  --plugin          Include third-party plugins  [Can be set multiple times]
-	  --extend          Extend defaults with a custom config  [Can be set multiple times]
-	  --open            Open files with issues in your editor
-	  --quiet           Show only errors and no warnings
-	  --extension       Additional extension to lint [Can be set multiple times]
 	  --cwd=<dir>       Working directory for files
-	  --stdin           Validate/fix code from stdin
-	  --stdin-filename  Specify a filename for the --stdin option
 	  --print-config    Print the effective ESLint config for the given file
 
 	Examples
@@ -38,10 +26,6 @@ const cli = meow(
 	  $ xo index.js
 	  $ xo *.js !foo.js
 	  $ xo --space
-	  $ xo --env=node --env=mocha
-	  $ xo --plugin=react
-	  $ xo --plugin=html --extension=html
-	  $ echo 'const x=true' | xo --stdin --fix
 	  $ xo --print-config=index.js
 
 	Tips
@@ -80,37 +64,10 @@ const cli = meow(
       prettier: {
         type: 'boolean',
       },
-      nodeVersion: {
-        type: 'string',
-      },
-      plugin: {
-        type: 'string',
-        isMultiple: true,
-      },
-      extend: {
-        type: 'string',
-        isMultiple: true,
-      },
-      open: {
-        type: 'boolean',
-      },
-      quiet: {
-        type: 'boolean',
-      },
-      extension: {
-        type: 'string',
-        isMultiple: true,
-      },
       cwd: {
         type: 'string',
       },
       printConfig: {
-        type: 'string',
-      },
-      stdin: {
-        type: 'boolean',
-      },
-      stdinFilename: {
         type: 'string',
       },
     },
@@ -118,13 +75,6 @@ const cli = meow(
 );
 
 const {input, flags, showVersion} = cli;
-
-for (const key of Object.keys(flags)) {
-  // @ts-ignore
-  if (Array.isArray(flags[key]) && flags[key].length === 0) {
-    delete flags[key];
-  }
-}
 
 const options = flags;
 
@@ -236,11 +186,6 @@ if (options.nodeVersion) {
     if (options.fix) {
       await xo.outputFixes(report);
     }
-
-    // TODO: figure this out
-    // if (options.open) {
-    // openReport(report);
-    // }
 
     await log(report);
   }

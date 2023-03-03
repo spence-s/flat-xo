@@ -17,13 +17,14 @@ import configPrettier from 'eslint-config-prettier';
 import arrify from 'arrify';
 import globals from 'globals';
 import prettier from 'prettier';
-import {rules, tsRules} from './lib/rules.js';
+import pick from 'lodash.pick';
 import {
   ENGINE_RULES,
   DEFAULT_IGNORES,
   DEFAULT_EXTENSION,
   TYPESCRIPT_EXTENSION,
 } from './lib/constants.js';
+import {rules, tsRules} from './lib/rules.js';
 
 const ALL_FILES_GLOB = `**/*.{${DEFAULT_EXTENSION.join(',')}}`;
 const TS_FILES_GLOB = `**/*.{${TYPESCRIPT_EXTENSION.join(',')}}`;
@@ -33,10 +34,14 @@ let cachedPrettierConfig;
 /**
  * Takes a xo flat config and returns an eslint flat config
  */
-async function createConfig(userConfigs = [], {cwd = process.cwd()} = {}) {
+async function createConfig({
+  flatOptions: userConfigs = [],
+  globalOptions,
+  cwd = process.cwd(),
+} = {}) {
   const baseConfig = [
     {
-      ignores: DEFAULT_IGNORES.concat(userConfigs.ignores),
+      ignores: DEFAULT_IGNORES.concat(globalOptions.ignores).filter(Boolean),
     },
     {
       files: [ALL_FILES_GLOB],
@@ -47,14 +52,6 @@ async function createConfig(userConfigs = [], {cwd = process.cwd()} = {}) {
         import: pluginImport,
         n: pluginN,
         'eslint-comments': pluginComments,
-        '@typescript-eslint': {
-          ...pluginTypescript,
-          // https://github.com/eslint/eslint/issues/16875
-          // see note above on the parser object in languageOptions
-          parsers: {
-            parser: typescriptParser,
-          },
-        },
       },
       languageOptions: {
         globals: {
@@ -65,13 +62,15 @@ async function createConfig(userConfigs = [], {cwd = process.cwd()} = {}) {
         sourceType: 'module',
         parserOptions: {
           ...configXo.parserOptions,
-          project: userConfigs.tsconfig,
         },
       },
       settings: {
         'import/core-modules': ['electron', 'atom'],
         'import/parsers': {
           espree: ['.js', '.cjs', '.mjs', '.jsx'],
+        },
+        'import/resolver': {
+          node: true,
         },
       },
       //
@@ -82,16 +81,24 @@ async function createConfig(userConfigs = [], {cwd = process.cwd()} = {}) {
       rules: tsRules,
     },
     ...configXoTypescript.overrides,
-  ];
+  ].filter(Boolean);
+
+  const {tsconfig} = globalOptions;
 
   /**
-   * since configs are merged and the last config takes precedence
+   * Since configs are merged and the last config takes precedence
    * this means we need to handle both true AND false cases for each option.
    * ie... we need to turn prettier,space,semi,etc... on or off for a specific file
    */
-  for (const config of arrify(userConfigs)) {
+  for (const config of [...arrify(userConfigs), {...globalOptions}].filter(
+    Boolean,
+  )) {
+    if (Object.keys(config).length === 0) {
+      continue;
+    }
+
     /**
-     * special case
+     * Special case
      * string of built in recommended configs
      */
     if (typeof config === 'string') {
@@ -100,7 +107,7 @@ async function createConfig(userConfigs = [], {cwd = process.cwd()} = {}) {
     }
 
     /**
-     * special case
+     * Special case
      * global ignores
      */
     if (
@@ -115,7 +122,9 @@ async function createConfig(userConfigs = [], {cwd = process.cwd()} = {}) {
       config.files = [ALL_FILES_GLOB];
     }
 
-    if (!config.rules) config.rules = {};
+    if (!config.rules) {
+      config.rules = {};
+    }
 
     for (const [rule, ruleConfig] of Object.entries(ENGINE_RULES)) {
       for (const minVersion of Object.keys(ruleConfig).sort(semver.rcompare)) {
@@ -170,12 +179,10 @@ async function createConfig(userConfigs = [], {cwd = process.cwd()} = {}) {
       const prettierOptions =
         cachedPrettierConfig ??
         // eslint-disable-next-line no-await-in-loop
-        (await prettier.resolveConfig(cwd, {
-          editorconfig: true,
-        })) ??
+        (await prettier.resolveConfig(cwd, {editorconfig: true})) ??
         {};
 
-      // only look up prettier once per run
+      // Only look up prettier once per run
       cachedPrettierConfig = prettierOptions;
 
       if (
@@ -232,24 +239,50 @@ async function createConfig(userConfigs = [], {cwd = process.cwd()} = {}) {
       };
     }
 
-    delete config.space;
-    delete config.prettier;
-
-    baseConfig.push(config);
+    baseConfig.push(
+      pick(config, [
+        'files',
+        'ignores',
+        'languageOptions',
+        'plugins',
+        'settings',
+        'rules',
+      ]),
+    );
   }
 
-  // esnure all ts files are parsed with the ts parser so this is added last
+  // Esnure all ts files are parsed with the ts parser so this is added last
   // this makes it easy to add '@typescript-eslint/*' rules anywhere with no worries
+  // helps everything to load these last
   baseConfig.push({
     files: [TS_FILES_GLOB],
+    plugins: {
+      '@typescript-eslint': {
+        ...pluginTypescript,
+        // https://github.com/eslint/eslint/issues/16875
+        // see note above on the parser object in languageOptions
+        parsers: {
+          parser: typescriptParser,
+        },
+      },
+    },
     languageOptions: {
       // https://github.com/eslint/eslint/issues/16875
       // this should be changing soon to allow the parser object to be added here
       parser: '@typescript-eslint/parser',
       parserOptions: {
         ...configXoTypescript.parserOptions,
-        project: path.resolve(cwd, userConfigs.tsconfig),
+        project: path.resolve(
+          cwd,
+          tsconfig ?? globalOptions?.parserOptions?.project ?? 'tsconfig.json',
+        ),
       },
+    },
+    settings: {
+      'import/resolver': {
+        typescript: true,
+      },
+      '@typescript-eslint/parser': ['.ts', '.cts', '.mts', '.tsx'],
     },
   });
 
