@@ -22,10 +22,12 @@ import {
   DEFAULT_IGNORES,
   DEFAULT_EXTENSION,
   TYPESCRIPT_EXTENSION,
-} from './lib/constants.js';
-import {rules, tsRules} from './lib/rules.js';
+} from './constants.js';
+import {rules, tsRules} from './rules.js';
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const ALL_FILES_GLOB = `**/*.{${DEFAULT_EXTENSION.join(',')}}`;
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const TS_FILES_GLOB = `**/*.{${TYPESCRIPT_EXTENSION.join(',')}}`;
 
 let cachedPrettierConfig;

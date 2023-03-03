@@ -96,14 +96,12 @@ if (typeof options.space === 'string') {
   }
 }
 
-// eslint-disable-next-line dot-notation
 if (process.env['GITHUB_ACTIONS'] && !options.fix && !options.reporter) {
   options.quiet = true;
 }
 
 const log = async (report) => {
   const reporter =
-    // eslint-disable-next-line dot-notation
     options.reporter || process.env['GITHUB_ACTIONS']
       ? await xo.getFormatter(options.reporter || 'compact')
       : formatterPretty;

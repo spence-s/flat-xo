@@ -1,3 +1,16 @@
+declare module 'eslint/use-at-your-own-risk' {
+  import {type FlatESLintConfig} from 'eslint-define-config';
+
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  export class FlatESLint {
+    cwd: string;
+    overrideConfigFile: boolean;
+    overrideConfig: FlatESLintConfig;
+    cache: boolean;
+    cacheLocation: string;
+  }
+}
+
 declare module 'eslint-plugin-ava' {
   import {type ESLint} from 'eslint';
 

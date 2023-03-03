@@ -8,24 +8,26 @@ import {cosmiconfig, defaultLoaders} from 'cosmiconfig';
 import {globby} from 'globby';
 import pick from 'lodash.pick';
 import JSON5 from 'json5';
+import {type FlatESLintConfig} from 'eslint-define-config';
+import {normalizeOptions} from './options-manager.js';
 import {
   DEFAULT_EXTENSION,
   CACHE_DIR_NAME,
   MODULE_NAME,
   TSCONFIG_DEFAULTS,
-} from '../constants.js';
-import {normalizeOptions} from '../options-manager.js';
-import createConfig from './create-config.js';
+} from './constants.js';
+import createConfig from './create-flat-config.js';
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const {FlatESLint} = pkg;
 
-const cacheLocation = (cwd) =>
+const cacheLocation = (cwd: string) =>
   findCacheDir({name: CACHE_DIR_NAME, cwd}) ||
   path.join(os.homedir() || os.tmpdir(), '.xo-cache/');
 
 // Async cosmiconfig loader for es module types
-const loadModule = async (fp) => {
-  const {default: module} = await import(fp);
+const loadModule = async (fp: string) => {
+  const {default: module} = (await import(fp)) as {default: FlatESLintConfig};
   return module;
 };
 
