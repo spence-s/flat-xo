@@ -1,6 +1,5 @@
 /* eslint-disable complexity */
 import path from 'node:path';
-import process from 'node:process';
 import pluginAva from 'eslint-plugin-ava';
 import pluginUnicorn from 'eslint-plugin-unicorn';
 import pluginImport from 'eslint-plugin-import';
@@ -33,15 +32,22 @@ let cachedPrettierConfig;
 
 /**
  * Takes a xo flat config and returns an eslint flat config
+ * @param {{ignores?: string[]; space?: boolean | number, semicolon?: boolean; tsconfig?: string, cwd?: string }} options
+ * @param {import('eslint-define-config').FlatESLintConfig} userConfigs
  */
-async function createConfig({
-  flatOptions: userConfigs = [],
-  globalOptions,
-  cwd = process.cwd(),
-} = {}) {
+async function createConfig(
+  {
+    ignores = [],
+    space = false,
+    semicolon = false,
+    tsconfig = '',
+    cwd = '',
+  } = {},
+  userConfigs,
+) {
   const baseConfig = [
     {
-      ignores: DEFAULT_IGNORES.concat(globalOptions.ignores).filter(Boolean),
+      ignores: DEFAULT_IGNORES.concat(ignores).filter(Boolean),
     },
     {
       files: [ALL_FILES_GLOB],
@@ -83,16 +89,12 @@ async function createConfig({
     ...configXoTypescript.overrides,
   ].filter(Boolean);
 
-  const {tsconfig} = globalOptions;
-
   /**
    * Since configs are merged and the last config takes precedence
    * this means we need to handle both true AND false cases for each option.
    * ie... we need to turn prettier,space,semi,etc... on or off for a specific file
    */
-  for (const config of [...arrify(userConfigs), {...globalOptions}].filter(
-    Boolean,
-  )) {
+  for (const config of [...arrify(userConfigs), {space, semicolon}]) {
     if (Object.keys(config).length === 0) {
       continue;
     }
@@ -272,10 +274,7 @@ async function createConfig({
       parser: '@typescript-eslint/parser',
       parserOptions: {
         ...configXoTypescript.parserOptions,
-        project: path.resolve(
-          cwd,
-          tsconfig ?? globalOptions?.parserOptions?.project ?? 'tsconfig.json',
-        ),
+        project: path.resolve(cwd, tsconfig ?? 'tsconfig.json'),
       },
     },
     settings: {

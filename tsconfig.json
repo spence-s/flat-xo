@@ -1,0 +1,12 @@
+{
+  "extends": "@sindresorhus/tsconfig",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "outDir": "dist",
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
