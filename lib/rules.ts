@@ -2,16 +2,17 @@ import configXo from 'eslint-config-xo';
 import pluginAva from 'eslint-plugin-ava';
 import pluginUnicorn from 'eslint-plugin-unicorn';
 import configXoTypescript from 'eslint-config-xo-typescript';
-import conf from '../config/plugins.cjs';
+import type {Rules} from 'eslint-define-config';
+import conf from '../config/plugins.js';
 
-export const rules = {
+export const rules: Rules = {
   ...configXo.rules,
-  ...pluginAva.configs.recommended.rules,
-  ...pluginUnicorn.configs.recommended.rules,
+  ...pluginAva.configs?.['recommended']?.rules,
+  ...pluginUnicorn.configs?.['recommended']?.rules,
   ...conf.rules,
 };
 
-const customTsRules = {
+const customTsRules: Rules = {
   'unicorn/import-style': 'off',
   'node/file-extension-in-import': 'off',
   // Disabled because of https://github.com/benmosher/eslint-plugin-import/issues/1590
@@ -23,7 +24,7 @@ const customTsRules = {
   'import/named': 'off',
 };
 
-export const tsRules = {
+export const tsRules: Rules = {
   ...configXoTypescript.rules,
   ...customTsRules,
 };

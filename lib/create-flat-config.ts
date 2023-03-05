@@ -4,7 +4,6 @@ import pluginAva from 'eslint-plugin-ava';
 import pluginUnicorn from 'eslint-plugin-unicorn';
 import pluginImport from 'eslint-plugin-import';
 import pluginN from 'eslint-plugin-n';
-import semver from 'semver';
 import pluginComments from 'eslint-plugin-eslint-comments';
 import pluginNoUseExtendNative from 'eslint-plugin-no-use-extend-native';
 import configXoTypescript from 'eslint-config-xo-typescript';
@@ -18,24 +17,25 @@ import globals from 'globals';
 import prettier from 'prettier';
 import pick from 'lodash.pick';
 import {
-  ENGINE_RULES,
+  type FlatESLintConfigItem,
+  type FlatESLintConfig,
+} from 'eslint-define-config';
+import {
   DEFAULT_IGNORES,
   DEFAULT_EXTENSION,
   TYPESCRIPT_EXTENSION,
 } from './constants.js';
+import {type XoConfigItem} from './types.js';
 import {rules, tsRules} from './rules.js';
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 const ALL_FILES_GLOB = `**/*.{${DEFAULT_EXTENSION.join(',')}}`;
-// eslint-disable-next-line @typescript-eslint/naming-convention
+
 const TS_FILES_GLOB = `**/*.{${TYPESCRIPT_EXTENSION.join(',')}}`;
 
-let cachedPrettierConfig;
+let cachedPrettierConfig: Record<string, unknown>;
 
 /**
  * Takes a xo flat config and returns an eslint flat config
- * @param {{ignores?: string[]; space?: boolean | number, semicolon?: boolean; tsconfig?: string, cwd?: string }} options
- * @param {import('eslint-define-config').FlatESLintConfig} userConfigs
  */
 async function createConfig(
   {
@@ -44,10 +44,10 @@ async function createConfig(
     semicolon = false,
     tsconfig = '',
     cwd = '',
-  } = {},
-  userConfigs,
+  }: XoConfigItem,
+  userConfigs: XoConfigItem[],
 ) {
-  const baseConfig = [
+  const baseConfig: FlatESLintConfig[] = [
     {
       ignores: DEFAULT_IGNORES.concat(ignores).filter(Boolean),
     },
@@ -81,14 +81,13 @@ async function createConfig(
           node: true,
         },
       },
-      //
       rules,
     },
     {
       files: [TS_FILES_GLOB],
       rules: tsRules,
     },
-    ...configXoTypescript.overrides,
+    ...((configXoTypescript.overrides as FlatESLintConfigItem) ?? []),
   ].filter(Boolean);
 
   /**
@@ -130,34 +129,7 @@ async function createConfig(
       config.rules = {};
     }
 
-    for (const [rule, ruleConfig] of Object.entries(ENGINE_RULES)) {
-      for (const minVersion of Object.keys(ruleConfig).sort(semver.rcompare)) {
-        if (
-          !config.nodeVersion ||
-          (typeof config.nodeVersion === 'string' &&
-            semver.intersects(config.nodeVersion, `<${minVersion}`))
-        ) {
-          config.rules[rule] = ruleConfig[minVersion];
-        }
-      }
-    }
-
-    if (config.nodeVersion && typeof config.nodeVersion === 'string') {
-      config.rules['n/no-unsupported-features/es-builtins'] = [
-        'error',
-        {version: config.nodeVersion},
-      ];
-      config.rules['n/no-unsupported-features/es-syntax'] = [
-        'error',
-        {version: config.nodeVersion, ignores: ['modules']},
-      ];
-      config.rules['n/no-unsupported-features/node-builtins'] = [
-        'error',
-        {version: config.nodeVersion},
-      ];
-    }
-
-    if (config.semicolon === false && !config.prettier) {
+    if (!config.semicolon && !config.prettier) {
       config.rules['@typescript-eslint/semi'] = ['error', 'never'];
       config.rules.semi = ['error', 'never'];
       config.rules['semi-spacing'] = [
@@ -190,31 +162,33 @@ async function createConfig(
       cachedPrettierConfig = prettierOptions;
 
       if (
-        (config.semicolon === true && prettierOptions.semi === false) ||
-        (config.semicolon === false && prettierOptions.semi === true)
+        (config.semicolon && prettierOptions['semi'] === false) ??
+        (!config.semicolon && prettierOptions['semi'] === true)
       ) {
         throw new Error(
-          `The Prettier config \`semi\` is ${prettierOptions.semi} while XO \`semicolon\` is ${config.semicolon}`,
+          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+          `The Prettier config \`semi\` is ${prettierOptions['semi']} while XO \`semicolon\` is ${config.semicolon}`,
         );
       }
 
       if (
-        ((config.space === true || typeof config.space === 'number') &&
-          prettierOptions.useTabs === true) ||
-        (config.space === false && prettierOptions.useTabs === false)
+        ((config.space || typeof config.space === 'number') &&
+          prettierOptions['useTabs'] === true) ||
+        (!config.space && prettierOptions['useTabs'] === false)
       ) {
         throw new Error(
-          `The Prettier config \`useTabs\` is ${prettierOptions.useTabs} while XO \`space\` is ${config.space}`,
+          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+          `The Prettier config \`useTabs\` is ${prettierOptions['useTabs']} while XO \`space\` is ${config.space}`,
         );
       }
 
       if (
         typeof config.space === 'number' &&
-        typeof prettierOptions.tabWidth === 'number' &&
-        config.space !== prettierOptions.tabWidth
+        typeof prettierOptions['tabWidth'] === 'number' &&
+        config.space !== prettierOptions['tabWidth']
       ) {
         throw new Error(
-          `The Prettier config \`tabWidth\` is ${prettierOptions.tabWidth} while XO \`space\` is ${config.space}`,
+          `The Prettier config \`tabWidth\` is ${prettierOptions['tabWidth']} while XO \`space\` is ${config.space}`,
         );
       }
 
@@ -225,7 +199,7 @@ async function createConfig(
 
       config.rules = {
         ...config.rules,
-        ...pluginPrettier.configs.recommended.rules,
+        ...pluginPrettier.configs?.['recommended']?.rules,
         'prettier/prettier': [
           'error',
           {
@@ -235,7 +209,7 @@ async function createConfig(
             trailingComma: 'all',
             tabWidth: typeof config.space === 'number' ? config.space : 2,
             useTabs: !config.space,
-            semi: config.semicolon !== false,
+            semi: config.semicolon,
             ...prettierOptions,
           },
         ],
@@ -265,6 +239,7 @@ async function createConfig(
         ...pluginTypescript,
         // https://github.com/eslint/eslint/issues/16875
         // see note above on the parser object in languageOptions
+        // @ts-expect-error this is a hack
         parsers: {
           parser: typescriptParser,
         },

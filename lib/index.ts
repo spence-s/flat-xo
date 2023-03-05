@@ -9,6 +9,7 @@ import {globby} from 'globby';
 import pick from 'lodash.pick';
 import JSON5 from 'json5';
 import {type FlatESLintConfig} from 'eslint-define-config';
+import {type XoConfigItem} from './types.js';
 import {normalizeOptions} from './options-manager.js';
 import {
   DEFAULT_EXTENSION,
@@ -18,12 +19,11 @@ import {
 } from './constants.js';
 import createConfig from './create-flat-config.js';
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 const {FlatESLint} = pkg;
 
 const cacheLocation = (cwd: string) =>
-  findCacheDir({name: CACHE_DIR_NAME, cwd}) ||
-  path.join(os.homedir() || os.tmpdir(), '.xo-cache/');
+  findCacheDir({name: CACHE_DIR_NAME, cwd}) ??
+  path.join(os.homedir() ?? os.tmpdir(), '.xo-cache/');
 
 // Async cosmiconfig loader for es module types
 const loadModule = async (fp: string) => {
@@ -34,7 +34,7 @@ const loadModule = async (fp: string) => {
 /**
  * Finds the xo config file
  */
-const findXoConfig = async (options) => {
+const findXoConfig = async (options: XoConfigItem) => {
   options.cwd = path.resolve(options.cwd ?? process.cwd());
 
   const globalConfigExplorer = cosmiconfig(MODULE_NAME, {
@@ -65,7 +65,7 @@ const findXoConfig = async (options) => {
     options.filePath = path.resolve(options.cwd, options.filePath);
   }
 
-  const searchPath = options.filePath || options.cwd;
+  const searchPath = options.filePath ?? options.cwd;
 
   const tsConfigExplorer = cosmiconfig([], {
     searchPlaces: ['tsconfig.json'],
@@ -73,7 +73,7 @@ const findXoConfig = async (options) => {
     stopDir: os.homedir(),
   });
 
-  const searchResults = (await tsConfigExplorer.search(options.filePath)) || {};
+  const searchResults = (await tsConfigExplorer.search(options.filePath)) ?? {};
   options.tsConfigPath = searchResults.filepath;
   options.tsConfig = searchResults.config;
 
@@ -83,10 +83,10 @@ const findXoConfig = async (options) => {
     {config: enginesOptions = {}},
     {filePath: tsConfigPath = ''},
   ] = await Promise.all([
-    (async () => (await globalConfigExplorer.search(searchPath)) || {})(),
-    (async () => (await flatConfigExplorer.search(searchPath)) || {})(),
-    (async () => (await pkgConfigExplorer.search(searchPath)) || {})(),
-    (async () => (await tsConfigExplorer.search(searchPath)) || {})(),
+    (async () => (await globalConfigExplorer.search(searchPath)) ?? {})(),
+    (async () => (await flatConfigExplorer.search(searchPath)) ?? {})(),
+    (async () => (await pkgConfigExplorer.search(searchPath)) ?? {})(),
+    (async () => (await tsConfigExplorer.search(searchPath)) ?? {})(),
   ]);
 
   const globalKeys = [
@@ -119,7 +119,7 @@ const findXoConfig = async (options) => {
 /**
  * Lint a file or files
  */
-const lintFiles = async (globs, options) => {
+const lintFiles = async (globs: string | string[], options: XoConfigItem) => {
   options.cwd = options.cwd ?? process.cwd();
 
   const {flatOptions, globalOptions, enginesOptions, tsConfigPath} =
@@ -192,8 +192,8 @@ const lintText = async (code, options) => {
     overrideConfig,
     cache: true,
     cacheLocation: path.join(
-      findCacheDir({name: CACHE_DIR_NAME, cwd: options.cwd}) ||
-        path.join(os.homedir() || os.tmpdir(), '.flat-xo-cache/'),
+      findCacheDir({name: CACHE_DIR_NAME, cwd: options.cwd}) ??
+        path.join(os.homedir() ?? os.tmpdir(), '.flat-xo-cache/'),
       'flat-xo-cache.json',
     ),
   });
@@ -224,8 +224,8 @@ const getConfig = async (options) => {
     overrideConfig: await createConfig(config),
     cache: true,
     cacheLocation: path.join(
-      findCacheDir({name: CACHE_DIR_NAME, cwd: options.cwd}) ||
-        path.join(os.homedir() || os.tmpdir(), '.flat-xo-cache/'),
+      findCacheDir({name: CACHE_DIR_NAME, cwd: options.cwd}) ??
+        path.join(os.homedir() ?? os.tmpdir(), '.flat-xo-cache/'),
       'flat-xo-cache.json',
     ),
   });
