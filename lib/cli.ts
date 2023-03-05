@@ -1,12 +1,9 @@
 #!/usr/bin/env node
-/* eslint-disable unicorn/prefer-top-level-await */
 import process from 'node:process';
 import path from 'node:path';
-import getStdin from 'get-stdin';
 import meow from 'meow';
 import formatterPretty, {type LintResult} from 'eslint-formatter-pretty';
-import semver from 'semver';
-import type {ESLint} from 'eslint';
+import {type Rule} from 'eslint';
 import type {CliOptions} from './types.js';
 import xo from './index.js';
 
@@ -72,6 +69,9 @@ const cli = meow(
       printConfig: {
         type: 'string',
       },
+      version: {
+        type: 'boolean',
+      },
     },
   },
 );
@@ -105,95 +105,50 @@ if (typeof options.space === 'string') {
   }
 }
 
-if (process.env['GITHUB_ACTIONS'] && !options.fix && !options.reporter) {
-  options.quiet = true;
-}
+// if (process.env['GITHUB_ACTIONS'] && !options.fix && !options.reporter) {
+//   options.quiet = true;
+// }
 
-const log = async (report: {results: LintResult}) => {
-  const reporter: ESLint.Formatter =
-    options.reporter || process.env['GITHUB_ACTIONS']
-      ? await xo.getFormatter(options.reporter || 'compact')
-      : formatterPretty;
+const log = async (report: {
+  results: Array<Readonly<LintResult>>;
+  rulesMeta: Record<string, Rule.RuleMetaData>;
+  errorCount?: number;
+}) => {
+  // @ts-expect-error readonly stuff is annoying
+  const reporter: typeof formatterPretty = options.reporter
+    ? await xo.getFormatter(options.reporter || 'compact')
+    : formatterPretty;
+
   process.stdout.write(
     reporter(report.results, {
       rulesMeta: report.rulesMeta,
-      cwd: options.cwd ?? process.cwd(),
     }),
   );
   process.exitCode = report.errorCount === 0 ? 0 : 1;
 };
 
-// `xo -` => `xo --stdin`
-if (input[0] === '-') {
-  options.stdin = true;
-  input.shift();
-}
-
 if (options.version) {
   showVersion();
 }
 
-if (options.nodeVersion) {
-  if (options.nodeVersion === 'false') {
-    options.nodeVersion = false;
-  } else if (
-    typeof options.nodeVersion === 'string' &&
-    !semver.validRange(options.nodeVersion)
-  ) {
+if (typeof options.printConfig === 'string') {
+  if (input.length > 0 || options.printConfig === '') {
     console.error(
-      'The `--node-engine` flag must be a valid semver range (for example `>=6`)',
+      'The `--print-config` flag must be used with exactly one filename',
     );
     process.exit(1);
   }
-}
 
-(async () => {
-  if (typeof options.printConfig === 'string') {
-    if (input.length > 0 || options.printConfig === '') {
-      console.error(
-        'The `--print-config` flag must be used with exactly one filename',
-      );
-      process.exit(1);
-    }
+  cliOptions.filePath = options.printConfig;
 
-    if (options.stdin) {
-      console.error('The `--print-config` flag is not supported on stdin');
-      process.exit(1);
-    }
+  const config = await xo.getConfig(cliOptions);
+  console.log(JSON.stringify(config, undefined, '\t'));
+} else {
+  const report = await xo.lintFiles(input, cliOptions);
 
-    options.filePath = options.printConfig;
-
-    const config = await xo.getConfig(options);
-    console.log(JSON.stringify(config, undefined, '\t'));
-  } else if (options.stdin) {
-    const stdin = await getStdin();
-
-    if (options.stdinFilename) {
-      options.filePath = options.stdinFilename;
-    }
-
-    if (options.fix) {
-      const {
-        results: [result],
-      } = await xo.lintText(stdin, options);
-      // If there is no output, pass the stdin back out
-      process.stdout.write((result && result.output) || stdin);
-      return;
-    }
-
-    if (options.open) {
-      console.error('The `--open` flag is not supported on stdin');
-      process.exit(1);
-    }
-
-    await log(await xo.lintText(stdin, options));
-  } else {
-    const report = await xo.lintFiles(input, options);
-
-    if (options.fix) {
-      await xo.outputFixes(report);
-    }
-
-    await log(report);
+  if (options.fix) {
+    await xo.outputFixes(report);
   }
-})();
+
+  await log(report);
+}

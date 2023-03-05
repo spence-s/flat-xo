@@ -2,17 +2,19 @@ import type {FlatESLintConfigItem} from 'eslint-define-config';
 import {type ESLint, type Rule} from 'eslint';
 
 export type BaseXoConfig = {
-  semicolon: boolean;
-  prettier: boolean;
+  space?: boolean | number | string;
+  semicolon?: boolean;
+  prettier?: boolean;
   tsconfig?: string;
+  ignores?: string | string[];
 };
 
 export type CliOptions = BaseXoConfig & {
-  space: boolean | number | string;
-  cwd: string;
+  cwd?: string;
   filePath?: string;
-  tsConfigPath?: string;
 };
+
+export type GlobalOptions = Partial<BaseXoConfig> & FlatESLintConfigItem;
 
 export type LintTextOptions = CliOptions & {warnIgnored?: boolean};
 

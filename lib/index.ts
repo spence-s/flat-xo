@@ -7,13 +7,15 @@ import findCacheDir from 'find-cache-dir';
 import {cosmiconfig, defaultLoaders} from 'cosmiconfig';
 import {globby} from 'globby';
 import pick from 'lodash.pick';
-// import JSON5 from 'json5';
+import JSON5 from 'json5';
 import {type FlatESLintConfig} from 'eslint-define-config';
+import {type ESLint} from 'eslint';
+import arrify from 'arrify';
 import {
   type XoConfigItem,
   type CliOptions,
-  type BaseXoConfig,
   type LintTextOptions,
+  type GlobalOptions,
 } from './types.js';
 import {normalizeOptions} from './options-manager.js';
 import {
@@ -72,39 +74,49 @@ const findXoConfig = async (options: CliOptions) => {
 
   const searchPath = options.filePath ?? options.cwd;
 
-  const tsConfigExplorer = cosmiconfig('ts', {
-    searchPlaces: ['tsconfig.json'],
-    loaders: {'.json': () => null},
-    stopDir: os.homedir(),
-  });
-
-  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-  const searchResults = (await tsConfigExplorer.search(options.filePath)) || {
-    filepath: undefined,
-  };
-
-  if (searchResults?.filepath) options.tsConfigPath = searchResults.filepath;
-
   let [
     {config: globalOptions = {}},
     {config: flatOptions = []},
-    {config: enginesOptions = {}},
+    // {config: enginesOptions = {}},
     {filePath: tsConfigPath = ''},
   ] = await Promise.all([
     (async () =>
       (await globalConfigExplorer.search(searchPath)) ?? {})() as Promise<{
-      config: BaseXoConfig | undefined;
+      config: GlobalOptions | undefined;
     }>,
     (async () =>
       (await flatConfigExplorer.search(searchPath)) ?? {})() as Promise<{
       config: XoConfigItem[] | undefined;
     }>,
-    (async () =>
-      (await pkgConfigExplorer.search(searchPath)) ?? {})() as Promise<{
-      config: {engines: string} | undefined;
-    }>,
-    (async () =>
-      (await tsConfigExplorer.search(searchPath)) ?? {})() as Promise<{
+    // (async () =>
+    //   (await pkgConfigExplorer.search(searchPath)) ?? {})() as Promise<{
+    //   config: {engines: string} | undefined;
+    // }>,
+    (async () => {
+      if (!options.tsconfig) {
+        const tsConfigExplorer = cosmiconfig('ts', {
+          searchPlaces: ['tsconfig.json'],
+          loaders: {
+            '.json': (_, content) =>
+              JSON5.parse<Record<string, unknown>>(content),
+          },
+          stopDir: os.homedir(),
+        });
+
+        const searchResults = (await tsConfigExplorer.search(
+          options.filePath,
+          // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+        )) || {
+          filepath: undefined,
+        };
+
+        if (searchResults?.filepath) options.tsconfig = searchResults.filepath;
+
+        return (await tsConfigExplorer.search(searchPath)) ?? {};
+      }
+
+      return {};
+    })() as Promise<{
       filePath: string | undefined;
     }>,
   ]);
@@ -130,7 +142,7 @@ const findXoConfig = async (options: CliOptions) => {
 
   return {
     globalOptions,
-    enginesOptions,
+    // enginesOptions,
     flatOptions,
     tsConfigPath,
   };
@@ -140,8 +152,14 @@ const findXoConfig = async (options: CliOptions) => {
  * Lint a file or files
  */
 const lintFiles = async (globs: string | string[], options: CliOptions) => {
-  const {flatOptions, globalOptions, enginesOptions, tsConfigPath} =
-    await findXoConfig(options);
+  if (!options.cwd) options.cwd = process.cwd();
+
+  if (!path.isAbsolute(options.cwd))
+    options.cwd = path.resolve(process.cwd(), options.cwd);
+
+  const {flatOptions, globalOptions, tsConfigPath} = await findXoConfig(
+    options,
+  );
 
   if (!globs || (Array.isArray(globs) && globs.length === 0)) {
     globs = `**/*.{${DEFAULT_EXTENSION.join(',')}}`;
@@ -153,14 +171,14 @@ const lintFiles = async (globs: string | string[], options: CliOptions) => {
     cwd: options.cwd,
   });
 
-  if (!tsConfigPath) {
-    options.tsConfigPath = path.join(
+  if (!options.tsconfig && tsConfigPath) {
+    const _tsConfigPath = path.join(
       cacheLocation(options.cwd),
       'tsconfig.cached.json',
     );
-    await fs.mkdir(path.dirname(options.tsConfigPath), {recursive: true});
+    await fs.mkdir(path.dirname(_tsConfigPath), {recursive: true});
     await fs.writeFile(
-      options.tsConfigPath,
+      _tsConfigPath,
       JSON.stringify({
         ...TSCONFIG_DEFAULTS,
         files,
@@ -168,14 +186,27 @@ const lintFiles = async (globs: string | string[], options: CliOptions) => {
         exclude: [],
       }),
     );
+
+    options.tsconfig = _tsConfigPath;
   }
 
-  const overrideConfig = await createConfig({
-    ignores: options.ignores ?? globalOptions.ignores,
+  let ignores: string[] = [];
+
+  if (typeof options.ignores === 'string') ignores = arrify(options.ignores);
+  else if (Array.isArray(options.ignores)) ignores = options.ignores;
+  else if (typeof globalOptions.ignores === 'string')
+    ignores = arrify(globalOptions.ignores);
+  else if (Array.isArray(globalOptions.ignores))
+    ignores = globalOptions.ignores;
+
+  const overrideConfig = await createConfig(
+    {
+      ...globalOptions,
+      ...options,
+      ignores,
+    },
     flatOptions,
-    enginesOptions,
-    cwd: options.cwd,
-  });
+  );
 
   const eslint = new FlatESLint({
     cwd: options.cwd,
@@ -195,13 +226,12 @@ const lintFiles = async (globs: string | string[], options: CliOptions) => {
   };
 };
 
-/**
- * Lint a string of text
- */
 const lintText = async (code: string, options: LintTextOptions) => {
-  const config = await findXoConfig(options);
   options.cwd = options.cwd ?? process.cwd();
+
+  const config = await findXoConfig(options);
   const overrideConfig = await createConfig(config);
+
   const eslint = new FlatESLint({
     cwd: options.cwd,
     overrideConfigFile: true,
@@ -225,14 +255,17 @@ const lintText = async (code: string, options: LintTextOptions) => {
   };
 };
 
-const outputFixes = async ({results}) => FlatESLint.outputFixes(results);
+const outputFixes = async ({results}: {results: ESLint.LintResult[]}) =>
+  FlatESLint.outputFixes(results);
 
-const getFormatter = async (name) => {
+const getFormatter = async (name: string) => {
   const {format} = await new FlatESLint().loadFormatter(name);
   return format;
 };
 
-const getConfig = async (options) => {
+const getConfig = async (options: CliOptions): Promise<unknown> => {
+  if (!options.filePath) throw new Error('filePath is required');
+
   const config = await findXoConfig(options);
   const eslint = new FlatESLint({
     cwd: options.cwd,
