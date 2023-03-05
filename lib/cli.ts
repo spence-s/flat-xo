@@ -4,7 +4,7 @@ import path from 'node:path';
 import meow from 'meow';
 import formatterPretty, {type LintResult} from 'eslint-formatter-pretty';
 import {type Rule} from 'eslint';
-import type {CliOptions} from './types.js';
+import type {LintOptions} from './types.js';
 import xo from './index.js';
 
 const cli = meow(
@@ -17,8 +17,9 @@ const cli = meow(
 	  --space           Use space indent instead of tabs  [Default: 2]
 	  --no-semicolon    Prevent use of semicolons
 	  --prettier        Conform to Prettier code style
-	  --cwd=<dir>       Working directory for files
 	  --print-config    Print the effective ESLint config for the given file
+    --ignore          Ignore pattern globs, can be set multiple times
+	  --cwd=<dir>       Working directory for files
 
 	Examples
 	  $ xo
@@ -65,6 +66,7 @@ const cli = meow(
       },
       cwd: {
         type: 'string',
+        default: process.cwd(),
       },
       printConfig: {
         type: 'string',
@@ -76,32 +78,30 @@ const cli = meow(
   },
 );
 
-const {input, flags, showVersion} = cli;
+const {input, flags: cliOptions, showVersion} = cli;
 
-const options = flags;
-
-const cliOptions: CliOptions = {
+const lintOptions: LintOptions = {
   space: false,
   semicolon: false,
   prettier: false,
-  cwd: (flags.cwd && path.resolve(flags.cwd)) ?? process.cwd(),
+  cwd: (cliOptions.cwd && path.resolve(cliOptions.cwd)) ?? process.cwd(),
 };
 
 // Make data types for `options.space` match those of the API
-if (typeof options.space === 'string') {
-  if (/^\d+$/u.test(options.space)) {
-    cliOptions.space = Number.parseInt(options.space, 10);
-  } else if (options.space === 'true') {
-    cliOptions.space = true;
-  } else if (options.space === 'false') {
-    cliOptions.space = false;
+if (typeof cliOptions.space === 'string') {
+  if (/^\d+$/u.test(cliOptions.space)) {
+    lintOptions.space = Number.parseInt(cliOptions.space, 10);
+  } else if (cliOptions.space === 'true') {
+    lintOptions.space = true;
+  } else if (cliOptions.space === 'false') {
+    lintOptions.space = false;
   } else {
-    if (options.space !== '') {
+    if (cliOptions.space !== '') {
       // Assume `options.space` was set to a filename when run as `xo --space file.js`
-      input.push(options.space);
+      input.push(cliOptions.space);
     }
 
-    cliOptions.space = true;
+    lintOptions.space = true;
   }
 }
 
@@ -116,7 +116,7 @@ const log = async (report: {
 }) => {
   // @ts-expect-error readonly stuff is annoying
   const reporter: typeof formatterPretty = options.reporter
-    ? await xo.getFormatter(options.reporter || 'compact')
+    ? await xo.getFormatter(cliOptions.reporter ?? 'compact')
     : formatterPretty;
 
   process.stdout.write(
@@ -127,26 +127,26 @@ const log = async (report: {
   process.exitCode = report.errorCount === 0 ? 0 : 1;
 };
 
-if (options.version) {
+if (cliOptions.version) {
   showVersion();
 }
 
-if (typeof options.printConfig === 'string') {
-  if (input.length > 0 || options.printConfig === '') {
+if (typeof cliOptions.printConfig === 'string') {
+  if (input.length > 0 || cliOptions.printConfig === '') {
     console.error(
       'The `--print-config` flag must be used with exactly one filename',
     );
     process.exit(1);
   }
 
-  cliOptions.filePath = options.printConfig;
+  lintOptions.filePath = cliOptions.printConfig;
 
   const config = await xo.getConfig(cliOptions);
   console.log(JSON.stringify(config, undefined, '\t'));
 } else {
-  const report = await xo.lintFiles(input, cliOptions);
+  const report = await xo.lintFiles(input, lintOptions);
 
-  if (options.fix) {
+  if (cliOptions.fix) {
     await xo.outputFixes(report);
   }
 

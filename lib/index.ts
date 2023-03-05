@@ -13,7 +13,7 @@ import {type ESLint} from 'eslint';
 import arrify from 'arrify';
 import {
   type XoConfigItem,
-  type CliOptions,
+  type LintOptions,
   type LintTextOptions,
   type GlobalOptions,
 } from './types.js';
@@ -41,7 +41,7 @@ const loadModule = async (fp: string) => {
 /**
  * Finds the xo config file
  */
-const findXoConfig = async (options: CliOptions) => {
+const findXoConfig = async (options: LintOptions) => {
   options.cwd = path.resolve(options.cwd ?? process.cwd());
 
   const globalConfigExplorer = cosmiconfig(MODULE_NAME, {
@@ -151,7 +151,7 @@ const findXoConfig = async (options: CliOptions) => {
 /**
  * Lint a file or files
  */
-const lintFiles = async (globs: string | string[], options: CliOptions) => {
+const lintFiles = async (globs: string | string[], options: LintOptions) => {
   if (!options.cwd) options.cwd = process.cwd();
 
   if (!path.isAbsolute(options.cwd))
@@ -263,7 +263,7 @@ const getFormatter = async (name: string) => {
   return format;
 };
 
-const getConfig = async (options: CliOptions): Promise<unknown> => {
+const getConfig = async (options: LintOptions): Promise<unknown> => {
   if (!options.filePath) throw new Error('filePath is required');
 
   const config = await findXoConfig(options);
