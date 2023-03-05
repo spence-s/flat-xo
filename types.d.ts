@@ -1,12 +1,50 @@
 declare module 'eslint/use-at-your-own-risk' {
   import {type FlatESLintConfig} from 'eslint-define-config';
+  import {type ESLint} from 'eslint';
+
+  type FlatESLintOptions = {
+    allowInlineConfig?: boolean;
+    baseConfig?: FlatESLintConfig[];
+    cache?: boolean;
+    cacheLocation?: string;
+    cacheStrategy?: 'metadata' | 'content';
+    cwd?: string;
+    errorOnUnmatchedPattern?: boolean;
+    fix?: boolean | (() => boolean);
+    fixTypes?: string[];
+    globInputPaths?: boolean;
+    ignore?: boolean;
+    ignorePatterns?: string[];
+    overrideConfig?: FlatESLintConfig[];
+    overrideConfigFile?: boolean | string;
+    plugins?: Record<string, ESLint.Plugin>;
+    reportUnusedDisableDirectives?: 'error' | 'warn' | 'off';
+  };
 
   export class FlatESLint {
+    static version: string;
+    static outputFixes(results: ESLint.LintResult[]): Promise<void>;
+    static getErrorResults(results: ESLint.LintResult[]): ESLint.LintResult[];
     cwd: string;
     overrideConfigFile: boolean;
-    overrideConfig: FlatESLintConfig;
+    overrideConfig: FlatESLintConfig[];
     cache: boolean;
     cacheLocation: string;
+    constructor(options?: FlatESLintOptions);
+    lintFiles(patterns: string | string[]): Promise<ESLint.LintResult[]>;
+    lintText(
+      code: string,
+      options?: {
+        filePath?: string | undefined;
+        warnIgnored?: boolean | undefined;
+      },
+    ): Promise<ESLint.LintResult[]>;
+    getRulesMetaForResults(
+      results: ESLint.LintResult[],
+    ): ESLint.LintResultData['rulesMeta'];
+    calculateConfigForFile(filePath: string): Promise<any>;
+    isPathIgnored(filePath: string): Promise<boolean>;
+    loadFormatter(nameOrPath?: string): Promise<ESLint.Formatter>;
   }
 }
 

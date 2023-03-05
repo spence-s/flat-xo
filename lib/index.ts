@@ -7,9 +7,14 @@ import findCacheDir from 'find-cache-dir';
 import {cosmiconfig, defaultLoaders} from 'cosmiconfig';
 import {globby} from 'globby';
 import pick from 'lodash.pick';
-import JSON5 from 'json5';
+// import JSON5 from 'json5';
 import {type FlatESLintConfig} from 'eslint-define-config';
-import {type XoConfigItem} from './types.js';
+import {
+  type XoConfigItem,
+  type CliOptions,
+  type BaseXoConfig,
+  type LintTextOptions,
+} from './types.js';
 import {normalizeOptions} from './options-manager.js';
 import {
   DEFAULT_EXTENSION,
@@ -34,7 +39,7 @@ const loadModule = async (fp: string) => {
 /**
  * Finds the xo config file
  */
-const findXoConfig = async (options: XoConfigItem) => {
+const findXoConfig = async (options: CliOptions) => {
   options.cwd = path.resolve(options.cwd ?? process.cwd());
 
   const globalConfigExplorer = cosmiconfig(MODULE_NAME, {
@@ -67,15 +72,18 @@ const findXoConfig = async (options: XoConfigItem) => {
 
   const searchPath = options.filePath ?? options.cwd;
 
-  const tsConfigExplorer = cosmiconfig([], {
+  const tsConfigExplorer = cosmiconfig('ts', {
     searchPlaces: ['tsconfig.json'],
-    loaders: {'.json': (_, content) => JSON5.parse(content)},
+    loaders: {'.json': () => null},
     stopDir: os.homedir(),
   });
 
-  const searchResults = (await tsConfigExplorer.search(options.filePath)) ?? {};
-  options.tsConfigPath = searchResults.filepath;
-  options.tsConfig = searchResults.config;
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+  const searchResults = (await tsConfigExplorer.search(options.filePath)) || {
+    filepath: undefined,
+  };
+
+  if (searchResults?.filepath) options.tsConfigPath = searchResults.filepath;
 
   let [
     {config: globalOptions = {}},
@@ -83,10 +91,22 @@ const findXoConfig = async (options: XoConfigItem) => {
     {config: enginesOptions = {}},
     {filePath: tsConfigPath = ''},
   ] = await Promise.all([
-    (async () => (await globalConfigExplorer.search(searchPath)) ?? {})(),
-    (async () => (await flatConfigExplorer.search(searchPath)) ?? {})(),
-    (async () => (await pkgConfigExplorer.search(searchPath)) ?? {})(),
-    (async () => (await tsConfigExplorer.search(searchPath)) ?? {})(),
+    (async () =>
+      (await globalConfigExplorer.search(searchPath)) ?? {})() as Promise<{
+      config: BaseXoConfig | undefined;
+    }>,
+    (async () =>
+      (await flatConfigExplorer.search(searchPath)) ?? {})() as Promise<{
+      config: XoConfigItem[] | undefined;
+    }>,
+    (async () =>
+      (await pkgConfigExplorer.search(searchPath)) ?? {})() as Promise<{
+      config: {engines: string} | undefined;
+    }>,
+    (async () =>
+      (await tsConfigExplorer.search(searchPath)) ?? {})() as Promise<{
+      filePath: string | undefined;
+    }>,
   ]);
 
   const globalKeys = [
@@ -119,9 +139,7 @@ const findXoConfig = async (options: XoConfigItem) => {
 /**
  * Lint a file or files
  */
-const lintFiles = async (globs: string | string[], options: XoConfigItem) => {
-  options.cwd = options.cwd ?? process.cwd();
-
+const lintFiles = async (globs: string | string[], options: CliOptions) => {
   const {flatOptions, globalOptions, enginesOptions, tsConfigPath} =
     await findXoConfig(options);
 
@@ -150,13 +168,11 @@ const lintFiles = async (globs: string | string[], options: XoConfigItem) => {
         exclude: [],
       }),
     );
-
-    globalOptions.tsconfig = options.tsConfigPath;
   }
 
   const overrideConfig = await createConfig({
+    ignores: options.ignores ?? globalOptions.ignores,
     flatOptions,
-    globalOptions: {...globalOptions, ...options},
     enginesOptions,
     cwd: options.cwd,
   });
@@ -182,7 +198,7 @@ const lintFiles = async (globs: string | string[], options: XoConfigItem) => {
 /**
  * Lint a string of text
  */
-const lintText = async (code, options) => {
+const lintText = async (code: string, options: LintTextOptions) => {
   const config = await findXoConfig(options);
   options.cwd = options.cwd ?? process.cwd();
   const overrideConfig = await createConfig(config);

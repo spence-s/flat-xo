@@ -45,8 +45,8 @@ async function createConfig(
     tsconfig = '',
     cwd = '',
   }: XoConfigItem,
-  userConfigs: XoConfigItem[],
-) {
+  userConfigs?: XoConfigItem[],
+): Promise<FlatESLintConfig[]> {
   const baseConfig: FlatESLintConfig[] = [
     {
       ignores: DEFAULT_IGNORES.concat(ignores).filter(Boolean),
@@ -194,7 +194,6 @@ async function createConfig(
         config.space !== prettierOptions['tabWidth']
       ) {
         throw new Error(
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
           `The Prettier config \`tabWidth\` is ${prettierOptions['tabWidth']} while XO \`space\` is ${config.space}`,
         );
       }
