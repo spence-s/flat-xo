@@ -1,11 +1,14 @@
 import type {FlatESLintConfigItem} from 'eslint-define-config';
 
 export type BaseXoConfig = {
-  space: boolean;
   semicolon: boolean;
   prettier: boolean;
-  tsconfig: string;
+  tsconfig?: string;
   cwd: string;
 };
 
-export type XoConfigItem = FlatESLintConfigItem & Partial<BaseXoConfig>;
+export type CliOptions = BaseXoConfig & {
+  space: boolean | number | string;
+};
+
+export type XoConfigItem = FlatESLintConfigItem & Partial<CliOptions>;

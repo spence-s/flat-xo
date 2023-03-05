@@ -12,71 +12,50 @@ declare module 'eslint/use-at-your-own-risk' {
 
 declare module 'eslint-plugin-ava' {
   import {type ESLint} from 'eslint';
-  import {type ESLintConfig} from 'eslint-define-config';
 
-  const plugin: Omit<ESLint.Plugin, 'configs'> & {
-    configs: Record<string, ESLintConfig>;
-  };
+  const plugin: ESLint.Plugin;
   export default plugin;
 }
 
 declare module 'eslint-plugin-unicorn' {
   import {type ESLint} from 'eslint';
-  import {type ESLintConfig} from 'eslint-define-config';
 
-  const plugin: Omit<ESLint.Plugin, 'configs'> & {
-    configs: Record<string, ESLintConfig>;
-  };
+  const plugin: ESLint.Plugin;
   export default plugin;
 }
 
 declare module 'eslint-plugin-import' {
   import {type ESLint} from 'eslint';
-  import {type ESLintConfig} from 'eslint-define-config';
 
-  const plugin: Omit<ESLint.Plugin, 'configs'> & {
-    configs: Record<string, ESLintConfig>;
-  };
+  const plugin: ESLint.Plugin;
   export default plugin;
 }
 
 declare module 'eslint-plugin-n' {
   import {type ESLint} from 'eslint';
-  import {type ESLintConfig} from 'eslint-define-config';
 
-  const plugin: Omit<ESLint.Plugin, 'configs'> & {
-    configs: Record<string, ESLintConfig>;
-  };
+  const plugin: ESLint.Plugin;
   export default plugin;
 }
 
 declare module 'eslint-plugin-eslint-comments' {
   import {type ESLint} from 'eslint';
-  import {type ESLintConfig} from 'eslint-define-config';
 
-  const plugin: Omit<ESLint.Plugin, 'configs'> & {
-    configs: Record<string, ESLintConfig>;
-  };
+  const plugin: ESLint.Plugin;
   export default plugin;
 }
 
 declare module 'eslint-plugin-no-use-extend-native' {
   import {type ESLint} from 'eslint';
-  import {type ESLintConfig} from 'eslint-define-config';
 
-  const plugin: Omit<ESLint.Plugin, 'configs'> & {
-    configs: Record<string, ESLintConfig>;
-  };
+  const plugin: ESLint.Plugin;
   export default plugin;
 }
 
 declare module 'eslint-plugin-prettier' {
   import {type ESLint} from 'eslint';
-  import {type ESLintConfig} from 'eslint-define-config';
 
-  const plugin: Omit<ESLint.Plugin, 'configs'> & {
-    configs: Record<string, ESLintConfig>;
-  };
+  const plugin: ESLint.Plugin;
   export default plugin;
 }
 

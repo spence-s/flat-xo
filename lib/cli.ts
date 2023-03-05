@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 /* eslint-disable unicorn/prefer-top-level-await */
 import process from 'node:process';
+import path from 'node:path';
 import getStdin from 'get-stdin';
 import meow from 'meow';
-import formatterPretty from 'eslint-formatter-pretty';
+import formatterPretty, {type LintResult} from 'eslint-formatter-pretty';
 import semver from 'semver';
-// Import openReport from './lib/open-report.js';
+import type {ESLint} from 'eslint';
+import type {CliOptions} from './types.js';
 import xo from './index.js';
 
 const cli = meow(
@@ -78,21 +80,28 @@ const {input, flags, showVersion} = cli;
 
 const options = flags;
 
+const cliOptions: CliOptions = {
+  space: false,
+  semicolon: false,
+  prettier: false,
+  cwd: (flags.cwd && path.resolve(flags.cwd)) ?? process.cwd(),
+};
+
 // Make data types for `options.space` match those of the API
 if (typeof options.space === 'string') {
   if (/^\d+$/u.test(options.space)) {
-    options.space = Number.parseInt(options.space, 10);
+    cliOptions.space = Number.parseInt(options.space, 10);
   } else if (options.space === 'true') {
-    options.space = true;
+    cliOptions.space = true;
   } else if (options.space === 'false') {
-    options.space = false;
+    cliOptions.space = false;
   } else {
     if (options.space !== '') {
       // Assume `options.space` was set to a filename when run as `xo --space file.js`
       input.push(options.space);
     }
 
-    options.space = true;
+    cliOptions.space = true;
   }
 }
 
@@ -100,8 +109,8 @@ if (process.env['GITHUB_ACTIONS'] && !options.fix && !options.reporter) {
   options.quiet = true;
 }
 
-const log = async (report) => {
-  const reporter =
+const log = async (report: {results: LintResult}) => {
+  const reporter: ESLint.Formatter =
     options.reporter || process.env['GITHUB_ACTIONS']
       ? await xo.getFormatter(options.reporter || 'compact')
       : formatterPretty;

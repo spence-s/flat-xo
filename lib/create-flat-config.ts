@@ -63,11 +63,11 @@ async function createConfig(
       },
       languageOptions: {
         globals: {
-          ...globals.es2021,
-          ...globals.node,
+          ...(globals.es2021 as Record<string, boolean>),
+          ...(globals.node as Record<string, boolean>),
         },
-        ecmaVersion: 'latest',
-        sourceType: 'module',
+        ecmaVersion: configXo.parserOptions?.ecmaVersion,
+        sourceType: configXo.parserOptions?.sourceType,
         parserOptions: {
           ...configXo.parserOptions,
         },
@@ -87,7 +87,13 @@ async function createConfig(
       files: [TS_FILES_GLOB],
       rules: tsRules,
     },
-    ...((configXoTypescript.overrides as FlatESLintConfigItem) ?? []),
+    ...(configXoTypescript.overrides?.map<FlatESLintConfigItem>((override) => {
+      return {
+        files: arrify(override.files),
+        ignores: arrify(override.excludedFiles),
+        rules: override.rules,
+      };
+    }) ?? []),
   ].filter(Boolean);
 
   /**
@@ -172,7 +178,7 @@ async function createConfig(
       }
 
       if (
-        ((config.space || typeof config.space === 'number') &&
+        ((config.space ?? typeof config.space === 'number') &&
           prettierOptions['useTabs'] === true) ||
         (!config.space && prettierOptions['useTabs'] === false)
       ) {
@@ -188,6 +194,7 @@ async function createConfig(
         config.space !== prettierOptions['tabWidth']
       ) {
         throw new Error(
+          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
           `The Prettier config \`tabWidth\` is ${prettierOptions['tabWidth']} while XO \`space\` is ${config.space}`,
         );
       }
