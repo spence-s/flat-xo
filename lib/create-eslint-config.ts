@@ -25,7 +25,7 @@ import {
   DEFAULT_EXTENSION,
   TYPESCRIPT_EXTENSION,
 } from './constants.js';
-import {type XoConfigItem} from './types.js';
+import {type XoConfigItem, type Space} from './types.js';
 import {rules, tsRules} from './rules.js';
 
 const ALL_FILES_GLOB = `**/*.{${DEFAULT_EXTENSION.join(',')}}`;
@@ -38,15 +38,27 @@ let cachedPrettierConfig: Record<string, unknown>;
  * Takes a xo flat config and returns an eslint flat config
  */
 async function createConfig(
-  {
-    ignores = [],
-    space = false,
-    semicolon = false,
-    tsconfig = '',
-    cwd = '',
-  }: XoConfigItem,
-  userConfigs?: XoConfigItem[],
+  userConfigs?: XoConfigItem | XoConfigItem[],
 ): Promise<FlatESLintConfig[]> {
+  // the default global options
+  let ignores: string[] = [];
+  let space: Space = false;
+  let semicolon = false;
+  let tsconfig = '';
+  let cwd = '';
+
+  if (!Array.isArray(userConfigs) && userConfigs) {
+    // if the user has set any global options use those instead
+    ({ignores, space, semicolon, tsconfig, cwd} = {
+      ignores: [],
+      space: false,
+      semicolon: false,
+      tsconfig: '',
+      cwd: '',
+      ...userConfigs,
+    });
+  }
+
   const baseConfig: FlatESLintConfig[] = [
     {
       ignores: DEFAULT_IGNORES.concat(ignores).filter(Boolean),
@@ -101,7 +113,10 @@ async function createConfig(
    * this means we need to handle both true AND false cases for each option.
    * ie... we need to turn prettier,space,semi,etc... on or off for a specific file
    */
-  for (const config of [...arrify(userConfigs), {space, semicolon}]) {
+  for (const config of [
+    ...arrify(userConfigs),
+    {space, semicolon, tsconfig, cwd},
+  ]) {
     if (Object.keys(config).length === 0) {
       continue;
     }
