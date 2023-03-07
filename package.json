@@ -8,7 +8,8 @@
     "build:watch": "npm run clean && tsc --watch",
     "check": "tsc --project ./jsconfig.json",
     "clean": "rm -rf dist",
-    "test": "ava"
+    "test": "ava",
+    "test:watch": "ava --watch"
   },
   "xo": {
     "ignores": [
