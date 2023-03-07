@@ -5,7 +5,7 @@ import {lintFiles} from '../../lib/index.js';
 
 const __dirname = path.dirname(url.fileURLToPath(new URL(import.meta.url)));
 
-test('lints js file', async (t) => {
+test('lints js file with no config', async (t) => {
   const cwd = path.resolve(__dirname, '..', 'fixtures', 'no-config-js');
 
   const results = await lintFiles('', {cwd});
@@ -14,7 +14,7 @@ test('lints js file', async (t) => {
   t.is(results?.messages?.[0]?.messageId, 'missingSemi');
 });
 
-test('lints ts file', async (t) => {
+test('lints ts file with no config', async (t) => {
   const cwd = path.resolve(__dirname, '..', 'fixtures', 'no-config-ts');
 
   const results = await lintFiles('', {cwd});
