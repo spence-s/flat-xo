@@ -5,7 +5,7 @@ import meow from 'meow';
 import formatterPretty, {type LintResult} from 'eslint-formatter-pretty';
 import {type Rule} from 'eslint';
 import type {LintOptions} from './types.js';
-import xo from './index.js';
+import * as xo from './index.js';
 
 const cli = meow(
   `
@@ -114,8 +114,8 @@ const log = async (report: {
   rulesMeta: Record<string, Rule.RuleMetaData>;
   errorCount?: number;
 }) => {
-  // @ts-expect-error readonly stuff is annoying
-  const reporter: typeof formatterPretty = options.reporter
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const reporter: typeof formatterPretty = cliOptions.reporter
     ? await xo.getFormatter(cliOptions.reporter ?? 'compact')
     : formatterPretty;
 

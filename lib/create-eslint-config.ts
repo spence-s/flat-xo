@@ -9,7 +9,7 @@ import pluginNoUseExtendNative from 'eslint-plugin-no-use-extend-native';
 import configXoTypescript from 'eslint-config-xo-typescript';
 import configXo from 'eslint-config-xo';
 import pluginTypescript from '@typescript-eslint/eslint-plugin';
-import typescriptParser from '@typescript-eslint/parser';
+import * as typescriptParser from '@typescript-eslint/parser';
 import pluginPrettier from 'eslint-plugin-prettier';
 import configPrettier from 'eslint-config-prettier';
 import arrify from 'arrify';
@@ -50,11 +50,11 @@ async function createConfig(
   if (!Array.isArray(userConfigs) && userConfigs) {
     // if the user has set any global options use those instead
     ({ignores, space, semicolon, tsconfig, cwd} = {
-      ignores: [],
-      space: false,
-      semicolon: false,
-      tsconfig: '',
-      cwd: '',
+      ignores: userConfigs.ignores ?? [],
+      space: userConfigs.space ?? false,
+      semicolon: userConfigs.semicolon ?? false,
+      tsconfig: userConfigs.tsconfig ?? '',
+      cwd: userConfigs.cwd ?? '',
       ...userConfigs,
     });
   }
@@ -87,7 +87,7 @@ async function createConfig(
       settings: {
         'import/core-modules': ['electron', 'atom'],
         'import/parsers': {
-          espree: ['.js', '.cjs', '.mjs', '.jsx'],
+          espree: DEFAULT_EXTENSION,
         },
         'import/resolver': {
           node: true,
@@ -150,17 +150,17 @@ async function createConfig(
       config.rules = {};
     }
 
-    if (!config.semicolon && !config.prettier) {
-      config.rules['@typescript-eslint/semi'] = ['error', 'never'];
-      config.rules.semi = ['error', 'never'];
-      config.rules['semi-spacing'] = [
-        'error',
-        {
-          before: false,
-          after: true,
-        },
-      ];
-    }
+    // if (!config.semicolon && !config.prettier) {
+    //   config.rules['@typescript-eslint/semi'] = ['error', 'never'];
+    //   config.rules.semi = ['error', 'never'];
+    //   config.rules['semi-spacing'] = [
+    //     'error',
+    //     {
+    //       before: false,
+    //       after: true,
+    //     },
+    //   ];
+    // }
 
     if (config.space) {
       const spaces = typeof config.space === 'number' ? config.space : 2;
@@ -272,14 +272,14 @@ async function createConfig(
       parser: '@typescript-eslint/parser',
       parserOptions: {
         ...configXoTypescript.parserOptions,
-        project: path.resolve(cwd, tsconfig ?? 'tsconfig.json'),
+        project: tsconfig,
       },
     },
     settings: {
       'import/resolver': {
         typescript: true,
       },
-      '@typescript-eslint/parser': ['.ts', '.cts', '.mts', '.tsx'],
+      '@typescript-eslint/parser': TYPESCRIPT_EXTENSION,
     },
   });
 

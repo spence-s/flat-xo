@@ -22,7 +22,7 @@ const loadModule = async (fp: string) => {
 /**
  * Finds the xo config file
  */
-async function resolveXoConfig(options: CliOptions): Promise<{
+async function resolveXoConfig(options: LintOptions): Promise<{
   globalOptions: GlobalOptions;
   flatOptions: FlatXoConfig;
   tsConfigPath: string;
@@ -32,10 +32,12 @@ async function resolveXoConfig(options: CliOptions): Promise<{
   if (!path.isAbsolute(options.cwd))
     options.cwd = path.resolve(process.cwd(), options.cwd);
 
+  const stopDir = path.dirname(options.cwd);
+
   const globalConfigExplorer = cosmiconfig(MODULE_NAME, {
     searchPlaces: ['package.json'],
     loaders: {noExt: defaultLoaders['.json']},
-    stopDir: options.cwd,
+    stopDir,
   });
 
   // const pkgConfigExplorer = cosmiconfig('engines', {
@@ -49,7 +51,7 @@ async function resolveXoConfig(options: CliOptions): Promise<{
       `${MODULE_NAME}.config.cjs`,
       `${MODULE_NAME}.config.mjs`,
     ],
-    stopDir: options.cwd,
+    stopDir,
     loaders: {
       '.js': loadModule,
       '.mjs': loadModule,
@@ -88,7 +90,7 @@ async function resolveXoConfig(options: CliOptions): Promise<{
             '.json': (_, content) =>
               JSON5.parse<Record<string, unknown>>(content),
           },
-          stopDir: os.homedir(),
+          stopDir,
         });
 
         const searchResults = (await tsConfigExplorer.search(

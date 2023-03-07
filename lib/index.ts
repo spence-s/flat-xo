@@ -6,6 +6,7 @@ import pkg from 'eslint/use-at-your-own-risk'; // eslint-disable-line n/file-ext
 import findCacheDir from 'find-cache-dir';
 import {globby} from 'globby';
 import {type ESLint} from 'eslint';
+import isEmpty from 'lodash.isempty';
 import arrify from 'arrify';
 import {type LintOptions, type LintTextOptions} from './types.js';
 import {
@@ -26,7 +27,7 @@ const cacheLocation = (cwd: string) =>
  * Lint a file or files
  */
 export const lintFiles = async (
-  globs?: string | string[],
+  globs: string | string[],
   options: LintOptions,
 ) => {
   if (!options.cwd) options.cwd = process.cwd();
@@ -48,7 +49,7 @@ export const lintFiles = async (
     cwd: options.cwd,
   });
 
-  if (!options.tsconfig && tsConfigPath) {
+  if (!tsConfigPath) {
     const _tsConfigPath = path.join(
       cacheLocation(options.cwd),
       'tsconfig.cached.json',
@@ -77,12 +78,21 @@ export const lintFiles = async (
     ignores = globalOptions.ignores;
 
   const overrideConfig = await createConfig(
-    {
-      ...globalOptions,
-      ...options,
-      ignores,
-    },
-    flatOptions,
+    // eslint-disable-next-line no-negated-condition
+    !isEmpty(flatOptions)
+      ? [
+          ...flatOptions,
+          {
+            ...globalOptions,
+            ...options,
+            ignores,
+          },
+        ]
+      : {
+          ...globalOptions,
+          ...options,
+          ignores,
+        },
   );
 
   const eslint = new FlatESLint({
@@ -92,9 +102,7 @@ export const lintFiles = async (
     cache: true,
     cacheLocation: path.join(cacheLocation(options.cwd), 'flat-xo-cache.json'),
   });
-
   const results = await eslint.lintFiles(files);
-
   const rulesMeta = eslint.getRulesMetaForResults(results);
   return {
     results,
@@ -158,13 +166,13 @@ const getConfig = async (options: LintOptions): Promise<unknown> => {
   return eslint.calculateConfigForFile(options.filePath);
 };
 
-const xo = {
-  getFormatter,
-  getErrorResults: FlatESLint.getErrorResults,
-  outputFixes,
-  getConfig,
-  lintText,
-  lintFiles,
-};
+// const xo = {
+//   getFormatter,
+//   getErrorResults: FlatESLint.getErrorResults,
+//   outputFixes,
+//   getConfig,
+//   lintText,
+//   lintFiles,
+// };
 
-export default xo;
+// export default xo;

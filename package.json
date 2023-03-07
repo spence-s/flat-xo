@@ -29,20 +29,20 @@
       "ts": "module"
     },
     "files": [
-      "test/**/*",
+      "test/**",
       "!test/fixtures/**",
       "!test/helpers/**"
     ],
     "nodeArguments": [
-      "--loader=ts-node/esm",
+      "--loader=ts-node/esm/transpile-only",
       "--no-warnings"
     ],
     "verbose": true
   },
   "dependencies": {
     "@eslint/eslintrc": "^2.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.54.0",
-    "@typescript-eslint/parser": "^5.54.0",
+    "@typescript-eslint/eslint-plugin": "^5.54.1",
+    "@typescript-eslint/parser": "^5.54.1",
     "arrify": "^3.0.0",
     "cosmiconfig": "^8.1.0",
     "eslint": "~8.35.0",
@@ -69,6 +69,8 @@
     "imurmurhash": "^0.1.4",
     "json-stable-stringify-without-jsonify": "^1.0.1",
     "json5": "^2.2.3",
+    "lodash.isempty": "^4.4.0",
+    "lodash.pick": "^4.4.0",
     "meow": "^11.0.0",
     "micromatch": "^4.0.5",
     "open-editor": "^4.0.0",
@@ -85,6 +87,7 @@
     "@sindresorhus/tsconfig": "^3.0.1",
     "@types/eslint": "8.21.1",
     "@types/find-cache-dir": "^3.2.1",
+    "@types/lodash.isempty": "^4.4.7",
     "@types/lodash.pick": "^4.4.7",
     "@types/prettier": "^2.7.2",
     "ava": "^5.2.0",
