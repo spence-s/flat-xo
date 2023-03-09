@@ -27,6 +27,7 @@ export type XoOptions = {
 export type LintOptions = XoOptions & {
   cwd?: string;
   filePath?: string;
+  ezTs?: boolean;
 };
 
 export type GlobalOptions = XoOptions & FlatESLintConfigItem;

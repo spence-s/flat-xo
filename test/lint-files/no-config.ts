@@ -14,7 +14,7 @@ test('lints js file with no config', async (t) => {
     'no-config-js',
   );
 
-  const {results} = await lintFiles('', {cwd});
+  const {results} = await lintFiles({cwd});
 
   t.is(results.length, 1);
   t.is(results?.[0]?.messages?.[0]?.messageId, 'missingSemi');
@@ -29,7 +29,9 @@ test('lints ts file with no config', async (t) => {
     'no-config-ts',
   );
 
-  const {results} = await lintFiles('', {cwd});
+  const {results} = await lintFiles({cwd});
+
+  t.log(JSON.stringify(results));
 
   t.is(results.length, 1);
   t.is(results?.[0]?.messages?.[0]?.messageId, 'missingSemi');
@@ -38,7 +40,7 @@ test('lints ts file with no config', async (t) => {
 test('lints js and ts files simultaneously with no config', async (t) => {
   const cwd = path.resolve(__dirname, '..', 'fixtures', 'no-config');
 
-  const {results} = await lintFiles('', {cwd});
+  const {results} = await lintFiles({cwd});
 
   t.is(results.length, 2);
   t.is(results?.[0]?.messages?.[0]?.messageId, 'missingSemi');

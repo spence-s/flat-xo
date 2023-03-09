@@ -1,15 +1,12 @@
 import path from 'node:path';
-import os from 'node:os';
 import process from 'node:process';
 import {cosmiconfig, defaultLoaders} from 'cosmiconfig';
 import pick from 'lodash.pick';
-import JSON5 from 'json5';
 import {type FlatESLintConfig} from 'eslint-define-config';
 import {
   type LintOptions,
   type GlobalOptions,
   type FlatXoConfig,
-  type CliOptions,
 } from './types.js';
 import {MODULE_NAME} from './constants.js';
 
@@ -25,7 +22,6 @@ const loadModule = async (fp: string) => {
 async function resolveXoConfig(options: LintOptions): Promise<{
   globalOptions: GlobalOptions;
   flatOptions: FlatXoConfig;
-  tsConfigPath: string;
 }> {
   if (!options.cwd) options.cwd = process.cwd();
 
@@ -68,7 +64,6 @@ async function resolveXoConfig(options: LintOptions): Promise<{
     {config: globalOptions = {}},
     {config: flatOptions = []},
     // {config: enginesOptions = {}},
-    {filePath: tsConfigPath = ''},
   ] = await Promise.all([
     (async () =>
       (await globalConfigExplorer.search(searchPath)) ?? {})() as Promise<{
@@ -82,33 +77,6 @@ async function resolveXoConfig(options: LintOptions): Promise<{
     //   (await pkgConfigExplorer.search(searchPath)) ?? {})() as Promise<{
     //   config: {engines: string} | undefined;
     // }>,
-    (async () => {
-      if (!options.tsconfig) {
-        const tsConfigExplorer = cosmiconfig('ts', {
-          searchPlaces: ['tsconfig.json'],
-          loaders: {
-            '.json': (_, content) =>
-              JSON5.parse<Record<string, unknown>>(content),
-          },
-          stopDir,
-        });
-
-        const searchResults = (await tsConfigExplorer.search(
-          options.filePath,
-          // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-        )) || {
-          filepath: undefined,
-        };
-
-        if (searchResults?.filepath) options.tsconfig = searchResults.filepath;
-
-        return (await tsConfigExplorer.search(searchPath)) ?? {};
-      }
-
-      return {};
-    })() as Promise<{
-      filePath: string | undefined;
-    }>,
   ]);
 
   const globalKeys = [
@@ -134,7 +102,6 @@ async function resolveXoConfig(options: LintOptions): Promise<{
     globalOptions,
     // enginesOptions,
     flatOptions,
-    tsConfigPath,
   };
 }
 
