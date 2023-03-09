@@ -31,8 +31,6 @@ test('lints ts file with no config', async (t) => {
 
   const {results} = await lintFiles({cwd});
 
-  t.log(JSON.stringify(results));
-
   t.is(results.length, 1);
   t.is(results?.[0]?.messages?.[0]?.messageId, 'missingSemi');
 });

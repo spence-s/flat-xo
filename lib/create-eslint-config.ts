@@ -138,6 +138,8 @@ async function createConfig(
       Object.keys(config).length === 1 &&
       Object.keys(config)[0] === 'ignores'
     ) {
+      // accept ignores as a string or array of strings for user convenience
+      config.ignores = arrify(config.ignores);
       baseConfig.push(config);
       continue;
     }
@@ -147,6 +149,7 @@ async function createConfig(
     }
 
     if (!config.rules) {
+      // set up a default rules object to potentially add to if needed
       config.rules = {};
     }
 
@@ -169,6 +172,15 @@ async function createConfig(
         ...config.rules,
         indent: ['error', spaces, {SwitchCase: 1}],
         '@typescript-eslint/indent': ['error', spaces, {SwitchCase: 1}],
+      };
+    } else if (config.space === false) {
+      // if a user set this false for a small subset of files for some reason,
+      // then we need to set them back to their original values
+      config.rules = {
+        ...config.rules,
+        indent: configXo?.rules?.['indent'],
+        '@typescript-eslint/indent':
+          configXoTypescript?.rules?.['@typescript-eslint/indent'],
       };
     }
 
@@ -235,6 +247,12 @@ async function createConfig(
           },
         ],
         ...configPrettier.rules,
+      };
+    } else if (config.prettier === false) {
+      // turn prettier off for a subset of files
+      config.rules = {
+        ...config.rules,
+        'prettier/prettier': 'off',
       };
     }
 
