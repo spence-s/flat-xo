@@ -1,7 +1,7 @@
 import type {FlatESLintConfigItem} from 'eslint-define-config';
 import {type ESLint, type Rule} from 'eslint';
 
-export type Space = boolean | number | string;
+export type Space = boolean | number | string | undefined;
 
 export type CliOptions = {
   fix?: boolean;

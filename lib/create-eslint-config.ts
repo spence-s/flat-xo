@@ -1,5 +1,5 @@
 /* eslint-disable complexity */
-import path from 'node:path';
+// import path from 'node:path';
 import pluginAva from 'eslint-plugin-ava';
 import pluginUnicorn from 'eslint-plugin-unicorn';
 import pluginImport from 'eslint-plugin-import';
@@ -42,17 +42,25 @@ async function createConfig(
 ): Promise<FlatESLintConfig[]> {
   // the default global options
   let ignores: string[] = [];
-  let space: Space = false;
-  let semicolon = false;
+  let space: Space;
+  let semicolon;
+  let _prettier;
   let tsconfig = '';
   let cwd = '';
 
   if (!Array.isArray(userConfigs) && userConfigs) {
     // if the user has set any global options use those instead
-    ({ignores, space, semicolon, tsconfig, cwd} = {
+    ({
+      ignores,
+      space,
+      semicolon,
+      tsconfig,
+      cwd,
+      prettier: _prettier,
+    } = {
       ignores: userConfigs.ignores ?? [],
-      space: userConfigs.space ?? false,
-      semicolon: userConfigs.semicolon ?? false,
+      space: userConfigs.space,
+      semicolon: userConfigs.semicolon,
       tsconfig: userConfigs.tsconfig ?? '',
       cwd: userConfigs.cwd ?? '',
       ...userConfigs,
@@ -153,7 +161,7 @@ async function createConfig(
       config.rules = {};
     }
 
-    // if (!config.semicolon && !config.prettier) {
+    // if (config.semicolon === false && !config.prettier) {
     //   config.rules['@typescript-eslint/semi'] = ['error', 'never'];
     //   config.rules.semi = ['error', 'never'];
     //   config.rules['semi-spacing'] = [
@@ -184,7 +192,7 @@ async function createConfig(
       };
     }
 
-    if (config.prettier) {
+    if (_prettier) {
       const prettierOptions =
         cachedPrettierConfig ??
         // eslint-disable-next-line no-await-in-loop
@@ -248,7 +256,7 @@ async function createConfig(
         ],
         ...configPrettier.rules,
       };
-    } else if (config.prettier === false) {
+    } else if (_prettier === false) {
       // turn prettier off for a subset of files
       config.rules = {
         ...config.rules,
