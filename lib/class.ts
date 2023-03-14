@@ -141,7 +141,7 @@ class XO {
     return this.eslint;
   }
 
-  async lintFiles(globs: string | string[]): Promise<XoLintResult> {
+  async lintFiles(globs?: string | string[]): Promise<XoLintResult> {
     if (!this.eslint) this.eslint = await this.initializeEslint();
 
     if (!globs || (Array.isArray(globs) && globs.length === 0)) {
