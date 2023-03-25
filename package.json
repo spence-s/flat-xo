@@ -20,13 +20,11 @@
     "parserOptions": {
       "project": "./tsconfig.json"
     },
-    "prettier": true,
     "rules": {
       "capitalized-comments": "off",
       "@typescript-eslint/naming-convention": "off",
       "ava/no-ignored-test-files": "off"
-    },
-    "space": true
+    }
   },
   "ava": {
     "extensions": {

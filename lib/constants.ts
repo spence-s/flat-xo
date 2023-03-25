@@ -1,13 +1,13 @@
 const DEFAULT_IGNORES = [
-  '**/node_modules/**',
-  '**/bower_components/**',
-  'flow-typed/**',
-  'coverage/**',
-  '{tmp,temp}/**',
-  '**/*.min.js',
-  'vendor/**',
-  'dist/**',
-  'tap-snapshots/*.{cjs,js}',
+	'**/node_modules/**',
+	'**/bower_components/**',
+	'flow-typed/**',
+	'coverage/**',
+	'{tmp,temp}/**',
+	'**/*.min.js',
+	'vendor/**',
+	'dist/**',
+	'tap-snapshots/*.{cjs,js}',
 ];
 
 /**
@@ -45,87 +45,87 @@ With `engines.node` set to `>=6` the rule `plugin/rule` will be used with the co
 With `engines.node` set to `>=8` the rule `plugin/rule` will be used with the config `{prop: 'node-8-conf'}`.
 */
 const ENGINE_RULES = {
-  'unicorn/prefer-spread': {
-    '5.0.0': 'off',
-  },
-  'unicorn/no-new-buffer': {
-    '5.10.0': 'off',
-  },
-  'prefer-rest-params': {
-    '6.0.0': 'off',
-  },
-  'prefer-destructuring': {
-    '6.0.0': 'off',
-  },
-  'promise/prefer-await-to-then': {
-    '7.6.0': 'off',
-  },
-  'prefer-object-spread': {
-    '8.3.0': 'off',
-  },
-  'n/prefer-global/url-search-params': {
-    '10.0.0': 'off',
-  },
-  'n/prefer-global/url': {
-    '10.0.0': 'off',
-  },
-  'no-useless-catch': {
-    '10.0.0': 'off',
-  },
-  'prefer-named-capture-group': {
-    '10.0.0': 'off',
-  },
-  'n/prefer-global/text-encoder': {
-    '11.0.0': 'off',
-  },
-  'n/prefer-global/text-decoder': {
-    '11.0.0': 'off',
-  },
-  'unicorn/prefer-flat-map': {
-    '11.0.0': 'off',
-  },
-  'n/prefer-promises/dns': {
-    '11.14.0': 'off',
-  },
-  'n/prefer-promises/fs': {
-    '11.14.0': 'off',
-  },
+	'unicorn/prefer-spread': {
+		'5.0.0': 'off',
+	},
+	'unicorn/no-new-buffer': {
+		'5.10.0': 'off',
+	},
+	'prefer-rest-params': {
+		'6.0.0': 'off',
+	},
+	'prefer-destructuring': {
+		'6.0.0': 'off',
+	},
+	'promise/prefer-await-to-then': {
+		'7.6.0': 'off',
+	},
+	'prefer-object-spread': {
+		'8.3.0': 'off',
+	},
+	'n/prefer-global/url-search-params': {
+		'10.0.0': 'off',
+	},
+	'n/prefer-global/url': {
+		'10.0.0': 'off',
+	},
+	'no-useless-catch': {
+		'10.0.0': 'off',
+	},
+	'prefer-named-capture-group': {
+		'10.0.0': 'off',
+	},
+	'n/prefer-global/text-encoder': {
+		'11.0.0': 'off',
+	},
+	'n/prefer-global/text-decoder': {
+		'11.0.0': 'off',
+	},
+	'unicorn/prefer-flat-map': {
+		'11.0.0': 'off',
+	},
+	'n/prefer-promises/dns': {
+		'11.14.0': 'off',
+	},
+	'n/prefer-promises/fs': {
+		'11.14.0': 'off',
+	},
 };
 
 const MODULE_NAME = 'xo';
 
 const CONFIG_FILES = [
-  'package.json',
-  `.${MODULE_NAME}-config`,
-  `.${MODULE_NAME}-config.json`,
-  `.${MODULE_NAME}-config.js`,
-  `.${MODULE_NAME}-config.cjs`,
-  `${MODULE_NAME}.config.js`,
-  `${MODULE_NAME}.config.cjs`,
+	'package.json',
+	`.${MODULE_NAME}-config`,
+	`.${MODULE_NAME}-config.json`,
+	`.${MODULE_NAME}-config.js`,
+	`.${MODULE_NAME}-config.cjs`,
+	`${MODULE_NAME}.config.js`,
+	`${MODULE_NAME}.config.cjs`,
 ];
 
 const TSCONFIG_DEFAULTS = {
-  compilerOptions: {
-    target: 'es2018',
-    newLine: 'lf',
-    strict: true,
-    noImplicitReturns: true,
-    noUnusedLocals: true,
-    noUnusedParameters: true,
-    noFallthroughCasesInSwitch: true,
-  },
+	compilerOptions: {
+		target: 'es2018',
+		newLine: 'lf',
+		strict: true,
+		noImplicitReturns: true,
+		noUnusedLocals: true,
+		noUnusedParameters: true,
+		noFallthroughCasesInSwitch: true,
+	},
 };
 
 const CACHE_DIR_NAME = 'xo-linter';
 
 export {
-  DEFAULT_IGNORES,
-  DEFAULT_EXTENSION,
-  TYPESCRIPT_EXTENSION,
-  ENGINE_RULES,
-  MODULE_NAME,
-  CONFIG_FILES,
-  MERGE_OPTIONS_CONCAT,
-  TSCONFIG_DEFAULTS,
-  CACHE_DIR_NAME,
+	DEFAULT_IGNORES,
+	DEFAULT_EXTENSION,
+	TYPESCRIPT_EXTENSION,
+	ENGINE_RULES,
+	MODULE_NAME,
+	CONFIG_FILES,
+	MERGE_OPTIONS_CONCAT,
+	TSCONFIG_DEFAULTS,
+	CACHE_DIR_NAME,
 };

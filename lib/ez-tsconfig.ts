@@ -1,14 +1,16 @@
 import {getTsconfig, type TsConfigResult} from 'get-tsconfig';
 
 function ezTsconfig(
-  cwd: string,
-  givenPath?: string,
+	cwd: string,
+	givenPath?: string,
 ): TsConfigResult | undefined {
-  const parsedTsconfig = getTsconfig(givenPath ?? cwd);
+	const parsedTsconfig = getTsconfig(givenPath ?? cwd);
 
-  if (!parsedTsconfig) return;
+	if (!parsedTsconfig) {
+		return;
+	}
 
-  return parsedTsconfig;
+	return parsedTsconfig;
 }
 
 export default ezTsconfig;
