@@ -1,11 +1,10 @@
 import path from 'node:path';
 import process from 'node:process';
-import {cosmiconfig, defaultLoaders} from 'cosmiconfig';
+import {cosmiconfig /* defaultLoaders */} from 'cosmiconfig';
 import pick from 'lodash.pick';
 import {type FlatESLintConfig} from 'eslint-define-config';
 import {
 	type LintOptions,
-	type GlobalOptions,
 	type FlatXoConfig,
 } from './types.js';
 import {MODULE_NAME} from './constants.js';
@@ -20,7 +19,6 @@ const loadModule = async (fp: string) => {
  * Finds the xo config file
  */
 async function resolveXoConfig(options: LintOptions): Promise<{
-	globalOptions: GlobalOptions;
 	flatOptions: FlatXoConfig;
 }> {
 	if (!options.cwd) {
@@ -32,12 +30,6 @@ async function resolveXoConfig(options: LintOptions): Promise<{
 	}
 
 	const stopDir = path.dirname(options.cwd);
-
-	const globalConfigExplorer = cosmiconfig(MODULE_NAME, {
-		searchPlaces: ['package.json'],
-		loaders: {noExt: defaultLoaders['.json']},
-		stopDir,
-	});
 
 	// const pkgConfigExplorer = cosmiconfig('engines', {
 	//   searchPlaces: ['package.json'],
@@ -64,14 +56,9 @@ async function resolveXoConfig(options: LintOptions): Promise<{
 	const searchPath = options.filePath ?? options.cwd;
 
 	let [
-		{config: globalOptions = {}},
 		{config: flatOptions = []},
 		// {config: enginesOptions = {}},
 	] = await Promise.all([
-		(async () =>
-			(await globalConfigExplorer.search(searchPath)) ?? {})() as Promise<{
-			config: GlobalOptions | undefined;
-		}>,
 		(async () =>
 			(await flatConfigExplorer.search(searchPath)) ?? {})() as Promise<{
 			config: FlatXoConfig | undefined;
@@ -96,13 +83,11 @@ async function resolveXoConfig(options: LintOptions): Promise<{
 
 	const flatOnlyKeys = ['plugins'];
 
-	globalOptions = pick(globalOptions, globalKeys);
 	flatOptions = flatOptions.map(conf =>
 		pick(conf, [...globalKeys, ...flatOnlyKeys]),
 	);
 
 	return {
-		globalOptions,
 		// enginesOptions,
 		flatOptions,
 	};

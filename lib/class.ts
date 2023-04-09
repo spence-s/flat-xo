@@ -6,7 +6,7 @@ import pkg, {type FlatESLint} from 'eslint/use-at-your-own-risk'; // eslint-disa
 import findCacheDir from 'find-cache-dir';
 import {globby} from 'globby';
 // import {type ESLint} from 'eslint';
-import isEmpty from 'lodash.isempty';
+// import isEmpty from 'lodash.isempty';
 import arrify from 'arrify';
 import type {XoLintResult, LintOptions} from './types.js';
 import {
@@ -41,6 +41,7 @@ const findCacheLocation = (cwd: string) =>
 type LintTextOptions = {
 	filePath: string;
 	warnIgnored?: boolean;
+	forceInitialize?: boolean;
 };
 
 class XO {
@@ -61,9 +62,13 @@ class XO {
 			this.options.cwd = path.resolve(process.cwd(), this.options.cwd);
 		}
 
-		const {flatOptions, globalOptions} = await resolveXoConfig({
+		this.options?.t?.log?.('cwd', this.options.cwd);
+
+		const {flatOptions} = await resolveXoConfig({
 			...this.options,
 		});
+
+		this.options?.t?.log?.('flatOptions', flatOptions);
 
 		if (!this.options.ezTs) {
 			const {path: tsConfigPath, config: tsConfig}
@@ -103,28 +108,22 @@ class XO {
 			ignores = arrify(this.options.ignores);
 		} else if (Array.isArray(this.options.ignores)) {
 			ignores = this.options.ignores;
-		} else if (typeof globalOptions.ignores === 'string') {
-			ignores = arrify(globalOptions.ignores);
-		} else if (Array.isArray(globalOptions.ignores)) {
-			ignores = globalOptions.ignores;
 		}
 
+		const inputOptions = [
+			...flatOptions,
+		];
+
+		if (ignores.length > 0) {
+			inputOptions.push({ignores});
+		}
+
+		this.options?.t?.log?.('inputOptions', inputOptions);
+		this.options?.t?.log?.('allOptions', this.options);
+
 		const overrideConfig = await createConfig(
-			// eslint-disable-next-line no-negated-condition
-			!isEmpty(flatOptions)
-				? [
-					...flatOptions,
-					{
-						...globalOptions,
-						...this.options,
-						ignores,
-					},
-				]
-				: {
-					...globalOptions,
-					...this.options,
-					ignores,
-				},
+			[...flatOptions],
+			this.options.t,
 		);
 
 		const cacheLocation = path.join(
@@ -170,9 +169,9 @@ class XO {
 
 	async lintText(
 		code: string,
-		{filePath, warnIgnored}: LintTextOptions,
+		{filePath, warnIgnored, forceInitialize}: LintTextOptions,
 	): Promise<XoLintResult> {
-		if (!this.eslint) {
+		if (!this.eslint || forceInitialize) {
 			this.eslint = await this.initializeEslint();
 		}
 

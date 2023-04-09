@@ -9,7 +9,7 @@ import pluginNoUseExtendNative from 'eslint-plugin-no-use-extend-native';
 import configXoTypescript from 'eslint-config-xo-typescript';
 import configXo from 'eslint-config-xo';
 import pluginTypescript from '@typescript-eslint/eslint-plugin';
-import * as typescriptParser from '@typescript-eslint/parser';
+import * as tsParser from '@typescript-eslint/parser';
 import pluginPrettier from 'eslint-plugin-prettier';
 import configPrettier from 'eslint-config-prettier';
 import arrify from 'arrify';
@@ -39,38 +39,15 @@ let cachedPrettierConfig: Record<string, unknown>;
  * Takes a xo flat config and returns an eslint flat config
  */
 async function createConfig(
-	userConfigs?: XoConfigItem | XoConfigItem[],
+	userConfigs?: XoConfigItem[],
 ): Promise<FlatESLintConfig[]> {
 	// the default global options
-	let ignores: string[] = [];
-	let space: Space;
-	let semicolon;
 	let _prettier;
-	let tsconfig = '';
-	let cwd = '';
-
-	if (!Array.isArray(userConfigs) && userConfigs) {
-		// if the user has set any global options use those instead
-		({
-			ignores,
-			space,
-			semicolon,
-			tsconfig,
-			cwd,
-			prettier: _prettier,
-		} = {
-			ignores: userConfigs.ignores ?? [],
-			space: userConfigs.space,
-			semicolon: userConfigs.semicolon,
-			tsconfig: userConfigs.tsconfig ?? '',
-			cwd: userConfigs.cwd ?? '',
-			...userConfigs,
-		});
-	}
+	const cwd = '';
 
 	const baseConfig: FlatESLintConfig[] = [
 		{
-			ignores: DEFAULT_IGNORES.concat(ignores).filter(Boolean),
+			ignores: DEFAULT_IGNORES,
 		},
 		{
 			files: [ALL_FILES_GLOB],
@@ -120,10 +97,7 @@ async function createConfig(
    * this means we need to handle both true AND false cases for each option.
    * ie... we need to turn prettier,space,semi,etc... on or off for a specific file
    */
-	for (const config of [
-		...arrify(userConfigs),
-		{space, semicolon, tsconfig, cwd},
-	]) {
+	for (const config of userConfigs ?? []) {
 		if (Object.keys(config).length === 0) {
 			continue;
 		}
@@ -296,23 +270,15 @@ async function createConfig(
 	baseConfig.push({
 		files: [TS_FILES_GLOB],
 		plugins: {
-			'@typescript-eslint': {
-				...pluginTypescript,
-				// https://github.com/eslint/eslint/issues/16875
-				// see note above on the parser object in languageOptions
-				// @ts-expect-error this is a hack
-				parsers: {
-					parser: typescriptParser,
-				},
-			},
+			// @ts-expect-error just not typed correctly yet
+			'@typescript-eslint': pluginTypescript,
 		},
 		languageOptions: {
-			// https://github.com/eslint/eslint/issues/16875
-			// this should be changing soon to allow the parser object to be added here
-			parser: '@typescript-eslint/parser',
+			// @ts-expect-error just not typed correctly yet
+			parser: tsParser,
 			parserOptions: {
 				...configXoTypescript.parserOptions,
-				project: tsconfig,
+				project: './tsconfig.json', // tsconfig,
 			},
 		},
 		settings: {
