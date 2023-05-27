@@ -25,15 +25,12 @@ import {
 import {
 	ALL_EXTENSIONS,
 	DEFAULT_IGNORES,
-	JS_EXTENSIONS,
 	TS_EXTENSIONS,
+	JS_FILES_GLOB,
+	TS_FILES_GLOB,
 } from './constants.js';
 import {type XoConfigItem} from './types.js';
 import {jsRules, tsRules, baseRules} from './rules.js';
-
-const JS_FILES_GLOB = `**/*.{${JS_EXTENSIONS.join(',')}}`;
-
-const TS_FILES_GLOB = `**/*.{${TS_EXTENSIONS.join(',')}}`;
 
 let cachedPrettierConfig: Record<string, unknown>;
 

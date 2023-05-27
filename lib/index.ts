@@ -5,8 +5,6 @@ import process from 'node:process';
 import pkg, {type FlatESLint} from 'eslint/use-at-your-own-risk'; // eslint-disable-line n/file-extension-in-import
 import findCacheDir from 'find-cache-dir';
 import {globby} from 'globby';
-// import {type ESLint} from 'eslint';
-// import isEmpty from 'lodash.isempty';
 import arrify from 'arrify';
 import type {ESLint} from 'eslint';
 import {
@@ -18,6 +16,7 @@ import {
 	JS_EXTENSIONS,
 	CACHE_DIR_NAME,
 	TSCONFIG_DEFAULTS,
+	TS_FILES_GLOB,
 } from './constants.js';
 import createConfig from './create-eslint-config.js';
 import resolveXoConfig from './resolve-xo-config.js';
@@ -28,14 +27,6 @@ const {FlatESLint: _FlatESLint} = pkg;
 const findCacheLocation = (cwd: string) =>
 	findCacheDir({name: CACHE_DIR_NAME, cwd})
   ?? path.join(os.homedir() ?? os.tmpdir(), '.xo-cache/');
-
-// const isLintOptions = (
-//   options?: LintOptions | string | string[],
-// ): options is LintOptions => {
-//   if (typeof options === 'string') return false;
-//   if (Array.isArray(options)) return false;
-//   return true;
-// };
 
 /**
  * since we lint in 1 pass we can fully cache the eslint instance.
@@ -76,8 +67,7 @@ export class XO {
 			);
 			await fs.mkdir(path.dirname(tsConfigCachePath), {recursive: true});
 
-			const files = await globby(
-				path.join(this.options.cwd, '/**/*.{ts,tsx,mts,cts}'),
+			const files = await globby(path.join(this.options.cwd, TS_FILES_GLOB),
 				{
 					gitignore: true,
 					absolute: true,
@@ -163,10 +153,9 @@ export class XO {
 		};
 	}
 
-	async lintText(
-		code: string,
-		{filePath, warnIgnored, forceInitialize}: LintTextOptions,
-	): Promise<XoLintResult> {
+	async lintText(code: string, lintTextOptions: LintTextOptions): Promise<XoLintResult> {
+		const {filePath, warnIgnored, forceInitialize} = lintTextOptions;
+
 		if (!this.eslint || forceInitialize) {
 			this.eslint = await this.initializeEslint();
 		}

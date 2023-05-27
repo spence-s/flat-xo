@@ -1,4 +1,4 @@
-const DEFAULT_IGNORES = [
+export const DEFAULT_IGNORES = [
 	'**/node_modules/**',
 	'**/bower_components/**',
 	'flow-typed/**',
@@ -14,13 +14,17 @@ const DEFAULT_IGNORES = [
 List of options that values will be concatenanted during option merge.
 Only applies to options defined as an Array.
 */
-const MERGE_OPTIONS_CONCAT = ['extends', 'envs', 'globals', 'plugins'];
+export const MERGE_OPTIONS_CONCAT = ['extends', 'envs', 'globals', 'plugins'];
 
-const TS_EXTENSIONS = ['ts', 'tsx', 'cts', 'mts'];
+export const TS_EXTENSIONS = ['ts', 'tsx', 'cts', 'mts'];
 
-const JS_EXTENSIONS = ['js', 'jsx', 'mjs', 'cjs'];
+export const JS_EXTENSIONS = ['js', 'jsx', 'mjs', 'cjs'];
 
-const ALL_EXTENSIONS = [...JS_EXTENSIONS, ...TS_EXTENSIONS];
+export const JS_FILES_GLOB = `**/*.{${JS_EXTENSIONS.join(',')}}`;
+
+export const TS_FILES_GLOB = `**/*.{${TS_EXTENSIONS.join(',')}}`;
+
+export const ALL_EXTENSIONS = [...JS_EXTENSIONS, ...TS_EXTENSIONS];
 
 /**
 Define the rules config that are overwritten only for specific version of Node.js based on `engines.node` in package.json or the `nodeVersion` option.
@@ -46,7 +50,7 @@ With `engines.node` set to `>=4` the rule `plugin/rule` will not be used.
 With `engines.node` set to `>=6` the rule `plugin/rule` will be used with the config `{prop: 'node-6-conf'}`.
 With `engines.node` set to `>=8` the rule `plugin/rule` will be used with the config `{prop: 'node-8-conf'}`.
 */
-const ENGINE_RULES = {
+export const ENGINE_RULES = {
 	'unicorn/prefer-spread': {
 		'5.0.0': 'off',
 	},
@@ -94,9 +98,9 @@ const ENGINE_RULES = {
 	},
 };
 
-const MODULE_NAME = 'xo';
+export const MODULE_NAME = 'xo';
 
-const CONFIG_FILES = [
+export const CONFIG_FILES = [
 	'package.json',
 	`.${MODULE_NAME}-config`,
 	`.${MODULE_NAME}-config.json`,
@@ -106,7 +110,7 @@ const CONFIG_FILES = [
 	`${MODULE_NAME}.config.cjs`,
 ];
 
-const TSCONFIG_DEFAULTS = {
+export const TSCONFIG_DEFAULTS = {
 	compilerOptions: {
 		target: 'es2018',
 		newLine: 'lf',
@@ -118,17 +122,5 @@ const TSCONFIG_DEFAULTS = {
 	},
 };
 
-const CACHE_DIR_NAME = 'xo-linter';
+export const CACHE_DIR_NAME = 'xo-linter';
 
-export {
-	DEFAULT_IGNORES,
-	JS_EXTENSIONS,
-	TS_EXTENSIONS,
-	ALL_EXTENSIONS,
-	ENGINE_RULES,
-	MODULE_NAME,
-	CONFIG_FILES,
-	MERGE_OPTIONS_CONCAT,
-	TSCONFIG_DEFAULTS,
-	CACHE_DIR_NAME,
-};
