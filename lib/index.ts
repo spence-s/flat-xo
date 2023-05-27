@@ -8,7 +8,12 @@ import {globby} from 'globby';
 // import {type ESLint} from 'eslint';
 // import isEmpty from 'lodash.isempty';
 import arrify from 'arrify';
-import type {XoLintResult, LintOptions} from './types.js';
+import type {ESLint} from 'eslint';
+import {
+	type XoLintResult,
+	type LintOptions,
+	type LintTextOptions,
+} from './types.js';
 import {
 	DEFAULT_EXTENSION,
 	CACHE_DIR_NAME,
@@ -38,13 +43,8 @@ const findCacheLocation = (cwd: string) =>
  * This could really improve speed for lintText
  *
  */
-type LintTextOptions = {
-	filePath: string;
-	warnIgnored?: boolean;
-	forceInitialize?: boolean;
-};
 
-class XO {
+export class XO {
 	options: LintOptions;
 	eslint?: FlatESLint;
 
@@ -62,13 +62,9 @@ class XO {
 			this.options.cwd = path.resolve(process.cwd(), this.options.cwd);
 		}
 
-		this.options?.t?.log?.('cwd', this.options.cwd);
-
 		const {flatOptions} = await resolveXoConfig({
 			...this.options,
 		});
-
-		this.options?.t?.log?.('flatOptions', flatOptions);
 
 		if (!this.options.ezTs) {
 			const {path: tsConfigPath, config: tsConfig}
@@ -118,12 +114,10 @@ class XO {
 			inputOptions.push({ignores});
 		}
 
-		this.options?.t?.log?.('inputOptions', inputOptions);
-		this.options?.t?.log?.('allOptions', this.options);
+		this.options?.log?.('flatOptions:', flatOptions);
 
 		const overrideConfig = await createConfig(
 			[...flatOptions],
-			this.options.t,
 		);
 
 		const cacheLocation = path.join(
@@ -152,11 +146,19 @@ class XO {
 			globs = `**/*.{${DEFAULT_EXTENSION.join(',')}}`;
 		}
 
+		globs = arrify(globs).map(
+			glob => path.isAbsolute(glob) ? glob : path.resolve(this.options?.cwd ?? '.', glob),
+		);
+
 		const files = await globby(globs, {
 			gitignore: true,
 			absolute: true,
 			cwd: this.options.cwd,
 		});
+
+		this?.options?.log?.('globs:', globs);
+		this?.options?.log?.('files:', files);
+		this?.options?.log?.('options:', this.options);
 
 		const results = await this.eslint.lintFiles(files);
 		const rulesMeta = this.eslint.getRulesMetaForResults(results);
@@ -185,6 +187,14 @@ class XO {
 			rulesMeta,
 			...results[0],
 		};
+	}
+
+	async calculateConfigForFile(filePath: string): Promise<ESLint.Options> {
+		if (!this.eslint) {
+			this.eslint = await this.initializeEslint();
+		}
+
+		return this.eslint.calculateConfigForFile(filePath) as ESLint.Options;
 	}
 }
 

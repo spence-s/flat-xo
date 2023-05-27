@@ -13,7 +13,7 @@
   },
   "xo": {
     "ignores": [
-      "test/fixtures",
+      "test/fixtures/**/*",
       "test/temp",
       "coverage"
     ],

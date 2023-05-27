@@ -5,7 +5,7 @@ import meow from 'meow';
 import formatterPretty, {type LintResult} from 'eslint-formatter-pretty';
 import {type Rule} from 'eslint';
 import type {LintOptions} from './types.js';
-import * as xo from './class.js';
+import * as xo from './index.js';
 
 const cli = meow(
 	`

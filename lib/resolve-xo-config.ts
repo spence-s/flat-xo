@@ -56,12 +56,13 @@ async function resolveXoConfig(options: LintOptions): Promise<{
 	const searchPath = options.filePath ?? options.cwd;
 
 	let [
-		{config: flatOptions = []},
+		{config: flatOptions = [], filepath: flatConfigPath = ''},
 		// {config: enginesOptions = {}},
 	] = await Promise.all([
 		(async () =>
 			(await flatConfigExplorer.search(searchPath)) ?? {})() as Promise<{
 			config: FlatXoConfig | undefined;
+			filepath: string;
 		}>,
 		// (async () =>
 		//   (await pkgConfigExplorer.search(searchPath)) ?? {})() as Promise<{

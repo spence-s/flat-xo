@@ -1,1 +1,1 @@
-console.log('semi');;
+console.log('semi');

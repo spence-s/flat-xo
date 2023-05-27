@@ -18,7 +18,7 @@ const MERGE_OPTIONS_CONCAT = ['extends', 'envs', 'globals', 'plugins'];
 
 const TYPESCRIPT_EXTENSION = ['ts', 'tsx', 'cts', 'mts'];
 
-const DEFAULT_EXTENSION = ['js', 'jsx', 'mjs', 'cjs', ...TYPESCRIPT_EXTENSION];
+const DEFAULT_EXTENSION = ['js', 'jsx', 'mjs', 'cjs'];
 
 /**
 Define the rules config that are overwritten only for specific version of Node.js based on `engines.node` in package.json or the `nodeVersion` option.

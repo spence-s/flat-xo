@@ -14,7 +14,8 @@ import pluginPrettier from 'eslint-plugin-prettier';
 import configPrettier from 'eslint-config-prettier';
 import arrify from 'arrify';
 import globals from 'globals';
-import prettier from 'prettier';
+// eslint-disable-next-line import/no-named-default
+import {default as prettier} from 'prettier';
 import isEmpty from 'lodash.isempty';
 import pick from 'lodash.pick';
 import {
@@ -26,7 +27,7 @@ import {
 	DEFAULT_EXTENSION,
 	TYPESCRIPT_EXTENSION,
 } from './constants.js';
-import {type XoConfigItem, type Space} from './types.js';
+import {type XoConfigItem} from './types.js';
 import {rules, tsRules} from './rules.js';
 
 const ALL_FILES_GLOB = `**/*.{${DEFAULT_EXTENSION.join(',')}}`;

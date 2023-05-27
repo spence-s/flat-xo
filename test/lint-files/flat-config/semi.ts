@@ -1,36 +1,34 @@
 import path from 'node:path';
 import url from 'node:url';
 import test from 'ava';
-import Xo from '../../../lib/class.js';
+import {XO} from '../../../lib/index.js';
 
 const __dirname = path.dirname(url.fileURLToPath(new URL(import.meta.url)));
 
-test.skip('js file > semi', async t => {
+test('js file > semi', async t => {
 	const cwd = path.resolve(__dirname, '..', '..', 'fixtures', 'flat-config', 'semi');
 
-	const {results} = await new Xo({cwd}).lintFiles('extraSemi.js');
+	const xo = new XO({cwd});
 
-	t.log(results);
+	const {results} = await xo.lintFiles('semi.js');
 
 	t.is(results.length, 1);
 	t.is(results?.[0]?.messages?.[0]?.messageId, 'extraSemi');
 });
 
-test.skip('ts file > semi', async t => {
+test('ts file > semi', async t => {
 	const cwd = path.resolve(__dirname, '..', '..', 'fixtures', 'flat-config', 'semi');
 
-	const {results} = await new Xo({cwd}).lintFiles('extraSemi.ts');
-
-	t.log(results);
+	const {results} = await new XO({cwd}).lintFiles('semi.ts');
 
 	t.is(results.length, 1);
 	t.is(results?.[0]?.messages?.[0]?.messageId, 'extraSemi');
 });
 
-test.skip('js + ts file > semi', async t => {
+test('js + ts file > semi', async t => {
 	const cwd = path.resolve(__dirname, '..', '..', 'fixtures', 'flat-config', 'semi');
 
-	const {results} = await new Xo({cwd}).lintFiles();
+	const {results} = await new XO({cwd}).lintFiles('semi.*');
 
 	t.is(results.length, 2);
 	t.is(results?.[0]?.messages?.[0]?.messageId, 'extraSemi');

@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import url from 'node:url';
 import test from 'ava';
-import Xo from '../../lib/class.js';
+import Xo from '../../lib/index.js';
 
 const __dirname = path.dirname(url.fileURLToPath(new URL(import.meta.url)));
 
