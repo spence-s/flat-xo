@@ -13,7 +13,6 @@ export const baseRules: Rules = {
 
 export const jsRules: Rules = {
 	...configXo.rules,
-	...baseRules,
 };
 
 const customTsRules: Rules = {
@@ -30,6 +29,5 @@ const customTsRules: Rules = {
 
 export const tsRules: Rules = {
 	...configXoTypescript.rules,
-	...baseRules,
 	...customTsRules,
 };
