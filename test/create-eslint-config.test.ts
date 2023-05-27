@@ -4,7 +4,7 @@ import {default as test} from 'ava';
 // eslint-disable-next-line import/no-named-default
 import {default as createConfig} from '../lib/create-eslint-config.js';
 
-const findRule = (flatConfig: FlatESLintConfig[], ruleId: string) => {
+const getRule = (flatConfig: FlatESLintConfig[], ruleId: string) => {
 	const conf = [...flatConfig].reverse().find(config =>
 		typeof config !== 'string' && config?.rules?.[ruleId],
 	);
@@ -33,7 +33,7 @@ test('empty config snapshot', async t => {
 test('config with rules snapshot', async t => {
 	const flatConfig = await createConfig([{rules: {'no-console': 'error'}}]);
 
-	t.is(findRule(flatConfig, 'no-console'), 'error');
+	t.is(getRule(flatConfig, 'no-console'), 'error');
 
 	t.is(flatConfig.length, 9);
 	t.snapshot(flatConfig);
