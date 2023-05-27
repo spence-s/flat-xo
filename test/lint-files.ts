@@ -5,21 +5,21 @@ import {XO} from '../lib/index.js';
 
 const __dirname = path.dirname(url.fileURLToPath(new URL(import.meta.url)));
 
-test('no config > js file', async t => {
+test('no config > js', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'no-config',	'no-config-js');
 	const {results} = await new XO({cwd}).lintFiles();
 	t.is(results.length, 1);
 	t.is(results?.[0]?.messages?.[0]?.messageId, 'missingSemi');
 });
 
-test('no config > ts file', async t => {
+test('no config > ts', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'no-config', 'no-config-ts');
 	const {results} = await new XO({cwd}).lintFiles('no-semi.ts');
 	t.is(results.length, 1);
 	t.is(results?.[0]?.messages?.[0]?.messageId, 'missingSemi');
 });
 
-test('no config > js + ts file', async t => {
+test('no config > js + ts', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'no-config');
 	const {results} = await new XO({cwd}).lintFiles('**/no-semi.*');
 	t.is(results.length, 2);
@@ -27,7 +27,7 @@ test('no config > js + ts file', async t => {
 	t.is(results?.[1]?.messages?.[0]?.messageId, 'missingSemi');
 });
 
-test('flat config > js file > semi', async t => {
+test('flat config > semi > js', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'flat-config', 'semi');
 
 	const xo = new XO({cwd});
@@ -38,7 +38,7 @@ test('flat config > js file > semi', async t => {
 	t.is(results?.[0]?.messages?.[0]?.messageId, 'extraSemi');
 });
 
-test('flat config > ts file > semi', async t => {
+test('flat config > semi > ts', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'flat-config', 'semi');
 
 	const {results} = await new XO({cwd}).lintFiles('semi.ts');
@@ -47,7 +47,7 @@ test('flat config > ts file > semi', async t => {
 	t.is(results?.[0]?.messages?.[0]?.messageId, 'extraSemi');
 });
 
-test('flat config > js + ts file > semi', async t => {
+test('flat config > semi > ts + js', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'flat-config', 'semi');
 
 	const {results} = await new XO({cwd}).lintFiles('semi.*');
@@ -57,7 +57,7 @@ test('flat config > js + ts file > semi', async t => {
 	t.is(results?.[1]?.messages?.[0]?.messageId, 'extraSemi');
 });
 
-test('flat config > js file > space', async t => {
+test('flat config > space > js', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'flat-config', 'space');
 	const xo = new XO({cwd});
 	const {results} = await xo.lintFiles('space.js');
@@ -66,7 +66,7 @@ test('flat config > js file > space', async t => {
 	t.is(results?.[0]?.messages?.[0]?.ruleId, 'indent');
 });
 
-test('flat config > ts file > space', async t => {
+test('flat config > space > ts', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'flat-config', 'space');
 	const xo = new XO({cwd});
 	const {results} = await xo.lintFiles('space.ts');
@@ -75,7 +75,7 @@ test('flat config > ts file > space', async t => {
 	t.is(results?.[0]?.messages?.[0]?.ruleId, '@typescript-eslint/indent');
 });
 
-test('flat config > js + ts file > space', async t => {
+test('flat config > space > js + ts', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'flat-config', 'space');
 
 	const {results} = await new XO({cwd}).lintFiles('space.*');

@@ -9,7 +9,7 @@ const __dirname = path.dirname(url.fileURLToPath(new URL(import.meta.url)));
 const readFile = async (_path: string) =>
 	fs.readFile(_path, {encoding: 'utf8'});
 
-test('no config > js file', async t => {
+test('no config > js', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'no-config', 'no-config-js');
 	const filePath = path.join(cwd, 'no-semi.js');
 	const {results} = await new XO({cwd}).lintText(await readFile(filePath), {
@@ -20,7 +20,7 @@ test('no config > js file', async t => {
 	t.is(results?.[0]?.messages?.[0]?.messageId, 'missingSemi');
 });
 
-test('no config > ts file', async t => {
+test('no config > ts', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'no-config', 'no-config-ts');
 	const filePath = path.join(cwd, 'no-semi.ts');
 	const {results} = await new XO({cwd}).lintText(await readFile(filePath), {
@@ -31,7 +31,7 @@ test('no config > ts file', async t => {
 	t.is(results?.[0]?.messages?.[0]?.messageId, 'missingSemi');
 });
 
-test('flat config > js file > semi', async t => {
+test('flat config > semi > js', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'flat-config', 'semi');
 	const filePath = path.join(cwd, 'semi.js');
 
@@ -47,7 +47,7 @@ test('flat config > js file > semi', async t => {
 	t.is(results?.[0]?.messages?.[0]?.ruleId, 'semi');
 });
 
-test('flat config > ts file > semi', async t => {
+test('flat config > semi > ts', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'flat-config', 'semi');
 	const filePath = path.join(cwd, 'semi.ts');
 
@@ -63,7 +63,7 @@ test('flat config > ts file > semi', async t => {
 	t.is(results?.[0]?.messages?.[0]?.ruleId, '@typescript-eslint/semi');
 });
 
-test('flat config > js file > space', async t => {
+test('flat config > space > js', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'flat-config', 'space');
 	const filePath = path.join(cwd, 'space.js');
 
@@ -79,7 +79,7 @@ test('flat config > js file > space', async t => {
 	t.is(results?.[0]?.messages?.[0]?.ruleId, 'indent');
 });
 
-test('flat config > ts file > space', async t => {
+test('flat config > space > ts', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'flat-config', 'space');
 	const filePath = path.join(cwd, 'space.ts');
 
