@@ -23,16 +23,17 @@ import {
 	type FlatESLintConfig,
 } from 'eslint-define-config';
 import {
+	ALL_EXTENSIONS,
 	DEFAULT_IGNORES,
-	DEFAULT_EXTENSION,
-	TYPESCRIPT_EXTENSION,
+	JS_EXTENSIONS,
+	TS_EXTENSIONS,
 } from './constants.js';
 import {type XoConfigItem} from './types.js';
-import {rules, tsRules} from './rules.js';
+import {jsRules, tsRules, baseRules} from './rules.js';
 
-const JS_FILES_GLOB = `**/*.{${DEFAULT_EXTENSION.join(',')}}`;
+const JS_FILES_GLOB = `**/*.{${JS_EXTENSIONS.join(',')}}`;
 
-const TS_FILES_GLOB = `**/*.{${TYPESCRIPT_EXTENSION.join(',')}}`;
+const TS_FILES_GLOB = `**/*.{${TS_EXTENSIONS.join(',')}}`;
 
 let cachedPrettierConfig: Record<string, unknown>;
 
@@ -51,7 +52,7 @@ async function createConfig(
 			ignores: DEFAULT_IGNORES,
 		},
 		{
-			files: [JS_FILES_GLOB],
+			files: [JS_FILES_GLOB, TS_FILES_GLOB],
 			plugins: {
 				'no-use-extend-native': pluginNoUseExtendNative,
 				ava: pluginAva,
@@ -74,13 +75,17 @@ async function createConfig(
 			settings: {
 				'import/core-modules': ['electron', 'atom'],
 				'import/parsers': {
-					espree: DEFAULT_EXTENSION,
+					espree: ALL_EXTENSIONS,
 				},
 				'import/resolver': {
 					node: true,
 				},
 			},
-			rules,
+			rules: baseRules,
+		},
+		{
+			files: [JS_FILES_GLOB],
+			rules: jsRules,
 		},
 		{
 			files: [TS_FILES_GLOB],
@@ -98,8 +103,8 @@ async function createConfig(
    * this means we need to handle both true AND false cases for each option.
    * ie... we need to turn prettier,space,semi,etc... on or off for a specific file
    */
-	for (const config of userConfigs ?? []) {
-		if (Object.keys(config).length === 0) {
+	for (const userConfig of userConfigs ?? []) {
+		if (Object.keys(userConfig).length === 0) {
 			continue;
 		}
 
@@ -107,8 +112,8 @@ async function createConfig(
      * Special case
      * string of built in recommended configs
      */
-		if (typeof config === 'string') {
-			baseConfig.push(config);
+		if (typeof userConfig === 'string') {
+			baseConfig.push(userConfig);
 			continue;
 		}
 
@@ -117,33 +122,33 @@ async function createConfig(
      * global ignores
      */
 		if (
-			Object.keys(config).length === 1
-      && Object.keys(config)[0] === 'ignores'
+			Object.keys(userConfig).length === 1
+      && Object.keys(userConfig)[0] === 'ignores'
 		) {
 			// accept ignores as a string or array of strings for user convenience
-			config.ignores = arrify(config.ignores);
-			baseConfig.push(config);
+			userConfig.ignores = arrify(userConfig.ignores);
+			baseConfig.push(userConfig);
 			continue;
 		}
 
-		if (config.files === undefined) {
-			config.files = [JS_FILES_GLOB];
+		if (userConfig.files === undefined) {
+			userConfig.files = [JS_FILES_GLOB];
 		}
 
-		const tsConfig: Required<Pick<XoConfigItem, 'rules'>> & XoConfigItem = {
+		const tsUserConfig: Required<Pick<XoConfigItem, 'rules'>> & XoConfigItem = {
 			files: [TS_FILES_GLOB],
 			rules: {},
 		};
 
-		if (!config.rules) {
+		if (!userConfig.rules) {
 			// set up a default rules object to potentially add to if needed
-			config.rules = {};
+			userConfig.rules = {};
 		}
 
-		if (config.semicolon === false) {
-			tsConfig.rules['@typescript-eslint/semi'] = ['error', 'never'];
-			config.rules.semi = ['error', 'never'];
-			config.rules['semi-spacing'] = [
+		if (userConfig.semicolon === false) {
+			tsUserConfig.rules['@typescript-eslint/semi'] = ['error', 'never'];
+			userConfig.rules.semi = ['error', 'never'];
+			userConfig.rules['semi-spacing'] = [
 				'error',
 				{
 					before: false,
@@ -152,27 +157,27 @@ async function createConfig(
 			];
 		}
 
-		if (config.space) {
-			const spaces = typeof config.space === 'number' ? config.space : 2;
+		if (userConfig.space) {
+			const spaces = typeof userConfig.space === 'number' ? userConfig.space : 2;
 
-			config.rules = {
-				...config.rules,
+			userConfig.rules = {
+				...userConfig.rules,
 				indent: ['error', spaces, {SwitchCase: 1}],
 			};
-			tsConfig.rules = {
-				...tsConfig.rules,
+			tsUserConfig.rules = {
+				...tsUserConfig.rules,
 				'@typescript-eslint/indent': ['error', spaces, {SwitchCase: 1}],
 			};
-		} else if (config.space === false) {
+		} else if (userConfig.space === false) {
 			// if a user set this false for a small subset of files for some reason,
 			// then we need to set them back to their original values
-			config.rules = {
-				...config.rules,
+			userConfig.rules = {
+				...userConfig.rules,
 				indent: configXo?.rules?.['indent'],
 			};
 
-			tsConfig.rules = {
-				...tsConfig.rules,
+			tsUserConfig.rules = {
+				...tsUserConfig.rules,
 				'@typescript-eslint/indent':
           configXoTypescript?.rules?.['@typescript-eslint/indent'],
 			};
@@ -189,43 +194,43 @@ async function createConfig(
 			cachedPrettierConfig = prettierOptions;
 
 			if (
-				(config.semicolon && prettierOptions['semi'] === false)
-        ?? (!config.semicolon && prettierOptions['semi'] === true)
+				(userConfig.semicolon && prettierOptions['semi'] === false)
+        ?? (!userConfig.semicolon && prettierOptions['semi'] === true)
 			) {
 				throw new Error(
 					// eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-					`The Prettier config \`semi\` is ${prettierOptions['semi']} while XO \`semicolon\` is ${config.semicolon}`,
+					`The Prettier config \`semi\` is ${prettierOptions['semi']} while XO \`semicolon\` is ${userConfig.semicolon}`,
 				);
 			}
 
 			if (
-				((config.space ?? typeof config.space === 'number')
+				((userConfig.space ?? typeof userConfig.space === 'number')
           && prettierOptions['useTabs'] === true)
-        || (!config.space && prettierOptions['useTabs'] === false)
+        || (!userConfig.space && prettierOptions['useTabs'] === false)
 			) {
 				throw new Error(
 					// eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-					`The Prettier config \`useTabs\` is ${prettierOptions['useTabs']} while XO \`space\` is ${config.space}`,
+					`The Prettier config \`useTabs\` is ${prettierOptions['useTabs']} while XO \`space\` is ${userConfig.space}`,
 				);
 			}
 
 			if (
-				typeof config.space === 'number'
+				typeof userConfig.space === 'number'
         && typeof prettierOptions['tabWidth'] === 'number'
-        && config.space !== prettierOptions['tabWidth']
+        && userConfig.space !== prettierOptions['tabWidth']
 			) {
 				throw new Error(
-					`The Prettier config \`tabWidth\` is ${prettierOptions['tabWidth']} while XO \`space\` is ${config.space}`,
+					`The Prettier config \`tabWidth\` is ${prettierOptions['tabWidth']} while XO \`space\` is ${userConfig.space}`,
 				);
 			}
 
-			config.plugins = {
-				...config.plugins,
+			userConfig.plugins = {
+				...userConfig.plugins,
 				prettier: pluginPrettier,
 			};
 
-			config.rules = {
-				...config.rules,
+			userConfig.rules = {
+				...userConfig.rules,
 				...pluginPrettier.configs?.['recommended']?.rules,
 				'prettier/prettier': [
 					'error',
@@ -234,9 +239,9 @@ async function createConfig(
 						bracketSpacing: false,
 						bracketSameLine: false,
 						trailingComma: 'all',
-						tabWidth: typeof config.space === 'number' ? config.space : 2,
-						useTabs: !config.space,
-						semi: config.semicolon,
+						tabWidth: typeof userConfig.space === 'number' ? userConfig.space : 2,
+						useTabs: !userConfig.space,
+						semi: userConfig.semicolon,
 						...prettierOptions,
 					},
 				],
@@ -244,8 +249,8 @@ async function createConfig(
 			};
 		} else if (_prettier === false) {
 			// turn prettier off for a subset of files
-			config.rules = {
-				...config.rules,
+			userConfig.rules = {
+				...userConfig.rules,
 				'prettier/prettier': 'off',
 			};
 		}
@@ -259,9 +264,9 @@ async function createConfig(
 			'rules',
 		];
 
-		baseConfig.push(pick(config, options));
-		if (!isEmpty(tsConfig.rules)) {
-			baseConfig.push(pick(tsConfig, options));
+		baseConfig.push(pick(userConfig, options));
+		if (!isEmpty(tsUserConfig.rules)) {
+			baseConfig.push(pick(tsUserConfig, options));
 		}
 	}
 
@@ -286,7 +291,7 @@ async function createConfig(
 			'import/resolver': {
 				typescript: true,
 			},
-			'@typescript-eslint/parser': TYPESCRIPT_EXTENSION,
+			'@typescript-eslint/parser': TS_EXTENSIONS,
 		},
 	});
 

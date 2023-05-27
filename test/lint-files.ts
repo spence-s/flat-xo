@@ -29,29 +29,22 @@ test('no config > js + ts', async t => {
 
 test('flat config > semi > js', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'flat-config', 'semi');
-
 	const xo = new XO({cwd});
-
 	const {results} = await xo.lintFiles('semi.js');
-
 	t.is(results.length, 1);
 	t.is(results?.[0]?.messages?.[0]?.messageId, 'extraSemi');
 });
 
 test('flat config > semi > ts', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'flat-config', 'semi');
-
 	const {results} = await new XO({cwd}).lintFiles('semi.ts');
-
 	t.is(results.length, 1);
 	t.is(results?.[0]?.messages?.[0]?.messageId, 'extraSemi');
 });
 
 test('flat config > semi > ts + js', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'flat-config', 'semi');
-
 	const {results} = await new XO({cwd}).lintFiles('semi.*');
-
 	t.is(results.length, 2);
 	t.is(results?.[0]?.messages?.[0]?.messageId, 'extraSemi');
 	t.is(results?.[1]?.messages?.[0]?.messageId, 'extraSemi');
@@ -77,9 +70,7 @@ test('flat config > space > ts', async t => {
 
 test('flat config > space > js + ts', async t => {
 	const cwd = path.resolve(__dirname, 'fixtures', 'flat-config', 'space');
-
 	const {results} = await new XO({cwd}).lintFiles('space.*');
-
 	t.is(results.length, 2);
 	t.is(results?.[0]?.messages?.[0]?.messageId, 'wrongIndentation');
 	t.is(results?.[1]?.messages?.[0]?.messageId, 'wrongIndentation');

@@ -16,9 +16,11 @@ Only applies to options defined as an Array.
 */
 const MERGE_OPTIONS_CONCAT = ['extends', 'envs', 'globals', 'plugins'];
 
-const TYPESCRIPT_EXTENSION = ['ts', 'tsx', 'cts', 'mts'];
+const TS_EXTENSIONS = ['ts', 'tsx', 'cts', 'mts'];
 
-const DEFAULT_EXTENSION = ['js', 'jsx', 'mjs', 'cjs'];
+const JS_EXTENSIONS = ['js', 'jsx', 'mjs', 'cjs'];
+
+const ALL_EXTENSIONS = [...JS_EXTENSIONS, ...TS_EXTENSIONS];
 
 /**
 Define the rules config that are overwritten only for specific version of Node.js based on `engines.node` in package.json or the `nodeVersion` option.
@@ -120,8 +122,9 @@ const CACHE_DIR_NAME = 'xo-linter';
 
 export {
 	DEFAULT_IGNORES,
-	DEFAULT_EXTENSION,
-	TYPESCRIPT_EXTENSION,
+	JS_EXTENSIONS,
+	TS_EXTENSIONS,
+	ALL_EXTENSIONS,
 	ENGINE_RULES,
 	MODULE_NAME,
 	CONFIG_FILES,

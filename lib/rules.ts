@@ -5,11 +5,15 @@ import configXoTypescript from 'eslint-config-xo-typescript';
 import type {Rules} from 'eslint-define-config';
 import conf from '../config/plugins.js';
 
-export const rules: Rules = {
-	...configXo.rules,
+export const baseRules: Rules = {
 	...pluginAva.configs?.['recommended']?.rules,
 	...pluginUnicorn.configs?.['recommended']?.rules,
 	...conf.rules,
+};
+
+export const jsRules: Rules = {
+	...configXo.rules,
+	...baseRules,
 };
 
 const customTsRules: Rules = {
@@ -26,5 +30,6 @@ const customTsRules: Rules = {
 
 export const tsRules: Rules = {
 	...configXoTypescript.rules,
+	...baseRules,
 	...customTsRules,
 };

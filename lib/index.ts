@@ -15,7 +15,7 @@ import {
 	type LintTextOptions,
 } from './types.js';
 import {
-	DEFAULT_EXTENSION,
+	JS_EXTENSIONS,
 	CACHE_DIR_NAME,
 	TSCONFIG_DEFAULTS,
 } from './constants.js';
@@ -114,8 +114,6 @@ export class XO {
 			inputOptions.push({ignores});
 		}
 
-		this.options?.log?.('flatOptions:', flatOptions);
-
 		const overrideConfig = await createConfig(
 			[...flatOptions],
 		);
@@ -143,7 +141,7 @@ export class XO {
 		}
 
 		if (!globs || (Array.isArray(globs) && globs.length === 0)) {
-			globs = `**/*.{${DEFAULT_EXTENSION.join(',')}}`;
+			globs = `**/*.{${JS_EXTENSIONS.join(',')}}`;
 		}
 
 		globs = arrify(globs).map(
@@ -155,10 +153,6 @@ export class XO {
 			absolute: true,
 			cwd: this.options.cwd,
 		});
-
-		this?.options?.log?.('globs:', globs);
-		this?.options?.log?.('files:', files);
-		this?.options?.log?.('options:', this.options);
 
 		const results = await this.eslint.lintFiles(files);
 		const rulesMeta = this.eslint.getRulesMetaForResults(results);
