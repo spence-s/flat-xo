@@ -30,7 +30,7 @@ import {
 import {type XoConfigItem} from './types.js';
 import {rules, tsRules} from './rules.js';
 
-const ALL_FILES_GLOB = `**/*.{${DEFAULT_EXTENSION.join(',')}}`;
+const JS_FILES_GLOB = `**/*.{${DEFAULT_EXTENSION.join(',')}}`;
 
 const TS_FILES_GLOB = `**/*.{${TYPESCRIPT_EXTENSION.join(',')}}`;
 
@@ -51,7 +51,7 @@ async function createConfig(
 			ignores: DEFAULT_IGNORES,
 		},
 		{
-			files: [ALL_FILES_GLOB],
+			files: [JS_FILES_GLOB],
 			plugins: {
 				'no-use-extend-native': pluginNoUseExtendNative,
 				ava: pluginAva,
@@ -127,7 +127,7 @@ async function createConfig(
 		}
 
 		if (config.files === undefined) {
-			config.files = [ALL_FILES_GLOB];
+			config.files = [JS_FILES_GLOB];
 		}
 
 		const tsConfig: Required<Pick<XoConfigItem, 'rules'>> & XoConfigItem = {
