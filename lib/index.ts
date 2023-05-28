@@ -6,7 +6,7 @@ import pkg, {type FlatESLint} from 'eslint/use-at-your-own-risk'; // eslint-disa
 import findCacheDir from 'find-cache-dir';
 import {globby} from 'globby';
 import arrify from 'arrify';
-import type {ESLint} from 'eslint';
+import {type ESLint} from 'eslint';
 import {
 	type XoLintResult,
 	type LintOptions,
@@ -36,6 +36,10 @@ const findCacheLocation = (cwd: string) =>
  */
 
 export class XO {
+	static	async outputFixes(results: XoLintResult) {
+		return _FlatESLint.outputFixes(results?.results ?? []);
+	}
+
 	options: LintOptions;
 	eslint?: FlatESLint;
 

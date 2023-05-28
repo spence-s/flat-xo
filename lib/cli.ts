@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-import process from 'node:process';
 import path from 'node:path';
-import meow from 'meow';
-import formatterPretty, {type LintResult} from 'eslint-formatter-pretty';
+import process from 'node:process';
 import {type Rule} from 'eslint';
+import formatterPretty, {type LintResult} from 'eslint-formatter-pretty';
+import meow from 'meow';
 import type {LintOptions} from './types.js';
-import * as xo from './index.js';
+import {XO} from './index.js';
 
 const cli = meow(
 	`
@@ -40,20 +40,11 @@ const cli = meow(
 			fix: {
 				type: 'boolean',
 			},
+			tsconfig: {
+				type: 'string',
+			},
 			reporter: {
 				type: 'string',
-			},
-			env: {
-				type: 'string',
-				isMultiple: true,
-			},
-			global: {
-				type: 'string',
-				isMultiple: true,
-			},
-			ignore: {
-				type: 'string',
-				isMultiple: true,
 			},
 			space: {
 				type: 'string',
@@ -62,6 +53,9 @@ const cli = meow(
 				type: 'boolean',
 			},
 			prettier: {
+				type: 'boolean',
+			},
+			ezTs: {
 				type: 'boolean',
 			},
 			cwd: {
@@ -74,6 +68,10 @@ const cli = meow(
 			version: {
 				type: 'boolean',
 			},
+			ignore: {
+				type: 'string',
+				isMultiple: true,
+			},
 		},
 	},
 );
@@ -81,10 +79,13 @@ const cli = meow(
 const {input, flags: cliOptions, showVersion} = cli;
 
 const lintOptions: LintOptions = {
-	space: false,
-	semicolon: false,
-	prettier: false,
+	space: cliOptions.space,
+	semicolon: cliOptions.semicolon,
+	prettier: cliOptions.prettier,
 	cwd: (cliOptions.cwd && path.resolve(cliOptions.cwd)) ?? process.cwd(),
+	tsconfig: cliOptions.tsconfig,
+	ezTs: cliOptions.ezTs,
+	ignores: cliOptions.ignore,
 };
 
 // Make data types for `options.space` match those of the API
@@ -114,15 +115,14 @@ const log = async (report: {
 	rulesMeta: Record<string, Rule.RuleMetaData>;
 	errorCount?: number;
 }) => {
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-	const reporter: typeof formatterPretty = cliOptions.reporter
-		? await xo.getFormatter(cliOptions.reporter ?? 'compact')
-		: formatterPretty;
+	const reporter = formatterPretty;
+	// cliOptions.reporter
+	// ? await new XO(cliOptions).getFormatter(cliOptions.reporter ?? 'compact')
+	// :
 
 	process.stdout.write(
-		reporter(report.results, {
-			rulesMeta: report.rulesMeta,
-		}),
+		// @ts-expect-error idk man
+		reporter(report.results, {rulesMeta: report.rulesMeta}),
 	);
 	process.exitCode = report.errorCount === 0 ? 0 : 1;
 };
@@ -141,14 +141,16 @@ if (typeof cliOptions.printConfig === 'string') {
 
 	lintOptions.filePath = cliOptions.printConfig;
 
-	const config = await xo.getConfig(cliOptions);
+	const config = await new XO().calculateConfigForFile(lintOptions.filePath);
 	console.log(JSON.stringify(config, undefined, '\t'));
 } else {
-	const report = await xo.lintFiles(input, lintOptions);
+	const xo = new XO(lintOptions);
+	const report = await xo.lintFiles(input);
 
 	if (cliOptions.fix) {
-		await xo.outputFixes(report);
+		await XO.outputFixes(report);
 	}
 
+	// @ts-expect-error idk man
 	await log(report);
 }

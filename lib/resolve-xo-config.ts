@@ -56,7 +56,7 @@ async function resolveXoConfig(options: LintOptions): Promise<{
 	const searchPath = options.filePath ?? options.cwd;
 
 	let [
-		{config: flatOptions = [], filepath: flatConfigPath = ''},
+		{config: flatOptions = [] /* filepath: flatConfigPath = '' */},
 		// {config: enginesOptions = {}},
 	] = await Promise.all([
 		(async () =>

@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 declare module 'eslint/use-at-your-own-risk' {
 	import {type FlatESLintConfig} from 'eslint-define-config';
 	import {type ESLint} from 'eslint';
