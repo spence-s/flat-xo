@@ -28,6 +28,7 @@ import {
 	TS_EXTENSIONS,
 	JS_FILES_GLOB,
 	TS_FILES_GLOB,
+	JS_EXTENSIONS,
 } from './constants.js';
 import {type XoConfigItem} from './types.js';
 import {jsRules, tsRules, baseRules} from './rules.js';
@@ -41,7 +42,7 @@ async function createConfig(
 	userConfigs?: XoConfigItem[],
 	tsconfigPath?: string,
 ): Promise<FlatESLintConfig[]> {
-	// the default global options
+	// The default global options
 	let _prettier;
 	const cwd = '';
 
@@ -79,11 +80,7 @@ async function createConfig(
 					node: true,
 				},
 			},
-			rules: baseRules,
-		},
-		{
-			files: [JS_FILES_GLOB],
-			rules: jsRules,
+			rules: {...baseRules, ...jsRules},
 		},
 		{
 			files: [TS_FILES_GLOB],
@@ -123,7 +120,7 @@ async function createConfig(
 			Object.keys(userConfig).length === 1
       && Object.keys(userConfig)[0] === 'ignores'
 		) {
-			// accept ignores as a string or array of strings for user convenience
+			// Accept ignores as a string or array of strings for user convenience
 			userConfig.ignores = arrify(userConfig.ignores);
 			baseConfig.push(userConfig);
 			continue;
@@ -139,7 +136,7 @@ async function createConfig(
 		};
 
 		if (!userConfig.rules) {
-			// set up a default rules object to potentially add to if needed
+			// Set up a default rules object to potentially add to if needed
 			userConfig.rules = {};
 		}
 
@@ -167,7 +164,7 @@ async function createConfig(
 				'@typescript-eslint/indent': ['error', spaces, {SwitchCase: 1}],
 			};
 		} else if (userConfig.space === false) {
-			// if a user set this false for a small subset of files for some reason,
+			// If a user set this false for a small subset of files for some reason,
 			// then we need to set them back to their original values
 			userConfig.rules = {
 				...userConfig.rules,
@@ -246,7 +243,7 @@ async function createConfig(
 				...configPrettier.rules,
 			};
 		} else if (_prettier === false) {
-			// turn prettier off for a subset of files
+			// Turn prettier off for a subset of files
 			userConfig.rules = {
 				...userConfig.rules,
 				'prettier/prettier': 'off',
@@ -283,11 +280,11 @@ async function createConfig(
 			parserOptions: {
 				...configXoTypescript.parserOptions,
 				ecmaFeatures: {modules: true},
-				project: tsconfigPath ?? './tsconfig.json', // tsconfig,
+				project: tsconfigPath ?? './tsconfig.json', // Tsconfig,
 			},
 		},
 		settings: {
-			'import/extensions': ALL_EXTENSIONS,
+			'import/extensions': JS_EXTENSIONS,
 			'import/external-module-folders': ['node_modules', 'node_modules/@types'],
 			'import/parsers': {
 				'@typescript-eslint/parser': TS_EXTENSIONS,

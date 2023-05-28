@@ -31,7 +31,7 @@ async function resolveXoConfig(options: LintOptions): Promise<{
 
 	const stopDir = path.dirname(options.cwd);
 
-	// const pkgConfigExplorer = cosmiconfig('engines', {
+	// Const pkgConfigExplorer = cosmiconfig('engines', {
 	//   searchPlaces: ['package.json'],
 	//   stopDir: options.cwd,
 	// });
@@ -47,6 +47,7 @@ async function resolveXoConfig(options: LintOptions): Promise<{
 			'.js': loadModule,
 			'.mjs': loadModule,
 		},
+		cache: true,
 	});
 
 	if (options.filePath) {
@@ -89,7 +90,7 @@ async function resolveXoConfig(options: LintOptions): Promise<{
 	);
 
 	return {
-		// enginesOptions,
+		// EnginesOptions,
 		flatOptions,
 	};
 }

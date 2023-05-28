@@ -1,4 +1,3 @@
-
 import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
@@ -9,11 +8,12 @@ import {globby} from 'globby';
 import arrify from 'arrify';
 import {type ESLint} from 'eslint';
 import defineLazyProperty from 'define-lazy-prop';
+import {type FlatESLintConfig} from 'eslint-define-config';
 import {
 	type XoLintResult,
 	type LintOptions,
 	type LintTextOptions,
-} from './types.js';
+	type FlatXoConfig} from './types.js';
 import {
 	JS_EXTENSIONS,
 	CACHE_DIR_NAME,
@@ -31,7 +31,7 @@ const findCacheLocation = (cwd: string) =>
   ?? path.join(os.homedir() ?? os.tmpdir(), '.xo-cache/');
 
 /**
- * since we lint in 1 pass we can fully cache the eslint instance.
+ * Since we lint in 1 pass we can fully cache the eslint instance.
  *
  * This could really improve speed for lintText
  *
@@ -44,13 +44,17 @@ export class XO {
 
 	options: LintOptions;
 	eslint?: FlatESLint;
+	fixableEslint?: FlatESLint;
+	config?: FlatXoConfig;
+	configPath?: string;
+	overrideConfig?: FlatESLintConfig[];
 
 	constructor(_options?: LintOptions) {
 		this.options = _options ?? {};
 	}
 
 	async initializeEslint(): Promise<FlatESLint> {
-		// options?: LintOptions, // globs?: string | string[] | LintOptions,
+		// Options?: LintOptions, // globs?: string | string[] | LintOptions,
 		if (!this.options.cwd) {
 			this.options.cwd = process.cwd();
 		}
@@ -59,9 +63,12 @@ export class XO {
 			this.options.cwd = path.resolve(process.cwd(), this.options.cwd);
 		}
 
-		const {flatOptions} = await resolveXoConfig({
-			...this.options,
-		});
+		if (!this.config) {
+			const {flatOptions} = await resolveXoConfig({
+				...this.options,
+			});
+			this.config = flatOptions;
+		}
 
 		if (!this.options.ezTs) {
 			const {path: tsConfigPath, config: tsConfig}
@@ -103,17 +110,20 @@ export class XO {
 		}
 
 		const inputOptions = [
-			...flatOptions,
+			...this.config,
 		];
 
 		if (ignores.length > 0) {
 			inputOptions.push({ignores});
 		}
 
-		const overrideConfig = await createConfig(
-			[...flatOptions],
-			this.options.tsconfig,
-		);
+		if (!this.overrideConfig) {
+			const overrideConfig = await createConfig(
+				[...this.config],
+				this.options.tsconfig,
+			);
+			this.overrideConfig = overrideConfig;
+		}
 
 		const cacheLocation = path.join(
 			findCacheLocation(this.options.cwd),
@@ -122,7 +132,7 @@ export class XO {
 
 		this.eslint = new _FlatESLint({
 			cwd: this.options.cwd,
-			overrideConfig,
+			overrideConfig: this.overrideConfig,
 			overrideConfigFile: true,
 			globInputPaths: false,
 			cache: true,
@@ -160,20 +170,116 @@ export class XO {
 		};
 	}
 
-	async lintText(code: string, lintTextOptions: LintTextOptions): Promise<XoLintResult> {
-		const {filePath, warnIgnored, forceInitialize} = lintTextOptions;
+	async initializeFixableEslint(): Promise<FlatESLint> {
+		if (!this.options.cwd) {
+			this.options.cwd = process.cwd();
+		}
 
-		if (!this.eslint || forceInitialize) {
+		if (!path.isAbsolute(this.options.cwd)) {
+			this.options.cwd = path.resolve(process.cwd(), this.options.cwd);
+		}
+
+		if (!this.config) {
+			const {flatOptions} = await resolveXoConfig({
+				...this.options,
+			});
+			this.config = flatOptions;
+		}
+
+		if (!this.options.ezTs) {
+			const {path: tsConfigPath, config: tsConfig}
+        = ezTsconfig(this.options.cwd, this.options.tsconfig) ?? {};
+
+			const tsConfigCachePath = path.join(
+				findCacheLocation(this.options.cwd),
+				'tsconfig.cached.json',
+			);
+			await fs.mkdir(path.dirname(tsConfigCachePath), {recursive: true});
+
+			const files = await globby(path.join(this.options.cwd, TS_FILES_GLOB),
+				{
+					gitignore: true,
+					absolute: true,
+					cwd: this.options.cwd,
+				},
+			);
+
+			await fs.writeFile(
+				tsConfigCachePath,
+				JSON.stringify({
+					...(tsConfig ?? TSCONFIG_DEFAULTS),
+					files,
+					include: [],
+					exclude: [],
+				}),
+			);
+
+			this.options.tsconfig = tsConfigPath;
+		}
+
+		let ignores: string[] = [];
+
+		if (typeof this.options.ignores === 'string') {
+			ignores = arrify(this.options.ignores);
+		} else if (Array.isArray(this.options.ignores)) {
+			ignores = this.options.ignores;
+		}
+
+		const inputOptions = [
+			...this.config,
+		];
+
+		if (ignores.length > 0) {
+			inputOptions.push({ignores});
+		}
+
+		if (!this.overrideConfig) {
+			const overrideConfig = await createConfig(
+				[...this.config],
+				this.options.tsconfig,
+			);
+			this.overrideConfig = overrideConfig;
+		}
+
+		const cacheLocation = path.join(
+			findCacheLocation(this.options.cwd),
+			'flat-xo-cache.json',
+		);
+
+		const eslint = new _FlatESLint({
+			cwd: this.options.cwd,
+			overrideConfig: this.overrideConfig,
+			overrideConfigFile: true,
+			globInputPaths: false,
+			cache: true,
+			cacheLocation,
+			fix: true,
+		});
+
+		this.fixableEslint = eslint;
+
+		return eslint;
+	}
+
+	async lintText(code: string, lintTextOptions: LintTextOptions): Promise<XoLintResult> {
+		const {filePath, warnIgnored, /* forceInitialize, */ fix} = lintTextOptions;
+
+		if (!this.eslint) {
 			this.eslint = await this.initializeEslint();
 		}
 
-		const results = await this.eslint.lintText(code, {
+		if (!this.fixableEslint) {
+			this.fixableEslint = await this.initializeFixableEslint();
+		}
+
+		const results = await this[fix ? 'fixableEslint' : 'eslint']?.lintText(code, {
 			filePath,
 			warnIgnored,
 		});
 
-		const rulesMeta = this.eslint.getRulesMetaForResults(results);
-		return this.processReport(results, {rulesMeta});
+		const rulesMeta = this.eslint.getRulesMetaForResults(results ?? []);
+
+		return this.processReport(results ?? [], {rulesMeta});
 	}
 
 	async calculateConfigForFile(filePath: string): Promise<ESLint.Options> {
