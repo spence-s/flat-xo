@@ -125,6 +125,20 @@ const config: ESLintConfig = {
 				},
 			},
 		],
+
+		// TODO: Restore when it becomes safer: https://github.com/sindresorhus/eslint-plugin-unicorn/issues/681
+		// 'unicorn/string-content': [
+		// 	'error',
+		// 	{
+		// 		patterns: {
+		// 			'': '’',
+		// 			[/\.\.\./.source]: '…',
+		// 			'->': '→',
+		// 			[/^http:\/\//.source]: 'http://'
+		// 		}
+		// 	}
+		// ],
+
 		// The character class sorting is a bit buggy at the moment.
 		'unicorn/better-regex': [
 			'error',
@@ -133,11 +147,29 @@ const config: ESLintConfig = {
 			},
 		],
 
+		// TODO: Disabled for now until it becomes more stable: https://github.com/sindresorhus/eslint-plugin-unicorn/search?q=consistent-destructuring+is:issue&state=open&type=issues
+		'unicorn/consistent-destructuring': 'off',
+
+		// TODO: Disabled for now as I don't have time to deal with the backslash that might come from this. Try to enable this rule in 2021.
+		'unicorn/no-null': 'off',
+
 		// We only enforce it for single-line statements to not be too opinionated.
-		'unicorn/prefer-ternary': ['error', 'only-single-line'],
+		'unicorn/prefer-ternary': [
+			'error',
+			'only-single-line',
+		],
 
 		// It will be disabled in the next version of eslint-plugin-unicorn.
 		'unicorn/prefer-json-parse-buffer': 'off',
+
+		// TODO: Remove this override when the rule is more stable.
+		'unicorn/consistent-function-scoping': 'off',
+
+		// TODO: Temporarily disabled until it becomes more mature.
+		'unicorn/no-useless-undefined': 'off',
+
+		// TODO: Temporarily disabled as the rule is buggy.
+		'function-call-argument-newline': 'off',
 
 		// Disabled as the plugin doesn't support ESLint 8 yet.
 		// 'promise/param-names': 'error',
@@ -184,9 +216,20 @@ const config: ESLintConfig = {
 			},
 		],
 		'import/no-useless-path-segments': 'error',
-		'import/newline-after-import': 'error',
+		'import/newline-after-import': [
+			'error',
+			{
+				// TODO: Buggy.
+				// considerComments: true,
+			},
+		],
 		'import/no-amd': 'error',
-		'import/no-duplicates': 'error',
+		'import/no-duplicates': [
+			'error',
+			{
+				'prefer-inline': true,
+			},
+		],
 
 		// We use `unicorn/prefer-module` instead.
 		// 'import/no-commonjs': 'error',
@@ -194,7 +237,13 @@ const config: ESLintConfig = {
 		// Looks useful, but too unstable at the moment
 		// 'import/no-deprecated': 'error',
 
-		'import/no-extraneous-dependencies': 'error',
+		'import/no-empty-named-blocks': 'error',
+		'import/no-extraneous-dependencies': [
+			'error',
+			{
+				includeTypes: true,
+			},
+		],
 		'import/no-mutable-exports': 'error',
 		'import/no-named-as-default-member': 'error',
 		'import/no-named-as-default': 'error',
@@ -207,7 +256,20 @@ const config: ESLintConfig = {
 		// 	}
 		// ],
 
-		'import/order': 'error',
+		'import/order': [
+			'error',
+			{
+				groups: [
+					'builtin',
+					'external',
+					'parent',
+					'sibling',
+					'index',
+				],
+				'newlines-between': 'never',
+				warnOnUnassignedImports: true,
+			},
+		],
 		'import/no-unassigned-import': [
 			'error',
 			{
@@ -224,7 +286,17 @@ const config: ESLintConfig = {
 				],
 			},
 		],
+
+		// Redundant with `import/no-extraneous-dependencies`.
+		// 'n/no-extraneous-import': 'error',
+		// 'n/no-extraneous-require': 'error',
+
+		// Redundant with `import/no-unresolved`.
+		// 'n/no-missing-import': 'error', // This rule is also buggy and doesn't support `node:`.
+		// 'n/no-missing-require': 'error',
+
 		'n/no-unpublished-bin': 'error',
+
 		// We have this enabled in addition to `import/extensions` as this one has an auto-fix.
 		'n/file-extension-in-import': [
 			'error',
@@ -244,15 +316,62 @@ const config: ESLintConfig = {
 		],
 		'n/no-new-require': 'error',
 		'n/no-path-concat': 'error',
+
+		// Disabled because they're too annoying, see:
+		// https://github.com/mysticatea/eslint-plugin-node/issues/105
+		// 'n/no-unpublished-import': [
+		// 	'error',
+		// 	{
+		// 		allowModules: [
+		// 			'electron',
+		// 			'atom'
+		// 		]
+		// 	}
+		// ],
+		// 'n/no-unpublished-require': [
+		// 	'error',
+		// 	{
+		// 		allowModules: [
+		// 			'electron',
+		// 			'atom'
+		// 		]
+		// 	}
+		// ],
+
 		'n/process-exit-as-throw': 'error',
+
+		// Disabled as the rule doesn't exclude scripts executed with `node` but not referenced in 'bin'. See https://github.com/mysticatea/eslint-plugin-node/issues/96
+		// 'n/shebang': 'error',
+
 		'n/no-deprecated-api': 'error',
-		'n/prefer-global/buffer': ['error', 'never'],
-		'n/prefer-global/console': ['error', 'always'],
-		'n/prefer-global/process': ['error', 'never'],
-		'n/prefer-global/text-decoder': ['error', 'always'],
-		'n/prefer-global/text-encoder': ['error', 'always'],
-		'n/prefer-global/url-search-params': ['error', 'always'],
-		'n/prefer-global/url': ['error', 'always'],
+		'n/prefer-global/buffer': [
+			'error',
+			'never',
+		],
+		'n/prefer-global/console': [
+			'error',
+			'always',
+		],
+		'n/prefer-global/process': [
+			'error',
+			'never',
+		],
+		'n/prefer-global/text-decoder': [
+			'error',
+			'always',
+		],
+		'n/prefer-global/text-encoder': [
+			'error',
+			'always',
+		],
+		'n/prefer-global/url-search-params': [
+			'error',
+			'always',
+		],
+		'n/prefer-global/url': [
+			'error',
+			'always',
+		],
 		'n/prefer-promises/dns': 'error',
 		'n/prefer-promises/fs': 'error',
 		'eslint-comments/disable-enable-pair': [
@@ -263,6 +382,10 @@ const config: ESLintConfig = {
 		],
 		'eslint-comments/no-aggregating-enable': 'error',
 		'eslint-comments/no-duplicate-disable': 'error',
+
+		// Disabled as it's already covered by the `unicorn/no-abusive-eslint-disable` rule.
+		// 'eslint-comments/no-unlimited-disable': 'error',
+
 		'eslint-comments/no-unused-disable': 'error',
 		'eslint-comments/no-unused-enable': 'error',
 	},

@@ -39,6 +39,7 @@ let cachedPrettierConfig: Record<string, unknown>;
  */
 async function createConfig(
 	userConfigs?: XoConfigItem[],
+	tsconfigPath?: string,
 ): Promise<FlatESLintConfig[]> {
 	// the default global options
 	let _prettier;
@@ -281,14 +282,24 @@ async function createConfig(
 			parser: tsParser,
 			parserOptions: {
 				...configXoTypescript.parserOptions,
-				project: './tsconfig.json', // tsconfig,
+				ecmaFeatures: {modules: true},
+				project: tsconfigPath ?? './tsconfig.json', // tsconfig,
 			},
 		},
 		settings: {
+			'import/extensions': ALL_EXTENSIONS,
+			'import/external-module-folders': ['node_modules', 'node_modules/@types'],
+			'import/parsers': {
+				'@typescript-eslint/parser': TS_EXTENSIONS,
+			},
 			'import/resolver': {
 				typescript: true,
+				node: true,
 			},
-			'@typescript-eslint/parser': TS_EXTENSIONS,
+			'@typescript-eslint/parser': tsParser,
+		},
+		rules: {
+			'import/named': 'off',
 		},
 	});
 

@@ -1,3 +1,4 @@
+
 import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
@@ -7,6 +8,7 @@ import findCacheDir from 'find-cache-dir';
 import {globby} from 'globby';
 import arrify from 'arrify';
 import {type ESLint} from 'eslint';
+import defineLazyProperty from 'define-lazy-prop';
 import {
 	type XoLintResult,
 	type LintOptions,
@@ -110,6 +112,7 @@ export class XO {
 
 		const overrideConfig = await createConfig(
 			[...flatOptions],
+			this.options.tsconfig,
 		);
 
 		const cacheLocation = path.join(
@@ -168,12 +171,9 @@ export class XO {
 			filePath,
 			warnIgnored,
 		});
+
 		const rulesMeta = this.eslint.getRulesMetaForResults(results);
-		return {
-			results,
-			rulesMeta,
-			...results[0],
-		};
+		return this.processReport(results, {rulesMeta});
 	}
 
 	async calculateConfigForFile(filePath: string): Promise<ESLint.Options> {
@@ -183,6 +183,56 @@ export class XO {
 
 		return this.eslint.calculateConfigForFile(filePath) as ESLint.Options;
 	}
+
+	processReport(report: ESLint.LintResult[], {isQuiet = false, rulesMeta = {}} = {}) {
+		if (isQuiet) {
+			report = _FlatESLint.getErrorResults(report);
+		}
+
+		const result = {
+			results: report,
+			rulesMeta,
+			...this.getReportStatistics(report),
+		};
+
+		defineLazyProperty(result, 'usedDeprecatedRules', () => {
+			const seenRules = new Set();
+			const rules = [];
+
+			for (const {usedDeprecatedRules} of report) {
+				for (const rule of usedDeprecatedRules) {
+					if (seenRules.has(rule.ruleId)) {
+						continue;
+					}
+
+					seenRules.add(rule.ruleId);
+					rules.push(rule);
+				}
+			}
+
+			return rules;
+		});
+
+		return result;
+	}
+
+	getReportStatistics = (results: ESLint.LintResult[]) => {
+		const statistics = {
+			errorCount: 0,
+			warningCount: 0,
+			fixableErrorCount: 0,
+			fixableWarningCount: 0,
+		};
+
+		for (const result of results) {
+			statistics.errorCount += result.errorCount;
+			statistics.warningCount += result.warningCount;
+			statistics.fixableErrorCount += result.fixableErrorCount;
+			statistics.fixableWarningCount += result.fixableWarningCount;
+		}
+
+		return statistics;
+	};
 }
 
 export default XO;
