@@ -99,6 +99,8 @@ async function createConfig(
    * ie... we need to turn prettier,space,semi,etc... on or off for a specific file
    */
 	for (const userConfig of userConfigs ?? []) {
+		console.log('userConfig,', userConfig);
+
 		if (Object.keys(userConfig).length === 0) {
 			continue;
 		}

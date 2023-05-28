@@ -25,8 +25,8 @@ const customTsRules: Rules = {
 	// Disabled as it doesn't work with TypeScript.
 	// This issue and some others: https://github.com/benmosher/eslint-plugin-import/issues/1341
 	'import/named': 'off',
-	'import/extensions': 'off',
-	'@typescript-eslint/naming-convention': 'off',
+	// 'import/extensions': 'off',
+	// '@typescript-eslint/naming-convention': 'off',
 };
 
 export const tsRules: Rules = {

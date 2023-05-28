@@ -20,6 +20,7 @@ const loadModule = async (fp: string) => {
  */
 async function resolveXoConfig(options: LintOptions): Promise<{
 	flatOptions: FlatXoConfig;
+	flatConfigPath: string;
 }> {
 	if (!options.cwd) {
 		options.cwd = process.cwd();
@@ -57,7 +58,7 @@ async function resolveXoConfig(options: LintOptions): Promise<{
 	const searchPath = options.filePath ?? options.cwd;
 
 	let [
-		{config: flatOptions = [] /* filepath: flatConfigPath = '' */},
+		{config: flatOptions = [], filepath: flatConfigPath = ''},
 		// {config: enginesOptions = {}},
 	] = await Promise.all([
 		(async () =>
@@ -81,6 +82,7 @@ async function resolveXoConfig(options: LintOptions): Promise<{
 		'rules',
 		'env',
 		'extension',
+		'files',
 	];
 
 	const flatOnlyKeys = ['plugins'];
@@ -92,6 +94,7 @@ async function resolveXoConfig(options: LintOptions): Promise<{
 	return {
 		// EnginesOptions,
 		flatOptions,
+		flatConfigPath,
 	};
 }
 

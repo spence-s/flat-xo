@@ -48,6 +48,7 @@ export class XO {
 	config?: FlatXoConfig;
 	configPath?: string;
 	overrideConfig?: FlatESLintConfig[];
+	flatConfigPath?: string;
 
 	constructor(_options?: LintOptions) {
 		this.options = _options ?? {};
@@ -64,10 +65,11 @@ export class XO {
 		}
 
 		if (!this.config) {
-			const {flatOptions} = await resolveXoConfig({
+			const {flatOptions, flatConfigPath} = await resolveXoConfig({
 				...this.options,
 			});
 			this.config = flatOptions;
+			this.flatConfigPath = flatConfigPath;
 		}
 
 		if (!this.options.ezTs) {
@@ -180,10 +182,11 @@ export class XO {
 		}
 
 		if (!this.config) {
-			const {flatOptions} = await resolveXoConfig({
+			const {flatOptions, flatConfigPath} = await resolveXoConfig({
 				...this.options,
 			});
 			this.config = flatOptions;
+			this.configPath = flatConfigPath;
 		}
 
 		if (!this.options.ezTs) {

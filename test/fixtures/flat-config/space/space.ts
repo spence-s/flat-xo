@@ -1,3 +1,3 @@
-{
-	hello: 'world'
+export function space() {
+	return 'space';
 }
