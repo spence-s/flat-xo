@@ -6,6 +6,7 @@ const config = [
 	},
 	{
 		files: [TS_FILES_GLOB],
+		prettier: true,
 		rules: {
 			'@typescript-eslint/naming-convention': 'off',
 			'capitalized-comments': 'off',

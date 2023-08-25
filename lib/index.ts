@@ -13,7 +13,8 @@ import {
 	type XoLintResult,
 	type LintOptions,
 	type LintTextOptions,
-	type FlatXoConfig} from './types.js';
+	type FlatXoConfig,
+} from './types.js';
 import {
 	JS_EXTENSIONS,
 	CACHE_DIR_NAME,
