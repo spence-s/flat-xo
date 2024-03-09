@@ -26,6 +26,7 @@ export const TS_FILES_GLOB = `**/*.{${TS_EXTENSIONS.join(',')}}`;
 
 export const ALL_EXTENSIONS = [...JS_EXTENSIONS, ...TS_EXTENSIONS];
 
+export const ALL_FILES_GLOB = `**/*.{${ALL_EXTENSIONS.join(',')}}`;
 /**
 Define the rules config that are overwritten only for specific version of Node.js based on `engines.node` in package.json or the `nodeVersion` option.
 

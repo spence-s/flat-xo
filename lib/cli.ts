@@ -111,8 +111,9 @@ if (typeof cliOptions.space === 'string') {
 // }
 
 const log = async (report: {
+  cwd: string;
   results: Array<Readonly<LintResult>>;
-  rulesMeta: Record<string, Rule.RuleMetaData>;
+  rulesMeta: Record<string, Rule.RuleMetaData> & {cwd: string};
   errorCount?: number;
 }) => {
   const reporter = formatterPretty;
@@ -120,10 +121,8 @@ const log = async (report: {
   // ? await new XO(cliOptions).getFormatter(cliOptions.reporter ?? 'compact')
   // :
 
-  process.stdout.write(
-    // @ts-expect-error idk man
-    reporter(report.results, {rulesMeta: report.rulesMeta}),
-  );
+  console.log(reporter(report.results, report));
+
   process.exitCode = report.errorCount === 0 ? 0 : 1;
 };
 
@@ -144,7 +143,6 @@ if (typeof cliOptions.printConfig === 'string') {
   const config = await new XO().calculateConfigForFile(lintOptions.filePath);
   console.log(JSON.stringify(config, undefined, '\t'));
 } else {
-  console.log('linting files', lintOptions);
   const xo = new XO(lintOptions);
   const report = await xo.lintFiles(input);
 

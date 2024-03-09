@@ -1,10 +1,9 @@
 /* eslint-disable complexity */
-// import path from 'node:path';
 import pluginAva from 'eslint-plugin-ava';
 import pluginUnicorn from 'eslint-plugin-unicorn';
 import pluginImport from 'eslint-plugin-import';
 import pluginN from 'eslint-plugin-n';
-import pluginComments from 'eslint-plugin-eslint-comments';
+import pluginComments from '@eslint-community/eslint-plugin-eslint-comments';
 import pluginNoUseExtendNative from 'eslint-plugin-no-use-extend-native';
 import configXoTypescript from 'eslint-config-xo-typescript';
 import configXo from 'eslint-config-xo';
@@ -29,6 +28,7 @@ import {
   JS_FILES_GLOB,
   TS_FILES_GLOB,
   JS_EXTENSIONS,
+  ALL_FILES_GLOB,
 } from './constants.js';
 import {type XoConfigItem} from './types.js';
 import {jsRules, tsRules, baseRules} from './rules.js';
@@ -51,7 +51,7 @@ async function createConfig(
       ignores: DEFAULT_IGNORES,
     },
     {
-      files: [JS_FILES_GLOB, TS_FILES_GLOB],
+      files: [ALL_FILES_GLOB],
       plugins: {
         'no-use-extend-native': pluginNoUseExtendNative,
         ava: pluginAva,
@@ -62,8 +62,8 @@ async function createConfig(
       },
       languageOptions: {
         globals: {
-          ...(globals.es2021 as Record<string, boolean>),
-          ...(globals.node as Record<string, boolean>),
+          ...globals.es2021,
+          ...globals.node,
         },
         ecmaVersion: configXo.parserOptions?.ecmaVersion,
         sourceType: configXo.parserOptions?.sourceType,
@@ -99,8 +99,6 @@ async function createConfig(
    * ie... we need to turn prettier,space,semi,etc... on or off for a specific file
    */
   for (const userConfig of userConfigs ?? []) {
-    console.log('userConfig,', userConfig);
-
     if (Object.keys(userConfig).length === 0) {
       continue;
     }
@@ -128,9 +126,9 @@ async function createConfig(
       continue;
     }
 
-    if (userConfig.files === undefined) {
-      userConfig.files = [JS_FILES_GLOB];
-    }
+    // ensure files is valid
+    userConfig.files ||= [JS_FILES_GLOB];
+    userConfig.files = arrify(userConfig.files);
 
     const tsUserConfig: Required<Pick<XoConfigItem, 'rules'>> & XoConfigItem = {
       files: [TS_FILES_GLOB],
@@ -153,6 +151,7 @@ async function createConfig(
     }
 
     if (userConfig.space) {
+      console.log('setting up space options');
       const spaces = typeof userConfig.space === 'number' ? userConfig.space : 2;
 
       userConfig.rules = {
@@ -178,7 +177,8 @@ async function createConfig(
       };
     }
 
-    if (_prettier) {
+    if (userConfig.prettier) {
+      console.log('doing prettier stuff');
       const prettierOptions
         = cachedPrettierConfig
         // eslint-disable-next-line no-await-in-loop
@@ -296,6 +296,8 @@ async function createConfig(
       'import/named': 'off',
     },
   });
+
+  // console.log(baseConfig);
 
   return baseConfig;
 }

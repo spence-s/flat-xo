@@ -168,6 +168,7 @@ export class XO {
       overrideConfig: this.overrideConfig,
       overrideConfigFile: true,
       globInputPaths: false,
+      warnIgnored: false,
       cache: true,
       cacheLocation,
     });
@@ -193,9 +194,6 @@ export class XO {
       absolute: true,
       cwd: this.options.cwd,
     });
-
-    console.log('linting files with globs:', globs, files);
-    console.log('this', this);
 
     const results = await this.eslint.lintFiles(files);
     const rulesMeta = this.eslint.getRulesMetaForResults(results);
