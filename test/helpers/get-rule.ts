@@ -8,15 +8,15 @@ import {JS_FILES_GLOB, TS_FILES_GLOB} from '../../lib/constants.js';
  * @param ruleId
  */
 export const getJsRule = (flatConfig: FlatESLintConfig[], ruleId: string) => {
-	const conf = [...flatConfig].reverse().find(config =>
-		typeof config !== 'string' && config?.rules?.[ruleId] && config.files?.includes(JS_FILES_GLOB),
-	);
+  const config = [...flatConfig].reverse().find(config =>
+    typeof config !== 'string' && config?.rules?.[ruleId] && config.files?.includes(JS_FILES_GLOB),
+  );
 
-	if (typeof conf === 'string') {
-		return undefined;
-	}
+  if (typeof config === 'string') {
+    return undefined;
+  }
 
-	return conf?.rules?.[ruleId];
+  return config?.rules?.[ruleId];
 };
 
 /**
@@ -26,14 +26,14 @@ export const getJsRule = (flatConfig: FlatESLintConfig[], ruleId: string) => {
  * @param ruleId
  */
 export const getTsRule = (flatConfig: FlatESLintConfig[], ruleId: string) => {
-	const conf = [...flatConfig].reverse().find(config =>
-		typeof config !== 'string' && config?.rules?.[ruleId] && config.files?.includes(TS_FILES_GLOB),
-	);
+  const config = [...flatConfig].reverse().find(config =>
+    typeof config !== 'string' && config?.rules?.[ruleId] && config.files?.includes(TS_FILES_GLOB),
+  );
 
-	if (typeof conf === 'string') {
-		return undefined;
-	}
+  if (typeof config === 'string') {
+    return undefined;
+  }
 
-	return conf?.rules?.[ruleId];
+  return config?.rules?.[ruleId];
 };
 
