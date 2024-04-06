@@ -1,8 +1,10 @@
 // /* eslint-disable ava/no-skip-test */
 // import url from 'node:url';
 // import path from 'node:path';
-// import test from 'ava';
+import test from 'ava';
 // import resolveXoConfig from '../lib/resolve-xo-config.js';
+
+test.todo('get these fixed');
 
 // const __dirname = path.dirname(url.fileURLToPath(new URL(import.meta.url)));
 

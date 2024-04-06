@@ -1,9 +1,10 @@
 // import fs from 'node:fs/promises';
 // import path from 'node:path';
 // import url from 'node:url';
-// import test from 'ava';
+import test from 'ava';
 // import {XO} from '../lib/index.js';
 
+test.todo('get these fixed'); // eslint-disable-line ava/no-todo-test
 // const __dirname = path.dirname(url.fileURLToPath(new URL(import.meta.url)));
 
 // const readFile = async (_path: string) =>
