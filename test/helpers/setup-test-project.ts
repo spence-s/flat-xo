@@ -3,6 +3,8 @@ import path from 'node:path';
 import tempDir from 'temp-dir';
 import {$} from 'execa';
 import {pathExists} from 'path-exists';
+import {type XoConfigItem} from '../../lib/types.js';
+
 /**
  * Creates a test project with a package.json and tsconfig.json
  * and installs the dependencies.
@@ -10,7 +12,7 @@ import {pathExists} from 'path-exists';
  * @returns {string} The path to the test project.
  */
 export const setupTestProject = async () => {
-  const cwd = tempDir + '/test-project';
+  const cwd = path.join(tempDir, 'test-project');
 
   if (await pathExists(cwd)) {
     await fs.rm(cwd, {recursive: true, force: true});
@@ -42,4 +44,20 @@ export const setupTestProject = async () => {
   // await $`open ${cwd}`;
 
   return cwd;
+};
+
+/**
+ * Adds a flag to the xo.config.js file in the test project in the temp dir.
+ * Cleans up any previous xo.config.js file.
+ *
+ * @param config
+ */
+export const addFlatConfigToProject = async (config: XoConfigItem[]) => {
+  const filePath = path.join(tempDir, 'test-project', 'xo.config.js');
+
+  if (await pathExists(filePath)) {
+    await fs.rm(filePath, {force: true});
+  }
+
+  await fs.writeFile(filePath, `export default ${JSON.stringify(config)};`);
 };
