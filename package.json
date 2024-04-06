@@ -9,8 +9,8 @@
     "build:watch": "npm run clean && tsc --watch",
     "check": "tsc --project ./jsconfig.json",
     "clean": "rm -rf dist",
-    "test": "ava",
-    "test:watch": "npm run test -- --watch"
+    "test": "xo && npm run build && ava",
+    "test:watch": "npm run build && tsc --watch & ava --watch"
   },
   "xo": {
     "ignores": [
@@ -36,17 +36,11 @@
     ]
   },
   "ava": {
-    "extensions": {
-      "ts": "module"
-    },
     "files": [
-      "test/**/*.ts",
-      "!test/fixtures/**",
-      "!test/helpers/**",
-      "!test/scripts/**"
-    ],
-    "nodeArguments": [
-      "--import=tsimp"
+      "dist/test/**/*.js",
+      "!dist/test/fixtures/**",
+      "!dist/test/helpers/**",
+      "!dist/test/scripts/**"
     ],
     "verbose": true
   },

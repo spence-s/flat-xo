@@ -4,7 +4,7 @@
 import test from 'ava';
 // import resolveXoConfig from '../lib/resolve-xo-config.js';
 
-test.todo('get these fixed');
+test.todo('get these fixed'); // eslint-disable-line ava/no-todo-test
 
 // const __dirname = path.dirname(url.fileURLToPath(new URL(import.meta.url)));
 
