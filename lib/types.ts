@@ -36,7 +36,11 @@ export type LintOptions = XoOptions & {
 
 export type GlobalOptions = XoOptions & FlatESLintConfig;
 
-export type LintTextOptions = LintOptions & {warnIgnored?: boolean; forceInitialize?: boolean; fix?: boolean};
+export type LintTextOptions = LintOptions & {
+  warnIgnored?: boolean;
+  forceInitialize?: boolean;
+  fix?: boolean;
+};
 
 export type XoConfigItem = FlatESLintConfig & Partial<LintOptions>;
 

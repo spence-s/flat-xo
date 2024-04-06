@@ -154,10 +154,7 @@ const config: ESLintConfig = {
     'unicorn/no-null': 'off',
 
     // We only enforce it for single-line statements to not be too opinionated.
-    'unicorn/prefer-ternary': [
-      'error',
-      'only-single-line',
-    ],
+    'unicorn/prefer-ternary': ['error', 'only-single-line'],
 
     // It will be disabled in the next version of eslint-plugin-unicorn.
     'unicorn/prefer-json-parse-buffer': 'off',
@@ -259,13 +256,7 @@ const config: ESLintConfig = {
     'import/order': [
       'error',
       {
-        groups: [
-          'builtin',
-          'external',
-          'parent',
-          'sibling',
-          'index',
-        ],
+        groups: ['builtin', 'external', 'parent', 'sibling', 'index'],
         'newlines-between': 'never',
         warnOnUnassignedImports: true,
       },
@@ -344,34 +335,13 @@ const config: ESLintConfig = {
     // 'n/shebang': 'error',
 
     'n/no-deprecated-api': 'error',
-    'n/prefer-global/buffer': [
-      'error',
-      'never',
-    ],
-    'n/prefer-global/console': [
-      'error',
-      'always',
-    ],
-    'n/prefer-global/process': [
-      'error',
-      'never',
-    ],
-    'n/prefer-global/text-decoder': [
-      'error',
-      'always',
-    ],
-    'n/prefer-global/text-encoder': [
-      'error',
-      'always',
-    ],
-    'n/prefer-global/url-search-params': [
-      'error',
-      'always',
-    ],
-    'n/prefer-global/url': [
-      'error',
-      'always',
-    ],
+    'n/prefer-global/buffer': ['error', 'never'],
+    'n/prefer-global/console': ['error', 'always'],
+    'n/prefer-global/process': ['error', 'never'],
+    'n/prefer-global/text-decoder': ['error', 'always'],
+    'n/prefer-global/text-encoder': ['error', 'always'],
+    'n/prefer-global/url-search-params': ['error', 'always'],
+    'n/prefer-global/url': ['error', 'always'],
     'n/prefer-promises/dns': 'error',
     'n/prefer-promises/fs': 'error',
     'eslint-comments/disable-enable-pair': [

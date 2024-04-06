@@ -1,4 +1,5 @@
 /* eslint-disable complexity */
+// import util from 'node:util';
 import pluginAva from 'eslint-plugin-ava';
 import pluginUnicorn from 'eslint-plugin-unicorn';
 import pluginImport from 'eslint-plugin-import';
@@ -17,9 +18,7 @@ import globals from 'globals';
 import {default as prettier} from 'prettier';
 import isEmpty from 'lodash.isempty';
 import pick from 'lodash.pick';
-import {
-  type FlatESLintConfig,
-} from 'eslint-define-config';
+import {type FlatESLintConfig} from 'eslint-define-config';
 import {type ESLint} from 'eslint';
 import {
   ALL_EXTENSIONS,
@@ -27,7 +26,7 @@ import {
   TS_EXTENSIONS,
   JS_FILES_GLOB,
   TS_FILES_GLOB,
-  JS_EXTENSIONS,
+  // JS_EXTENSIONS,
   ALL_FILES_GLOB,
 } from './constants.js';
 import {type XoConfigItem} from './types.js';
@@ -80,13 +79,17 @@ async function createConfig(
           node: true,
         },
       },
+      /**
+       * These are the base rules that are always applied to all js and ts file types
+       */
       rules: {...baseRules, ...jsRules},
     },
     {
       files: [TS_FILES_GLOB],
+      /** This turns on rules in typescript-eslint and turns off rules from eslint that conflict */
       rules: tsRules,
     },
-    ...(configXoTypescript.overrides?.map<FlatESLintConfig>(override => ({
+    ...(configXoTypescript.overrides?.map<FlatESLintConfig>((override) => ({
       files: arrify(override.files),
       ignores: arrify(override.excludedFiles),
       rules: override.rules,
@@ -99,6 +102,7 @@ async function createConfig(
    * ie... we need to turn prettier,space,semi,etc... on or off for a specific file
    */
   for (const userConfig of userConfigs ?? []) {
+    // console.log('userConfig', userConfig);
     if (Object.keys(userConfig).length === 0) {
       continue;
     }
@@ -117,8 +121,8 @@ async function createConfig(
      * global ignores
      */
     if (
-      Object.keys(userConfig).length === 1
-      && Object.keys(userConfig)[0] === 'ignores'
+      Object.keys(userConfig).length === 1 &&
+      Object.keys(userConfig)[0] === 'ignores'
     ) {
       // Accept ignores as a string or array of strings for user convenience
       userConfig.ignores = arrify(userConfig.ignores);
@@ -151,8 +155,9 @@ async function createConfig(
     }
 
     if (userConfig.space) {
-      console.log('setting up space options');
-      const spaces = typeof userConfig.space === 'number' ? userConfig.space : 2;
+      // console.log('setting up space options');
+      const spaces =
+        typeof userConfig.space === 'number' ? userConfig.space : 2;
 
       userConfig.rules = {
         ...userConfig.rules,
@@ -178,19 +183,19 @@ async function createConfig(
     }
 
     if (userConfig.prettier) {
-      console.log('doing prettier stuff');
-      const prettierOptions
-        = cachedPrettierConfig
+      // console.log('doing prettier stuff');
+      const prettierOptions =
+        cachedPrettierConfig ??
         // eslint-disable-next-line no-await-in-loop
-        ?? (await prettier.resolveConfig(cwd, {editorconfig: true}))
-        ?? {};
+        (await prettier.resolveConfig(cwd, {editorconfig: true})) ??
+        {};
 
       // Only look up prettier once per run
       cachedPrettierConfig = prettierOptions;
 
       if (
-        (userConfig.semicolon && prettierOptions['semi'] === false)
-        ?? (!userConfig.semicolon && prettierOptions['semi'] === true)
+        (userConfig.semicolon && prettierOptions['semi'] === false) ??
+        (!userConfig.semicolon && prettierOptions['semi'] === true)
       ) {
         throw new Error(
           `The Prettier config \`semi\` is ${prettierOptions['semi']} while XO \`semicolon\` is ${userConfig.semicolon}`,
@@ -198,9 +203,9 @@ async function createConfig(
       }
 
       if (
-        ((userConfig.space ?? typeof userConfig.space === 'number')
-          && prettierOptions['useTabs'] === true)
-        || (!userConfig.space && prettierOptions['useTabs'] === false)
+        ((userConfig.space ?? typeof userConfig.space === 'number') &&
+          prettierOptions['useTabs'] === true) ||
+        (!userConfig.space && prettierOptions['useTabs'] === false)
       ) {
         throw new Error(
           `The Prettier config \`useTabs\` is ${prettierOptions['useTabs']} while XO \`space\` is ${userConfig.space}`,
@@ -208,9 +213,9 @@ async function createConfig(
       }
 
       if (
-        typeof userConfig.space === 'number'
-        && typeof prettierOptions['tabWidth'] === 'number'
-        && userConfig.space !== prettierOptions['tabWidth']
+        typeof userConfig.space === 'number' &&
+        typeof prettierOptions['tabWidth'] === 'number' &&
+        userConfig.space !== prettierOptions['tabWidth']
       ) {
         throw new Error(
           `The Prettier config \`tabWidth\` is ${prettierOptions['tabWidth']} while XO \`space\` is ${userConfig.space}`,
@@ -224,7 +229,8 @@ async function createConfig(
 
       userConfig.rules = {
         ...userConfig.rules,
-        ...(pluginPrettier.configs?.['recommended'] as ESLint.ConfigData)?.rules,
+        ...(pluginPrettier.configs?.['recommended'] as ESLint.ConfigData)
+          ?.rules,
         'prettier/prettier': [
           'error',
           {
@@ -232,7 +238,8 @@ async function createConfig(
             bracketSpacing: false,
             bracketSameLine: false,
             trailingComma: 'all',
-            tabWidth: typeof userConfig.space === 'number' ? userConfig.space : 2,
+            tabWidth:
+              typeof userConfig.space === 'number' ? userConfig.space : 2,
             useTabs: !userConfig.space,
             semi: userConfig.semicolon,
             ...prettierOptions,
@@ -255,6 +262,7 @@ async function createConfig(
       'plugins',
       'settings',
       'rules',
+      'prettier',
     ];
 
     baseConfig.push(pick(userConfig, options));
@@ -281,14 +289,16 @@ async function createConfig(
       },
     },
     settings: {
-      'import/extensions': JS_EXTENSIONS,
+      'import/extensions': ALL_EXTENSIONS,
       'import/external-module-folders': ['node_modules', 'node_modules/@types'],
       'import/parsers': {
         '@typescript-eslint/parser': TS_EXTENSIONS,
       },
       'import/resolver': {
         typescript: true,
-        node: true,
+        node: {
+          extensions: ALL_EXTENSIONS,
+        },
       },
       '@typescript-eslint/parser': tsParser,
     },
@@ -297,7 +307,7 @@ async function createConfig(
     },
   });
 
-  // console.log(baseConfig);
+  // console.log('baseConfig', util.inspect(baseConfig));
 
   return baseConfig;
 }

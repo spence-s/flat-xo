@@ -124,4 +124,3 @@ export const TSCONFIG_DEFAULTS = {
 };
 
 export const CACHE_DIR_NAME = 'xo-linter';
-

@@ -3,10 +3,7 @@ import process from 'node:process';
 import {cosmiconfig /* defaultLoaders */} from 'cosmiconfig';
 import pick from 'lodash.pick';
 import {type FlatESLintConfig} from 'eslint-define-config';
-import {
-  type LintOptions,
-  type FlatXoConfig,
-} from './types.js';
+import {type LintOptions, type FlatXoConfig} from './types.js';
 import {MODULE_NAME} from './constants.js';
 
 // Async cosmiconfig loader for es module types
@@ -23,6 +20,8 @@ async function resolveXoConfig(options: LintOptions): Promise<{
   flatConfigPath: string;
 }> {
   options.cwd ||= process.cwd();
+
+  // console.log('options', options);
 
   if (!path.isAbsolute(options.cwd)) {
     options.cwd = path.resolve(process.cwd(), options.cwd);
@@ -79,13 +78,12 @@ async function resolveXoConfig(options: LintOptions): Promise<{
     'env',
     'extension',
     'files',
+    'plugins',
   ];
 
-  const flatOnlyKeys = ['plugins'];
+  flatOptions.push(pick(options, ['space']));
 
-  flatOptions = flatOptions.map(config =>
-    pick(config, [...globalKeys, ...flatOnlyKeys]),
-  );
+  flatOptions = flatOptions.map((config) => pick(config, globalKeys));
 
   return {
     // EnginesOptions,

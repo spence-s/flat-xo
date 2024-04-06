@@ -27,10 +27,6 @@ const cli = meow(
 	  $ xo *.js !foo.js
 	  $ xo --space
 	  $ xo --print-config=index.js
-
-	Tips
-	  - Add XO to your project with \`npm init xo\`.
-	  - Put options in package.json instead of using flags so other tools can read it.
 `,
   {
     importMeta: import.meta,
@@ -143,6 +139,7 @@ if (typeof cliOptions.printConfig === 'string') {
   const config = await new XO().calculateConfigForFile(lintOptions.filePath);
   console.log(JSON.stringify(config, undefined, '\t'));
 } else {
+  console.log('lintOptions', lintOptions);
   const xo = new XO(lintOptions);
   const report = await xo.lintFiles(input);
 

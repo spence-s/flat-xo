@@ -62,8 +62,8 @@ declare module 'eslint' {
 const FlatESLint: ESLint = await loadESLint({useFlatConfig: true});
 
 const findCacheLocation = (cwd: string) =>
-  findCacheDir({name: CACHE_DIR_NAME, cwd})
-  ?? path.join(os.homedir() ?? os.tmpdir(), '.xo-cache/');
+  findCacheDir({name: CACHE_DIR_NAME, cwd}) ??
+  path.join(os.homedir() ?? os.tmpdir(), '.xo-cache/');
 
 /**
  * Since we lint in 1 pass we can fully cache the eslint instance.
@@ -102,13 +102,14 @@ export class XO {
       const {flatOptions, flatConfigPath} = await resolveXoConfig({
         ...this.options,
       });
+      // console.log('flatOptions', flatOptions);
       this.config = flatOptions;
       this.flatConfigPath = flatConfigPath;
     }
 
     if (!this.options.ezTs) {
-      const {path: tsConfigPath, config: tsConfig}
-        = ezTsconfig(this.options.cwd, this.options.tsconfig) ?? {};
+      const {path: tsConfigPath, config: tsConfig} =
+        ezTsconfig(this.options.cwd, this.options.tsconfig) ?? {};
 
       const tsConfigCachePath = path.join(
         findCacheLocation(this.options.cwd),
@@ -149,6 +150,8 @@ export class XO {
       inputOptions.push({ignores});
     }
 
+    // console.log('ignores', ignores);
+
     if (!this.overrideConfig) {
       const overrideConfig = await createConfig(
         [...this.config],
@@ -163,7 +166,8 @@ export class XO {
     );
 
     // @ts-expect-error - ESLint is not exported
-    this.eslint = new FlatESLint({ // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    this.eslint = new FlatESLint({
       cwd: this.options.cwd,
       overrideConfig: this.overrideConfig,
       overrideConfigFile: true,
@@ -183,7 +187,7 @@ export class XO {
       globs = `**/*.{${ALL_EXTENSIONS.join(',')}}`;
     }
 
-    globs = arrify(globs).map(glob =>
+    globs = arrify(globs).map((glob) =>
       path.isAbsolute(glob)
         ? glob
         : path.resolve(this.options?.cwd ?? '.', glob),
@@ -211,17 +215,21 @@ export class XO {
       this.options.cwd = path.resolve(process.cwd(), this.options.cwd);
     }
 
+    // console.log('this.config', this.config);
+
     if (!this.config) {
       const {flatOptions, flatConfigPath} = await resolveXoConfig({
         ...this.options,
       });
       this.config = flatOptions;
+
+      // console.log('flatOptions', flatOptions);
       this.configPath = flatConfigPath;
     }
 
     if (!this.options.ezTs) {
-      const {path: tsConfigPath, config: tsConfig}
-        = ezTsconfig(this.options.cwd, this.options.tsconfig) ?? {};
+      const {path: tsConfigPath, config: tsConfig} =
+        ezTsconfig(this.options.cwd, this.options.tsconfig) ?? {};
 
       const tsConfigCachePath = path.join(
         findCacheLocation(this.options.cwd),
@@ -276,7 +284,8 @@ export class XO {
     );
 
     // @ts-expect-error - ESLint is not exported
-    const eslint = new FlatESLint({ // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const eslint = new FlatESLint({
       cwd: this.options.cwd,
       overrideConfig: this.overrideConfig,
       overrideConfigFile: true,
@@ -295,13 +304,13 @@ export class XO {
     code: string,
     lintTextOptions: LintTextOptions,
   ): Promise<XoLintResult> {
-    const {filePath, warnIgnored, /* forceInitialize, */ fix}
-      = lintTextOptions;
+    const {filePath, warnIgnored, /* forceInitialize, */ fix} = lintTextOptions;
 
     this.eslint ||= await this.initializeEslint();
 
     this.fixableEslint ||= await this.initializeFixableEslint();
 
+    // console.log('code', code);
     const results = await this[fix ? 'fixableEslint' : 'eslint']?.lintText(
       code,
       {
