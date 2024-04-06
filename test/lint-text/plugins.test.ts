@@ -1,22 +1,19 @@
 import path from 'node:path';
 // import url from 'node:url';
-import fs from 'node:fs/promises';
 import process from 'node:process';
 import test from 'ava';
 import dedent from 'dedent';
-import cwd from 'temp-dir';
 import {XO} from '../../lib/index.js';
+import {setupTestProject} from '../scripts/setup-test-project.js';
 
-const filePath = path.join(cwd, 'test.js');
-const tsFilePath = path.join(cwd, 'test.ts');
+let cwd: string;
+let filePath: string;
+let tsFilePath: string;
 
 test.before(async () => {
-  await fs.writeFile(
-    path.join(cwd, 'tsconfig.json'),
-    JSON.stringify({
-      files: [`${tsFilePath}`],
-    }),
-  );
+  cwd = await setupTestProject();
+  filePath = path.join(cwd, 'test.js');
+  tsFilePath = path.join(cwd, 'test.ts');
 });
 
 test('no-use-extend-native', async (t) => {
@@ -28,12 +25,30 @@ test('no-use-extend-native', async (t) => {
     `,
     {filePath},
   );
+  t.true(results[0]?.messages?.length === 1);
+  t.truthy(results[0]?.messages?.[0]);
+  t.is(
+    results[0]?.messages?.[0]?.ruleId,
+    'no-use-extend-native/no-use-extend-native',
+  );
+});
 
-  const noUseExtendNativeResult = results[0]?.messages?.find(
-    ({ruleId}) => ruleId === 'no-use-extend-native/no-use-extend-native',
+test('no-use-extend-native ts', async (t) => {
+  const {results} = await new XO({cwd}).lintText(
+    dedent`
+      import {util} from 'node:util';
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      util.isBoolean('50bda47b09923e045759db8e8dd01a0bacd97370'.shortHash() === '50bdcs47');\n
+    `,
+    {filePath: tsFilePath},
   );
   t.true(results[0]?.messages?.length === 1);
-  t.truthy(noUseExtendNativeResult);
+  t.truthy(results[0]?.messages?.[0]);
+  t.is(
+    results[0]?.messages?.[0]?.ruleId,
+    'no-use-extend-native/no-use-extend-native',
+  );
 });
 
 test('eslint-plugin-import import/order', async (t) => {
@@ -47,11 +62,35 @@ test('eslint-plugin-import import/order', async (t) => {
     {filePath},
   );
 
-  const orderResult = results[0]?.messages?.find(
-    ({ruleId}) => ruleId === 'import/order',
-  );
   t.true(results[0]?.messages?.length === 1);
+
+  const orderResult = results[0]?.messages?.[0];
+
   t.truthy(orderResult);
+
+  t.truthy(orderResult);
+
+  t.is(orderResult?.ruleId, 'import/order');
+});
+
+test('eslint-plugin-import import/order ts', async (t) => {
+  const {results} = await new XO({cwd}).lintText(
+    dedent`
+      import foo from 'foo';
+      import util from 'node:util';
+
+      util.inspect(foo);\n
+    `,
+    {filePath: tsFilePath},
+  );
+
+  t.true(results[0]?.messages?.length === 1);
+
+  const orderResult = results[0]?.messages?.[0];
+
+  t.truthy(orderResult);
+
+  t.is(orderResult?.ruleId, 'import/order');
 });
 
 test('eslint-plugin-n n/prefer-global-process', async (t) => {
@@ -62,10 +101,9 @@ test('eslint-plugin-n n/prefer-global-process', async (t) => {
     {filePath},
   );
 
-  const nResult = results[0]?.messages?.find(
-    ({ruleId}) => ruleId === 'n/prefer-global/process',
-  );
   t.true(results[0]?.messages?.length === 1);
+
+  const nResult = results[0]?.messages?.[0];
   t.truthy(nResult);
 });
 
@@ -79,11 +117,7 @@ test('eslint-plugin-n n/prefer-global-process ts', async (t) => {
     `,
     {tsconfig: path.join(process.cwd(), 'tsconfig.json'), filePath: tsFilePath},
   );
-
-  const nResult = results[0]?.messages?.find(
-    ({ruleId}) => ruleId === 'n/prefer-global/process',
-  );
-  t.log(results[0]?.messages);
+  const nResult = results[0]?.messages?.[0];
   t.true(results[0]?.messages?.length === 1);
   t.truthy(nResult);
 });

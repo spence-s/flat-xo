@@ -4,6 +4,7 @@ Thumbs.db
 tmp/
 temp/
 node_modules
+!test/fixtures/node_modules
 coverage
 *.lcov
 .nyc_output
