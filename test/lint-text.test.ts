@@ -25,7 +25,6 @@ test('no config > js > comments', async (t) => {
   const {results} = await new XO({cwd}).lintText(await readFile(filePath), {
     filePath,
   });
-  t.log('results.messages', results[0]?.messages);
   t.is(results.length, 1);
   t.is(results?.[0]?.messages?.[0]?.messageId, 'missingRulePair');
 });

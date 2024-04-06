@@ -63,13 +63,9 @@ test('eslint-plugin-import import/order', async (t) => {
   );
 
   t.true(results[0]?.messages?.length === 1);
-
   const orderResult = results[0]?.messages?.[0];
-
   t.truthy(orderResult);
-
   t.truthy(orderResult);
-
   t.is(orderResult?.ruleId, 'import/order');
 });
 
@@ -83,31 +79,26 @@ test('eslint-plugin-import import/order ts', async (t) => {
     `,
     {filePath: tsFilePath},
   );
-
   t.true(results[0]?.messages?.length === 1);
-
   const orderResult = results[0]?.messages?.[0];
-
   t.truthy(orderResult);
-
   t.is(orderResult?.ruleId, 'import/order');
 });
 
-test('eslint-plugin-n n/prefer-global-process', async (t) => {
+test('eslint-plugin-n n/prefer-global/process', async (t) => {
   const {results} = await new XO({cwd}).lintText(
     dedent`
       process.cwd();\n
     `,
     {filePath},
   );
-
   t.true(results[0]?.messages?.length === 1);
-
   const nResult = results[0]?.messages?.[0];
   t.truthy(nResult);
+  t.is(nResult?.ruleId, 'n/prefer-global/process');
 });
 
-test('eslint-plugin-n n/prefer-global-process ts', async (t) => {
+test('eslint-plugin-n n/prefer-global/process ts', async (t) => {
   const {results} = await new XO({
     cwd,
     tsconfig: path.join(cwd, 'tsconfig.json'),
@@ -120,4 +111,5 @@ test('eslint-plugin-n n/prefer-global-process ts', async (t) => {
   const nResult = results[0]?.messages?.[0];
   t.true(results[0]?.messages?.length === 1);
   t.truthy(nResult);
+  t.is(nResult?.ruleId, 'n/prefer-global/process');
 });

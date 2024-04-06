@@ -26,7 +26,6 @@ import {
   TS_EXTENSIONS,
   JS_FILES_GLOB,
   TS_FILES_GLOB,
-  // JS_EXTENSIONS,
   ALL_FILES_GLOB,
 } from './constants.js';
 import {type XoConfigItem} from './types.js';

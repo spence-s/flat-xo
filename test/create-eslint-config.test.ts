@@ -5,8 +5,6 @@ import {getJsRule, getTsRule} from './helpers/get-rule.js';
 test('base config rule tests with snapshot', async (t) => {
   const flatConfig = await createConfig();
 
-  t.log(flatConfig);
-
   t.deepEqual(getJsRule(flatConfig, 'indent'), [
     'error',
     'tab',

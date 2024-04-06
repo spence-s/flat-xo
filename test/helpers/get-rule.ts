@@ -1,5 +1,9 @@
 import {type FlatESLintConfig} from 'eslint-define-config';
-import {JS_FILES_GLOB, TS_FILES_GLOB} from '../../lib/constants.js';
+import {
+  ALL_FILES_GLOB,
+  JS_FILES_GLOB,
+  TS_FILES_GLOB,
+} from '../../lib/constants.js';
 
 /**
  * find the rule applied to js files
@@ -8,14 +12,14 @@ import {JS_FILES_GLOB, TS_FILES_GLOB} from '../../lib/constants.js';
  * @param ruleId
  */
 export const getJsRule = (flatConfig: FlatESLintConfig[], ruleId: string) => {
-  const config = [...flatConfig]
-    .reverse()
-    .find(
-      (config) =>
-        typeof config !== 'string' &&
+  const config = [...flatConfig].reverse().find(
+    (config) =>
+      (typeof config !== 'string' &&
         config?.rules?.[ruleId] &&
-        config.files?.includes(JS_FILES_GLOB),
-    );
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+        config.files?.includes(ALL_FILES_GLOB)) ||
+      config.files?.includes(JS_FILES_GLOB),
+  );
 
   if (typeof config === 'string') {
     return undefined;
