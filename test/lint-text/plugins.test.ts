@@ -2,7 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import test from 'ava';
 import dedent from 'dedent';
-import {XO} from '../../lib/index.js';
+import {XO} from '../../lib/xo.js';
 import {copyTestProject} from '../helpers/copy-test-project.js';
 
 let cwd: string;
