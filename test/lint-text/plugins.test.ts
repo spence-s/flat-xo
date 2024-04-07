@@ -3,14 +3,14 @@ import fs from 'node:fs/promises';
 import test from 'ava';
 import dedent from 'dedent';
 import {XO} from '../../lib/index.js';
-import {setupTestProject} from '../helpers/setup-test-project.js';
+import {copyTestProject} from '../helpers/setup-test-project.js';
 
 let cwd: string;
 let filePath: string;
 let tsFilePath: string;
 
 test.before(async () => {
-  cwd = await setupTestProject();
+  cwd = await copyTestProject();
   filePath = path.join(cwd, 'test.js');
   tsFilePath = path.join(cwd, 'test.ts');
 });
@@ -138,4 +138,21 @@ test('eslint-plugin-n n/prefer-global/process ts', async (t) => {
   t.true(results[0]?.messages?.length === 1);
   t.truthy(results[0]?.messages?.[0]);
   t.is(results[0]?.messages?.[0]?.ruleId, 'n/prefer-global/process');
+});
+
+// eslint plugin eslint comments does not yet work with flat configs or eslint9
+// eslint-disable-next-line ava/no-skip-test
+test.skip('eslint-plugin-eslint-comments enable-disable-pair', async (t) => {
+  const {results} = await new XO({
+    cwd,
+  }).lintText(
+    dedent`
+      /* eslint-disable no-unused-vars */
+      console.log('hello');\n`,
+    {filePath},
+  );
+  t.log(results[0]?.messages);
+  t.true(results[0]?.messages?.length === 1);
+  t.truthy(results[0]?.messages?.[0]);
+  t.is(results[0]?.messages?.[0]?.ruleId, 'comments/enabled-disabled-pair');
 });

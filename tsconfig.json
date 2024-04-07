@@ -4,6 +4,6 @@
     "outDir": "dist",
     "sourceMap": true
   },
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "scripts/setup-test-project.js"],
   "exclude": ["node_modules", "dist"]
 }

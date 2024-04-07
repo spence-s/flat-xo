@@ -1,32 +1,74 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import {randomUUID} from 'node:crypto';
 import tempDir from 'temp-dir';
-import {$} from 'execa';
+// import {$} from 'execa';
 import {pathExists} from 'path-exists';
 import {type XoConfigItem} from '../../lib/types.js';
 
-/**
- * Creates a test project with a package.json and tsconfig.json
- * and installs the dependencies.
- *
- * @returns {string} The path to the test project.
- */
-export const setupTestProject = async () => {
-  const cwd = path.join(tempDir, 'test-project');
+// /**
+//  * Creates a test project with a package.json and tsconfig.json
+//  * and installs the dependencies.
+//  *
+//  * @returns {string} The path to the test project.
+//  */
+// export const setupTestProject = async () => {
+//   const cwd = path.join(tempDir, 'test-project');
 
-  if (await pathExists(cwd)) {
-    await fs.rm(cwd, {recursive: true, force: true});
+//   if (await pathExists(cwd)) {
+//     await fs.rm(cwd, {recursive: true, force: true});
+//   }
+
+//   // create the test project directory
+//   await fs.mkdir(cwd, {recursive: true});
+
+//   // create a package.json file
+//   await fs.writeFile(
+//     path.join(cwd, 'package.json'),
+//     JSON.stringify({
+//       name: 'test-project',
+//     }),
+//   );
+
+//   // create a tsconfig.json file
+//   await fs.writeFile(
+//     path.join(cwd, 'tsconfig.json'),
+//     JSON.stringify({
+//       compilerOptions: {
+//         module: 'node16',
+//         target: 'ES2022',
+//         strictNullChecks: true,
+//         lib: ['DOM', 'DOM.Iterable', 'ES2022'],
+//       },
+//       files: [path.join(cwd, 'test.ts')],
+//       exclude: ['node_modules'],
+//     }),
+//   );
+
+//   /** These packages get cached so its not too expensive to run this often */
+//   await $({cwd})`npm install --save-dev typescript @types/node`;
+
+//   // await $`open ${cwd}`;
+
+//   return cwd;
+// };
+
+/**
+ * Copies the test project in the temp dir to a new directory.
+ */
+export const copyTestProject = async () => {
+  if (!(await pathExists(tempDir))) {
+    throw new Error('temp-dir/test-project does not exist');
   }
 
-  await fs.mkdir(cwd, {recursive: true});
+  const testCwd = path.join(tempDir, 'test-project');
+  const newCwd = path.join(tempDir, randomUUID());
+
+  await fs.cp(testCwd, newCwd, {recursive: true});
+
+  // create a tsconfig.json file
   await fs.writeFile(
-    path.join(cwd, 'package.json'),
-    JSON.stringify({
-      name: 'test-project',
-    }),
-  );
-  await fs.writeFile(
-    path.join(cwd, 'tsconfig.json'),
+    path.join(newCwd, 'tsconfig.json'),
     JSON.stringify({
       compilerOptions: {
         module: 'node16',
@@ -34,26 +76,25 @@ export const setupTestProject = async () => {
         strictNullChecks: true,
         lib: ['DOM', 'DOM.Iterable', 'ES2022'],
       },
-      files: [path.join(cwd, 'test.ts')],
+      files: [path.join(newCwd, 'test.ts')],
       exclude: ['node_modules'],
     }),
   );
-
-  await $({cwd})`npm install --save-dev typescript @types/node`;
-
-  // await $`open ${cwd}`;
-
-  return cwd;
+  return newCwd;
 };
 
 /**
  * Adds a flag to the xo.config.js file in the test project in the temp dir.
  * Cleans up any previous xo.config.js file.
  *
- * @param config
+ * @param cwd - the test project directory
+ * @param config - contents of a xo.config.js file as a string
  */
-export const addFlatConfigToProject = async (config: XoConfigItem[]) => {
-  const filePath = path.join(tempDir, 'test-project', 'xo.config.js');
+export const addFlatConfigToProject = async (
+  cwd: string,
+  config: XoConfigItem[],
+) => {
+  const filePath = path.join(cwd, 'xo.config.js');
 
   if (await pathExists(filePath)) {
     await fs.rm(filePath, {force: true});
