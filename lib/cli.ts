@@ -9,24 +9,24 @@ import {XO} from './index.js';
 
 const cli = meow(
   `
-	Usage
-	  $ xo [<file|glob> ...]
+  Usage
+    $ xo [<file|glob> ...]
 
-	Options
-	  --fix             Automagically fix issues
-	  --space           Use space indent instead of tabs  [Default: 2]
-	  --no-semicolon    Prevent use of semicolons
-	  --prettier        Conform to Prettier code style
-	  --print-config    Print the effective ESLint config for the given file
+  Options
+    --fix             Automagically fix issues
+    --space           Use space indent instead of tabs  [Default: 2]
+    --no-semicolon    Prevent use of semicolons
+    --prettier        Conform to Prettier code style
+    --print-config    Print the effective ESLint config for the given file
     --ignore          Ignore pattern globs, can be set multiple times
-	  --cwd=<dir>       Working directory for files
+    --cwd=<dir>       Working directory for files
 
-	Examples
-	  $ xo
-	  $ xo index.js
-	  $ xo *.js !foo.js
-	  $ xo --space
-	  $ xo --print-config=index.js
+  Examples
+    $ xo
+    $ xo index.js
+    $ xo *.js !foo.js
+    $ xo --space
+    $ xo --print-config=index.js
 `,
   {
     importMeta: import.meta,

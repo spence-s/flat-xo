@@ -6,55 +6,9 @@ import tempDir from 'temp-dir';
 import {pathExists} from 'path-exists';
 import {type XoConfigItem} from '../../lib/types.js';
 
-// /**
-//  * Creates a test project with a package.json and tsconfig.json
-//  * and installs the dependencies.
-//  *
-//  * @returns {string} The path to the test project.
-//  */
-// export const setupTestProject = async () => {
-//   const cwd = path.join(tempDir, 'test-project');
-
-//   if (await pathExists(cwd)) {
-//     await fs.rm(cwd, {recursive: true, force: true});
-//   }
-
-//   // create the test project directory
-//   await fs.mkdir(cwd, {recursive: true});
-
-//   // create a package.json file
-//   await fs.writeFile(
-//     path.join(cwd, 'package.json'),
-//     JSON.stringify({
-//       name: 'test-project',
-//     }),
-//   );
-
-//   // create a tsconfig.json file
-//   await fs.writeFile(
-//     path.join(cwd, 'tsconfig.json'),
-//     JSON.stringify({
-//       compilerOptions: {
-//         module: 'node16',
-//         target: 'ES2022',
-//         strictNullChecks: true,
-//         lib: ['DOM', 'DOM.Iterable', 'ES2022'],
-//       },
-//       files: [path.join(cwd, 'test.ts')],
-//       exclude: ['node_modules'],
-//     }),
-//   );
-
-//   /** These packages get cached so its not too expensive to run this often */
-//   await $({cwd})`npm install --save-dev typescript @types/node`;
-
-//   // await $`open ${cwd}`;
-
-//   return cwd;
-// };
-
 /**
  * Copies the test project in the temp dir to a new directory.
+ * @returns {string} The path to the copied test project.
  */
 export const copyTestProject = async () => {
   if (!(await pathExists(tempDir))) {

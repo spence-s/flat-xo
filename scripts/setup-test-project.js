@@ -23,6 +23,7 @@ await fs.mkdir(cwd, {recursive: true});
 await fs.writeFile(
   path.join(cwd, 'package.json'),
   JSON.stringify({
+    type: 'module',
     name: 'test-project',
   }),
 );
