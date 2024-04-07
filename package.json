@@ -9,7 +9,7 @@
     "build:watch": "npm run clean && tsc --watch",
     "check": "tsc --project ./jsconfig.json",
     "clean": "rm -rf dist",
-    "test": "node scripts/setup-test-project && ava",
+    "test": "node scripts/test",
     "test:watch": "ava --watch"
   },
   "xo": {

@@ -43,5 +43,6 @@ await fs.writeFile(
   }),
 );
 
-/** These packages get cached so its not too expensive to run this often */
 await $({cwd, stdio: 'inherit'})`npm install --save-dev typescript @types/node`;
+await $({stdio: 'inherit'})`npm run build`;
+await $({stdio: 'inherit'})`ava`;
