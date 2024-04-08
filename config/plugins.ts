@@ -22,7 +22,7 @@ const config: ESLintConfig = {
   ],
   extends: ['plugin:ava/recommended', 'plugin:unicorn/recommended'],
   settings: {
-    'import/core-modules': ['electron', 'atom'],
+    'import-x/core-modules': ['electron', 'atom'],
   },
   rules: {
     'no-use-extend-native/no-use-extend-native': 'error',
@@ -181,47 +181,48 @@ const config: ESLintConfig = {
     // 'promise/valid-params': 'error',
     // 'promise/prefer-await-to-then': 'error',
 
-    'import/default': 'error',
-    'import/export': 'error',
-    'import/extensions': [
+    'import-x/default': 'error',
+    'import-x/export': 'error',
+    'import-x/extensions': [
       'error',
       'always',
       {
         ignorePackages: true,
       },
     ],
-    'import/first': 'error',
+    'import-x/first': 'error',
 
     // Enabled, but disabled on TypeScript (https://github.com/xojs/xo/issues/576)
-    'import/named': 'error',
-
-    'import/namespace': [
-      'error',
-      {
-        allowComputed: true,
-      },
-    ],
-    'import/no-absolute-path': 'error',
-    'import/no-anonymous-default-export': 'error',
-    'import/no-named-default': 'error',
-    'import/no-webpack-loader-syntax': 'error',
-    'import/no-self-import': 'error',
-    'import/no-cycle': [
+    'import-x/named': 'error',
+    // currently does not work with flat config
+    // TODO: Enable when it works with flat config
+    // 'import-x/namespace': [
+    //   'error',
+    //   {
+    //     allowComputed: true,
+    //   },
+    // ],
+    'import-x/no-absolute-path': 'error',
+    'import-x/no-anonymous-default-export': 'error',
+    'import-x/no-named-default': 'error',
+    'import-x/no-webpack-loader-syntax': 'error',
+    'import-x/no-self-import': 'error',
+    'import-x/no-cycle': [
       'error',
       {
         ignoreExternal: true,
       },
     ],
-    'import/no-useless-path-segments': 'error',
-    'import/newline-after-import': [
+    'import-x/no-useless-path-segments': 'error',
+    'import-x/newline-after-import': [
       'error',
       {
         // TODO: Buggy.
         // considerComments: true,
       },
     ],
-    'import/no-amd': 'error',
-    'import/no-duplicates': [
+    'import-x/no-amd': 'error',
+    'import-x/no-duplicates': [
       'error',
       {
         'prefer-inline': true,
@@ -229,31 +230,33 @@ const config: ESLintConfig = {
     ],
 
     // We use `unicorn/prefer-module` instead.
-    // 'import/no-commonjs': 'error',
+    // 'import-x/no-commonjs': 'error',
 
     // Looks useful, but too unstable at the moment
-    // 'import/no-deprecated': 'error',
+    // 'import-x/no-deprecated': 'error',
 
-    'import/no-empty-named-blocks': 'error',
-    'import/no-extraneous-dependencies': [
+    'import-x/no-empty-named-blocks': 'error',
+    'import-x/no-extraneous-dependencies': [
       'error',
       {
         includeTypes: true,
       },
     ],
-    'import/no-mutable-exports': 'error',
-    'import/no-named-as-default-member': 'error',
-    'import/no-named-as-default': 'error',
+    'import-x/no-mutable-exports': 'error',
+    'import-x/namespace': 'off',
+    'import-x/no-named-as-default-member': 'off',
+    // 'import-x/no-named-as-default-member': 'error',
+    'import-x/no-named-as-default': 'error',
 
     // Disabled because it's buggy and it also doesn't work with TypeScript
-    // 'import/no-unresolved': [
+    // 'import-x/no-unresolved': [
     // 	'error',
     // 	{
     // 		commonjs: false
     // 	}
     // ],
 
-    'import/order': [
+    'import-x/order': [
       'error',
       {
         groups: ['builtin', 'external', 'parent', 'sibling', 'index'],
@@ -261,7 +264,7 @@ const config: ESLintConfig = {
         warnOnUnassignedImports: true,
       },
     ],
-    'import/no-unassigned-import': [
+    'import-x/no-unassigned-import': [
       'error',
       {
         allow: [
@@ -278,17 +281,17 @@ const config: ESLintConfig = {
       },
     ],
 
-    // Redundant with `import/no-extraneous-dependencies`.
-    // 'n/no-extraneous-import': 'error',
+    // Redundant with `import-x/no-extraneous-dependencies`.
+    'n/no-extraneous-import': 'error',
     // 'n/no-extraneous-require': 'error',
 
-    // Redundant with `import/no-unresolved`.
+    // Redundant with `import-x/no-unresolved`.
     // 'n/no-missing-import': 'error', // This rule is also buggy and doesn't support `node:`.
     // 'n/no-missing-require': 'error',
 
     'n/no-unpublished-bin': 'error',
 
-    // We have this enabled in addition to `import/extensions` as this one has an auto-fix.
+    // We have this enabled in addition to `import-x/extensions` as this one has an auto-fix.
     'n/file-extension-in-import': [
       'error',
       'always',
@@ -344,20 +347,20 @@ const config: ESLintConfig = {
     'n/prefer-global/url': ['error', 'always'],
     'n/prefer-promises/dns': 'error',
     'n/prefer-promises/fs': 'error',
-    'eslint-comments/disable-enable-pair': [
+    '@eslint-community/eslint-comments/disable-enable-pair': [
       'error',
       {
         allowWholeFile: true,
       },
     ],
-    'eslint-comments/no-aggregating-enable': 'error',
-    'eslint-comments/no-duplicate-disable': 'error',
+    '@eslint-community/eslint-comments/no-aggregating-enable': 'error',
+    '@eslint-community/eslint-comments/no-duplicate-disable': 'error',
 
     // Disabled as it's already covered by the `unicorn/no-abusive-eslint-disable` rule.
     // 'eslint-comments/no-unlimited-disable': 'error',
 
-    'eslint-comments/no-unused-disable': 'error',
-    'eslint-comments/no-unused-enable': 'error',
+    '@eslint-community/eslint-comments/no-unused-disable': 'error',
+    '@eslint-community/eslint-comments/no-unused-enable': 'error',
   },
 };
 

@@ -17,19 +17,20 @@ export const baseRules: Rules = {
 // @ts-expect-error This definitely exists in this case - no worth fixing types
 export const jsRules: Rules = {
   ...configXo.rules,
+  'capitalized-comments': 'off',
 };
 
 // @ts-expect-error This definitely exists in this case - no worth fixing types
 const customTsRules: Rules = {
   'unicorn/import-style': 'off',
   'n/file-extension-in-import': 'off',
-  // Disabled because of https://github.com/benmosher/eslint-plugin-import/issues/1590
-  'import/export': 'off',
+  // Disabled because of https://github.com/benmosher/eslint-plugin-import-x/issues/1590
+  'import-x/export': 'off',
   // Does not work when the TS definition exports a default const.
-  'import/default': 'off',
+  'import-x/default': 'off',
   // Disabled as it doesn't work with TypeScript.
-  // This issue and some others: https://github.com/benmosher/eslint-plugin-import/issues/1341
-  'import/named': 'off',
+  // This issue and some others: https://github.com/benmosher/eslint-plugin-import-x/issues/1341
+  'import-x/named': 'off',
 };
 
 // @ts-expect-error This definitely exists in this case - no worth fixing types

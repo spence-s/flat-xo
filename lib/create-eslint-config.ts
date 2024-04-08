@@ -2,7 +2,7 @@
 // import util from 'node:util';
 import pluginAva from 'eslint-plugin-ava';
 import pluginUnicorn from 'eslint-plugin-unicorn';
-import pluginImport from 'eslint-plugin-import';
+import pluginImport from 'eslint-plugin-import-x';
 import pluginN from 'eslint-plugin-n';
 import pluginComments from '@eslint-community/eslint-plugin-eslint-comments';
 import pluginNoUseExtendNative from 'eslint-plugin-no-use-extend-native';
@@ -21,12 +21,13 @@ import pick from 'lodash.pick';
 import {type FlatESLintConfig} from 'eslint-define-config';
 import {type ESLint} from 'eslint';
 import {
-  ALL_EXTENSIONS,
   DEFAULT_IGNORES,
   TS_EXTENSIONS,
   JS_FILES_GLOB,
   TS_FILES_GLOB,
   ALL_FILES_GLOB,
+  JS_EXTENSIONS,
+  ALL_EXTENSIONS,
 } from './constants.js';
 import {type XoConfigItem} from './types.js';
 import {jsRules, tsRules, baseRules} from './rules.js';
@@ -54,9 +55,9 @@ async function createConfig(
         'no-use-extend-native': pluginNoUseExtendNative,
         ava: pluginAva,
         unicorn: pluginUnicorn,
-        import: pluginImport,
+        'import-x': pluginImport,
         n: pluginN,
-        'eslint-comments': pluginComments,
+        '@eslint-community/eslint-comments': pluginComments,
       },
       languageOptions: {
         globals: {
@@ -70,12 +71,18 @@ async function createConfig(
         },
       },
       settings: {
-        'import/core-modules': ['electron', 'atom'],
-        'import/parsers': {
-          espree: ALL_EXTENSIONS,
+        'import-x/extensions': ALL_EXTENSIONS,
+        'import-x/core-modules': ['electron', 'atom'],
+        'import-x/parsers': {
+          espree: JS_EXTENSIONS,
+          '@typescript-eslint/parser': TS_EXTENSIONS,
         },
-        'import/resolver': {
-          node: true,
+        'import-x/external-module-folders': [
+          'node_modules',
+          'node_modules/@types',
+        ],
+        'import-x/resolver': {
+          node: ALL_EXTENSIONS,
         },
       },
       /**
@@ -286,22 +293,6 @@ async function createConfig(
         ecmaFeatures: {modules: true},
         project: tsconfigPath ?? './tsconfig.json', // Tsconfig,
       },
-    },
-    settings: {
-      'import/extensions': ALL_EXTENSIONS,
-      'import/external-module-folders': ['node_modules', 'node_modules/@types'],
-      'import/parsers': {
-        '@typescript-eslint/parser': [TS_EXTENSIONS],
-      },
-      'import/resolver': {
-        typescript: true,
-        node: {
-          extensions: ALL_EXTENSIONS,
-        },
-      },
-    },
-    rules: {
-      'import/named': 'off',
     },
   });
 

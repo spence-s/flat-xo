@@ -54,7 +54,7 @@ test('no-use-extend-native ts', async (t) => {
   );
 });
 
-test('eslint-plugin-import import/order', async (t) => {
+test('eslint-plugin-import import-x/order', async (t) => {
   const {results} = await new XO({cwd}).lintText(
     dedent`
       import foo from 'foo';
@@ -67,10 +67,10 @@ test('eslint-plugin-import import/order', async (t) => {
 
   t.true(results[0]?.messages?.length === 1);
   t.truthy(results[0]?.messages?.[0]);
-  t.is(results[0]?.messages?.[0]?.ruleId, 'import/order');
+  t.is(results[0]?.messages?.[0]?.ruleId, 'import-x/order');
 });
 
-test('eslint-plugin-import import/order ts', async (t) => {
+test('eslint-plugin-import import-x/order ts', async (t) => {
   const {results} = await new XO({cwd}).lintText(
     dedent`
       import foo from 'foo';
@@ -82,10 +82,10 @@ test('eslint-plugin-import import/order ts', async (t) => {
   );
   t.true(results[0]?.messages?.length === 1);
   t.truthy(results[0]?.messages?.[0]);
-  t.is(results[0]?.messages?.[0]?.ruleId, 'import/order');
+  t.is(results[0]?.messages?.[0]?.ruleId, 'import-x/order');
 });
 
-test('eslint-plugin-import import/extensions', async (t) => {
+test('eslint-plugin-import import-x/extensions', async (t) => {
   const {results} = await new XO({cwd}).lintText(
     dedent`
     import foo from './foo';
@@ -96,10 +96,10 @@ test('eslint-plugin-import import/extensions', async (t) => {
   );
   t.true(results[0]?.messages?.length === 1);
   t.truthy(results[0]?.messages?.[0]);
-  t.is(results[0]?.messages?.[0]?.ruleId, 'import/extensions');
+  t.is(results[0]?.messages?.[0]?.ruleId, 'import-x/extensions');
 });
 
-test('eslint-plugin-import import/extensions ts', async (t) => {
+test('eslint-plugin-import import-x/extensions ts', async (t) => {
   const {results} = await new XO({cwd}).lintText(
     dedent`
       import foo from './foo';
@@ -110,7 +110,7 @@ test('eslint-plugin-import import/extensions ts', async (t) => {
   );
   t.true(results[0]?.messages?.length === 1);
   t.truthy(results[0]?.messages?.[0]);
-  t.is(results[0]?.messages?.[0]?.ruleId, 'import/extensions');
+  t.is(results[0]?.messages?.[0]?.ruleId, 'import-x/extensions');
 });
 
 test('eslint-plugin-n n/prefer-global/process', async (t) => {
@@ -141,18 +141,37 @@ test('eslint-plugin-n n/prefer-global/process ts', async (t) => {
 });
 
 // eslint plugin eslint comments does not yet work with flat configs or eslint9
-// eslint-disable-next-line ava/no-skip-test
-test.skip('eslint-plugin-eslint-comments enable-disable-pair', async (t) => {
+test('eslint-plugin-eslint-comments enable-disable-pair', async (t) => {
   const {results} = await new XO({
     cwd,
   }).lintText(
     dedent`
-      /* eslint-disable no-unused-vars */
-      console.log('hello');\n`,
+    /* eslint-disable no-undef */
+
+    export const foo = bar(); // eslint-disable-line no-undef
+    \n`,
     {filePath},
   );
-  t.log(results[0]?.messages);
   t.true(results[0]?.messages?.length === 1);
-  t.truthy(results[0]?.messages?.[0]);
-  t.is(results[0]?.messages?.[0]?.ruleId, 'comments/enabled-disabled-pair');
+  t.is(
+    results[0]?.messages?.[0]?.ruleId,
+    '@eslint-community/eslint-comments/no-duplicate-disable',
+  );
+});
+
+test('eslint-plugin-eslint-comments enable-disable-pair ts', async (t) => {
+  const {results} = await new XO({
+    cwd,
+  }).lintText(
+    dedent`
+    /* eslint-disable no-undef */
+    export const foo = 10; // eslint-disable-line no-undef
+    \n`,
+    {filePath: tsFilePath},
+  );
+  t.true(results[0]?.messages?.length === 1);
+  t.is(
+    results[0]?.messages?.[0]?.ruleId,
+    '@eslint-community/eslint-comments/no-duplicate-disable',
+  );
 });
