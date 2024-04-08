@@ -108,7 +108,6 @@ async function createConfig(
    * ie... we need to turn prettier,space,semi,etc... on or off for a specific file
    */
   for (const userConfig of userConfigs ?? []) {
-    // console.log('userConfig', userConfig);
     if (Object.keys(userConfig).length === 0) {
       continue;
     }
@@ -161,7 +160,6 @@ async function createConfig(
     }
 
     if (userConfig.space) {
-      // console.log('setting up space options');
       const spaces =
         typeof userConfig.space === 'number' ? userConfig.space : 2;
 
@@ -189,7 +187,6 @@ async function createConfig(
     }
 
     if (userConfig.prettier) {
-      // console.log('doing prettier stuff');
       const prettierOptions =
         cachedPrettierConfig ??
         // eslint-disable-next-line no-await-in-loop
@@ -233,7 +230,33 @@ async function createConfig(
         prettier: pluginPrettier,
       };
 
+      tsUserConfig.plugins = {
+        ...tsUserConfig.plugins,
+        prettier: pluginPrettier,
+      };
+
       userConfig.rules = {
+        ...userConfig.rules,
+        ...(pluginPrettier.configs?.['recommended'] as ESLint.ConfigData)
+          ?.rules,
+        'prettier/prettier': [
+          'error',
+          {
+            singleQuote: true,
+            bracketSpacing: false,
+            bracketSameLine: false,
+            trailingComma: 'all',
+            tabWidth:
+              typeof userConfig.space === 'number' ? userConfig.space : 2,
+            useTabs: !userConfig.space,
+            semi: userConfig.semicolon,
+            ...prettierOptions,
+          },
+        ],
+        ...configPrettier.rules,
+      };
+
+      tsUserConfig.rules = {
         ...userConfig.rules,
         ...(pluginPrettier.configs?.['recommended'] as ESLint.ConfigData)
           ?.rules,
@@ -268,7 +291,6 @@ async function createConfig(
       'plugins',
       'settings',
       'rules',
-      'prettier',
     ];
 
     baseConfig.push(pick(userConfig, options));

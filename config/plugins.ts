@@ -196,12 +196,12 @@ const config: ESLintConfig = {
     'import-x/named': 'error',
     // currently does not work with flat config
     // TODO: Enable when it works with flat config
-    // 'import-x/namespace': [
-    //   'error',
-    //   {
-    //     allowComputed: true,
-    //   },
-    // ],
+    'import-x/namespace': [
+      'error',
+      {
+        allowComputed: true,
+      },
+    ],
     'import-x/no-absolute-path': 'error',
     'import-x/no-anonymous-default-export': 'error',
     'import-x/no-named-default': 'error',
@@ -243,9 +243,7 @@ const config: ESLintConfig = {
       },
     ],
     'import-x/no-mutable-exports': 'error',
-    'import-x/namespace': 'off',
-    'import-x/no-named-as-default-member': 'off',
-    // 'import-x/no-named-as-default-member': 'error',
+    'import-x/no-named-as-default-member': 'error',
     'import-x/no-named-as-default': 'error',
 
     // Disabled because it's buggy and it also doesn't work with TypeScript

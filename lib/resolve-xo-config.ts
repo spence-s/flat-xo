@@ -8,7 +8,9 @@ import {MODULE_NAME} from './constants.js';
 
 // Async cosmiconfig loader for es module types
 const loadModule = async (fp: string) => {
-  const {default: module} = (await import(fp)) as {default: FlatESLintConfig};
+  const {default: module} = (await import(`${fp}?ts=${Date.now()}`)) as {
+    default: FlatESLintConfig;
+  };
   return module;
 };
 
@@ -39,6 +41,7 @@ async function resolveXoConfig(options: LintOptions): Promise<{
       `${MODULE_NAME}.config.js`,
       `${MODULE_NAME}.config.cjs`,
       `${MODULE_NAME}.config.mjs`,
+      `${MODULE_NAME}.config.ts`,
     ],
     stopDir: stopDirectory,
     loaders: {
@@ -81,7 +84,7 @@ async function resolveXoConfig(options: LintOptions): Promise<{
     'plugins',
   ];
 
-  flatOptions.push(pick(options, ['space']));
+  flatOptions.push(pick(options, ['space', 'prettier']));
 
   flatOptions = flatOptions.map((config) => pick(config, globalKeys));
 

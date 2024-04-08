@@ -21,10 +21,27 @@ export type CliOptions = {
 };
 
 export type XoOptions = {
+  /**
+   * Use spaces or tabs for indentation.
+   * Tabs are used if the value is `false`, otherwise the
+   * value is the number of spaces to use or true, the default number of spaces is 2.
+   */
   space?: Space;
+  /**
+   * Use semicolons at the end of statements or error for semi-colon usage.
+   */
   semicolon?: boolean;
+  /**
+   * Use Prettier to format code.
+   */
   prettier?: boolean;
+  /**
+   * Path to your tsconfg.json file.
+   */
   tsconfig?: string;
+  /**
+   * Files to ignore, can be a glob or array of globs.
+   */
   ignores?: string | string[];
 };
 
