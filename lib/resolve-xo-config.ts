@@ -58,6 +58,7 @@ async function resolveXoConfig(options: LintOptions): Promise<{
   let [
     {config: flatOptions = [], filepath: flatConfigPath = ''},
     // {config: enginesOptions = {}},
+    // eslint-disable-next-line unicorn/no-single-promise-in-promise-methods
   ] = await Promise.all([
     (async () =>
       (await flatConfigExplorer.search(searchPath)) ?? {})() as Promise<{

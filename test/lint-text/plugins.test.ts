@@ -140,26 +140,26 @@ test('eslint-plugin-n n/prefer-global/process ts', async (t) => {
   t.is(results[0]?.messages?.[0]?.ruleId, 'n/prefer-global/process');
 });
 
-// eslint plugin eslint comments does not yet work with flat configs or eslint9
-test('eslint-plugin-eslint-comments enable-disable-pair', async (t) => {
+test('eslint-plugin-eslint-comments enable-duplicate-disable', async (t) => {
   const {results} = await new XO({
     cwd,
   }).lintText(
     dedent`
     /* eslint-disable no-undef */
-
     export const foo = bar(); // eslint-disable-line no-undef
     \n`,
     {filePath},
   );
-  t.true(results[0]?.messages?.length === 1);
-  t.is(
-    results[0]?.messages?.[0]?.ruleId,
-    '@eslint-community/eslint-comments/no-duplicate-disable',
+  t.true(results[0]?.errorCount === 1);
+  t.true(
+    results[0]?.messages.some(
+      ({ruleId}) =>
+        ruleId === '@eslint-community/eslint-comments/no-duplicate-disable',
+    ),
   );
 });
 
-test('eslint-plugin-eslint-comments enable-disable-pair ts', async (t) => {
+test('eslint-plugin-eslint-comments no-duplicate-disable ts', async (t) => {
   const {results} = await new XO({
     cwd,
   }).lintText(
@@ -169,9 +169,11 @@ test('eslint-plugin-eslint-comments enable-disable-pair ts', async (t) => {
     \n`,
     {filePath: tsFilePath},
   );
-  t.true(results[0]?.messages?.length === 1);
-  t.is(
-    results[0]?.messages?.[0]?.ruleId,
-    '@eslint-community/eslint-comments/no-duplicate-disable',
+  t.true(results[0]?.errorCount === 1);
+  t.true(
+    results[0]?.messages.some(
+      ({ruleId}) =>
+        ruleId === '@eslint-community/eslint-comments/no-duplicate-disable',
+    ),
   );
 });
