@@ -59,7 +59,7 @@
     "eslint-config-xo-space": "^0.35.0",
     "eslint-config-xo-typescript": "^5.0.0",
     "eslint-define-config": "~2.1.0",
-    "eslint-formatter-pretty": "file:../eslint-formatter-pretty",
+    "eslint-formatter-pretty": "^5.0.0",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-import-resolver-webpack": "^0.13.8",
     "eslint-plugin-ava": "^15.0.1",
