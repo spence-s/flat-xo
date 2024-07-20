@@ -113,6 +113,37 @@ test('eslint-plugin-import import-x/extensions ts', async (t) => {
   t.is(results[0]?.messages?.[0]?.ruleId, 'import-x/extensions');
 });
 
+test('eslint-plugin-import import-x/no-absolute-path ts', async (t) => {
+  const {results} = await new XO({cwd}).lintText(
+    dedent`
+      import foo from '/foo';
+
+      console.log(foo);\n
+    `,
+    {filePath: tsFilePath},
+  );
+  t.true(
+    results[0]?.messages?.some(
+      ({ruleId}) => ruleId === 'import-x/no-absolute-path',
+    ),
+  );
+});
+
+test('eslint-plugin-import import-x/no-anonymous-default-export', async (t) => {
+  const {results} = await new XO({cwd}).lintText(
+    dedent`
+      export default () => {};\n
+    `,
+    {filePath},
+  );
+
+  t.true(
+    results[0]?.messages?.some(
+      ({ruleId}) => ruleId === 'import-x/no-anonymous-default-export',
+    ),
+  );
+});
+
 test('eslint-plugin-n n/prefer-global/process', async (t) => {
   const {results} = await new XO({cwd}).lintText(
     dedent`

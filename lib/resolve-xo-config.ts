@@ -17,13 +17,12 @@ const loadModule = async (fp: string) => {
 /**
  * Finds the xo config file
  */
-async function resolveXoConfig(options: LintOptions): Promise<{
+export async function resolveXoConfig(options: LintOptions): Promise<{
   flatOptions: FlatXoConfig;
   flatConfigPath: string;
+  enginesOptions: {engines?: string};
 }> {
   options.cwd ||= process.cwd();
-
-  // console.log('options', options);
 
   if (!path.isAbsolute(options.cwd)) {
     options.cwd = path.resolve(process.cwd(), options.cwd);
@@ -31,10 +30,10 @@ async function resolveXoConfig(options: LintOptions): Promise<{
 
   const stopDirectory = path.dirname(options.cwd);
 
-  // Const pkgConfigExplorer = cosmiconfig('engines', {
-  //   searchPlaces: ['package.json'],
-  //   stopDirectory: options.cwd,
-  // });
+  const packageConfigExplorer = cosmiconfig('engines', {
+    searchPlaces: ['package.json'],
+    stopDir: options.cwd,
+  });
 
   const flatConfigExplorer = cosmiconfig(MODULE_NAME, {
     searchPlaces: [
@@ -57,18 +56,17 @@ async function resolveXoConfig(options: LintOptions): Promise<{
 
   let [
     {config: flatOptions = [], filepath: flatConfigPath = ''},
-    // {config: enginesOptions = {}},
-    // eslint-disable-next-line unicorn/no-single-promise-in-promise-methods
+    {config: enginesOptions = {}},
   ] = await Promise.all([
     (async () =>
       (await flatConfigExplorer.search(searchPath)) ?? {})() as Promise<{
       config: FlatXoConfig | undefined;
       filepath: string;
     }>,
-    // (async () =>
-    //   (await pkgConfigExplorer.search(searchPath)) ?? {})() as Promise<{
-    //   config: {engines: string} | undefined;
-    // }>,
+    (async () =>
+      (await packageConfigExplorer.search(searchPath)) ?? {})() as Promise<{
+      config: {engines: string} | undefined;
+    }>,
   ]);
 
   const globalKeys = [
@@ -85,12 +83,10 @@ async function resolveXoConfig(options: LintOptions): Promise<{
     'plugins',
   ];
 
-  flatOptions.push(pick(options, ['space', 'prettier']));
-
   flatOptions = flatOptions.map((config) => pick(config, globalKeys));
 
   return {
-    // EnginesOptions,
+    enginesOptions,
     flatOptions,
     flatConfigPath,
   };

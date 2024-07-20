@@ -26,7 +26,6 @@ const config: ESLintConfig = {
   },
   rules: {
     'no-use-extend-native/no-use-extend-native': 'error',
-
     // TODO: Remove this override at some point.
     // It's just here to ease users into readable variable names.
     'unicorn/prevent-abbreviations': [
@@ -125,7 +124,6 @@ const config: ESLintConfig = {
         },
       },
     ],
-
     // TODO: Restore when it becomes safer: https://github.com/sindresorhus/eslint-plugin-unicorn/issues/681
     // 'unicorn/string-content': [
     // 	'error',
@@ -138,7 +136,6 @@ const config: ESLintConfig = {
     // 		}
     // 	}
     // ],
-
     // The character class sorting is a bit buggy at the moment.
     'unicorn/better-regex': [
       'error',
@@ -146,25 +143,18 @@ const config: ESLintConfig = {
         sortCharacterClasses: false,
       },
     ],
-
     // TODO: Disabled for now until it becomes more stable: https://github.com/sindresorhus/eslint-plugin-unicorn/search?q=consistent-destructuring+is:issue&state=open&type=issues
     'unicorn/consistent-destructuring': 'off',
-
     // TODO: Disabled for now as I don't have time to deal with the backslash that might come from this. Try to enable this rule in 2021.
     'unicorn/no-null': 'off',
-
     // We only enforce it for single-line statements to not be too opinionated.
     'unicorn/prefer-ternary': ['error', 'only-single-line'],
-
     // It will be disabled in the next version of eslint-plugin-unicorn.
     'unicorn/prefer-json-parse-buffer': 'off',
-
     // TODO: Remove this override when the rule is more stable.
     'unicorn/consistent-function-scoping': 'off',
-
     // TODO: Temporarily disabled until it becomes more mature.
     'unicorn/no-useless-undefined': 'off',
-
     // TODO: Temporarily disabled as the rule is buggy.
     'function-call-argument-newline': 'off',
 
@@ -180,7 +170,6 @@ const config: ESLintConfig = {
     // 'promise/no-return-in-finally': 'error',
     // 'promise/valid-params': 'error',
     // 'promise/prefer-await-to-then': 'error',
-
     'import-x/default': 'error',
     'import-x/export': 'error',
     'import-x/extensions': [
@@ -228,13 +217,10 @@ const config: ESLintConfig = {
         'prefer-inline': true,
       },
     ],
-
     // We use `unicorn/prefer-module` instead.
     // 'import-x/no-commonjs': 'error',
-
     // Looks useful, but too unstable at the moment
     // 'import-x/no-deprecated': 'error',
-
     'import-x/no-empty-named-blocks': 'error',
     'import-x/no-extraneous-dependencies': [
       'error',
@@ -245,7 +231,6 @@ const config: ESLintConfig = {
     'import-x/no-mutable-exports': 'error',
     'import-x/no-named-as-default-member': 'error',
     'import-x/no-named-as-default': 'error',
-
     // Disabled because it's buggy and it also doesn't work with TypeScript
     // 'import-x/no-unresolved': [
     // 	'error',
@@ -253,7 +238,6 @@ const config: ESLintConfig = {
     // 		commonjs: false
     // 	}
     // ],
-
     'import-x/order': [
       'error',
       {
@@ -278,17 +262,13 @@ const config: ESLintConfig = {
         ],
       },
     ],
-
     // Redundant with `import-x/no-extraneous-dependencies`.
     'n/no-extraneous-import': 'error',
     // 'n/no-extraneous-require': 'error',
-
     // Redundant with `import-x/no-unresolved`.
     // 'n/no-missing-import': 'error', // This rule is also buggy and doesn't support `node:`.
     // 'n/no-missing-require': 'error',
-
     'n/no-unpublished-bin': 'error',
-
     // We have this enabled in addition to `import-x/extensions` as this one has an auto-fix.
     'n/file-extension-in-import': [
       'error',
@@ -308,33 +288,7 @@ const config: ESLintConfig = {
     ],
     'n/no-new-require': 'error',
     'n/no-path-concat': 'error',
-
-    // Disabled because they're too annoying, see:
-    // https://github.com/mysticatea/eslint-plugin-node/issues/105
-    // 'n/no-unpublished-import': [
-    // 	'error',
-    // 	{
-    // 		allowModules: [
-    // 			'electron',
-    // 			'atom'
-    // 		]
-    // 	}
-    // ],
-    // 'n/no-unpublished-require': [
-    // 	'error',
-    // 	{
-    // 		allowModules: [
-    // 			'electron',
-    // 			'atom'
-    // 		]
-    // 	}
-    // ],
-
     'n/process-exit-as-throw': 'error',
-
-    // Disabled as the rule doesn't exclude scripts executed with `node` but not referenced in 'bin'. See https://github.com/mysticatea/eslint-plugin-node/issues/96
-    // 'n/shebang': 'error',
-
     'n/no-deprecated-api': 'error',
     'n/prefer-global/buffer': ['error', 'never'],
     'n/prefer-global/console': ['error', 'always'],
@@ -353,10 +307,8 @@ const config: ESLintConfig = {
     ],
     '@eslint-community/eslint-comments/no-aggregating-enable': 'error',
     '@eslint-community/eslint-comments/no-duplicate-disable': 'error',
-
     // Disabled as it's already covered by the `unicorn/no-abusive-eslint-disable` rule.
     // 'eslint-comments/no-unlimited-disable': 'error',
-
     '@eslint-community/eslint-comments/no-unused-disable': 'error',
     '@eslint-community/eslint-comments/no-unused-enable': 'error',
   },

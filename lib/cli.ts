@@ -37,6 +37,7 @@ const cli = meow(
         type: 'boolean',
       },
       tsconfig: {
+        aliases: ['tsConfig'],
         type: 'string',
       },
       reporter: {

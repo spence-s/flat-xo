@@ -90,7 +90,7 @@ export class XO {
     this.options = _options ?? {};
   }
 
-  async initializeEslint(): Promise<ESLint> {
+  async initEslint(): Promise<ESLint> {
     // Options?: LintOptions, // globs?: string | string[] | LintOptions,
     this.options.cwd ||= process.cwd();
 
@@ -181,7 +181,7 @@ export class XO {
   }
 
   async lintFiles(globs?: string | string[]): Promise<XoLintResult> {
-    this.eslint ||= await this.initializeEslint();
+    this.eslint ||= await this.initEslint();
 
     if (!globs || (Array.isArray(globs) && globs.length === 0)) {
       globs = `**/*.{${ALL_EXTENSIONS.join(',')}}`;
@@ -306,7 +306,7 @@ export class XO {
   ): Promise<XoLintResult> {
     const {filePath, warnIgnored, /* forceInitialize, */ fix} = lintTextOptions;
 
-    this.eslint ||= await this.initializeEslint();
+    this.eslint ||= await this.initEslint();
 
     this.fixableEslint ||= await this.initializeFixableEslint();
 
@@ -325,7 +325,7 @@ export class XO {
   }
 
   async calculateConfigForFile(filePath: string): Promise<ESLint.Options> {
-    this.eslint ||= await this.initializeEslint();
+    this.eslint ||= await this.initEslint();
 
     return this.eslint.calculateConfigForFile(filePath) as ESLint.Options;
   }

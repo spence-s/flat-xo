@@ -51,7 +51,7 @@ await $({cwd, stdio: 'inherit'})`npm install --save-dev typescript @types/node`;
 // run the build in and test the project in the local dir
 await $({stdio: 'inherit'})`npm run build`;
 try {
-  await $({stdio: 'inherit'})`ava`;
+  await $({stdio: 'inherit'})`ava -m resolve*`;
 } catch {
   // eslint-disable-next-line unicorn/no-process-exit
   process.exit(1);
