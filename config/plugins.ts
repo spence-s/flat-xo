@@ -15,7 +15,7 @@ const config: ESLintConfig = {
     'ava',
     'unicorn',
     // Disabled as the plugin doesn't support ESLint 8 yet.
-    // 'promise',
+    'promise',
     'import',
     'n', // eslint-plugin-node's successor
     'eslint-comments',
@@ -159,17 +159,17 @@ const config: ESLintConfig = {
     'function-call-argument-newline': 'off',
 
     // Disabled as the plugin doesn't support ESLint 8 yet.
-    // 'promise/param-names': 'error',
-    // 'promise/no-return-wrap': [
-    // 	'error',
-    // 	{
-    // 		allowReject: true,
-    // 	},
-    // ],
-    // 'promise/no-new-statics': 'error',
-    // 'promise/no-return-in-finally': 'error',
-    // 'promise/valid-params': 'error',
-    // 'promise/prefer-await-to-then': 'error',
+    'promise/param-names': 'error',
+    'promise/no-return-wrap': [
+      'error',
+      {
+        allowReject: true,
+      },
+    ],
+    'promise/no-new-statics': 'error',
+    'promise/no-return-in-finally': 'error',
+    'promise/valid-params': 'error',
+    'promise/prefer-await-to-then': 'error',
     'import-x/default': 'error',
     'import-x/export': 'error',
     'import-x/extensions': [

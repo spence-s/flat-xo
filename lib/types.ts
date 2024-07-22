@@ -7,6 +7,9 @@ export type Normalize<Type> = {
   [Property in keyof Type as `${string & Property}s`]: Type[Property];
 } & Type;
 
+/**
+ * Xo options that can be passed to the CLI or parsed from a config file.
+ */
 export type XoOptions = {
   /**
    * Use spaces or tabs for indentation.
@@ -35,7 +38,6 @@ export type XoOptions = {
 export type LintOptions = XoOptions & {
   cwd?: string;
   filePath?: string;
-  ezTs?: boolean;
 };
 
 export type LintTextOptions = LintOptions & {

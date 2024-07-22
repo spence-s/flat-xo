@@ -20,8 +20,7 @@ export const jsRules: Rules = {
   'capitalized-comments': 'off',
 };
 
-// @ts-expect-error This definitely exists in this case - no worth fixing types
-const customTsRules: Rules = {
+const customTsRules: Partial<Rules> = {
   'unicorn/import-style': 'off',
   'n/file-extension-in-import': 'off',
   // Disabled because of https://github.com/benmosher/eslint-plugin-import-x/issues/1590

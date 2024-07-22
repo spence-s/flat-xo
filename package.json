@@ -68,6 +68,7 @@
     "eslint-plugin-n": "^17.9.0",
     "eslint-plugin-no-use-extend-native": "^0.7.1",
     "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-promise": "^6.6.0",
     "eslint-plugin-unicorn": "^54.0.0",
     "esm-utils": "^4.3.0",
     "find-cache-dir": "^5.0.0",
@@ -95,7 +96,6 @@
   "devDependencies": {
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
-    "@humanwhocodes/config-array": "^0.12.3",
     "@sindresorhus/tsconfig": "^6.0.0",
     "@types/eslint": "8.56.10",
     "@types/find-cache-dir": "^3.2.1",

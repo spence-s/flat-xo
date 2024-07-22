@@ -91,7 +91,6 @@ export class XO {
   }
 
   async initEslint(): Promise<ESLint> {
-    // Options?: LintOptions, // globs?: string | string[] | LintOptions,
     this.options.cwd ||= process.cwd();
 
     if (!path.isAbsolute(this.options.cwd)) {
@@ -102,12 +101,11 @@ export class XO {
       const {flatOptions, flatConfigPath} = await resolveXoConfig({
         ...this.options,
       });
-      // console.log('flatOptions', flatOptions);
       this.config = flatOptions;
       this.flatConfigPath = flatConfigPath;
     }
 
-    if (!this.options.ezTs) {
+    if (!this.options.tsconfig) {
       const {path: tsConfigPath, config: tsConfig} =
         ezTsconfig(this.options.cwd, this.options.tsconfig) ?? {};
 
@@ -149,8 +147,6 @@ export class XO {
     if (ignores.length > 0) {
       inputOptions.push({ignores});
     }
-
-    // console.log('ignores', ignores);
 
     if (!this.overrideConfig) {
       const overrideConfig = await createConfig(
@@ -208,26 +204,22 @@ export class XO {
     };
   }
 
-  async initializeFixableEslint(): Promise<ESLint> {
+  async initFixableEslint(): Promise<ESLint> {
     this.options.cwd ||= process.cwd();
 
     if (!path.isAbsolute(this.options.cwd)) {
       this.options.cwd = path.resolve(process.cwd(), this.options.cwd);
     }
 
-    // console.log('this.config', this.config);
-
     if (!this.config) {
       const {flatOptions, flatConfigPath} = await resolveXoConfig({
         ...this.options,
       });
       this.config = flatOptions;
-
-      // console.log('flatOptions', flatOptions);
       this.configPath = flatConfigPath;
     }
 
-    if (!this.options.ezTs) {
+    if (!this.options.tsconfig) {
       const {path: tsConfigPath, config: tsConfig} =
         ezTsconfig(this.options.cwd, this.options.tsconfig) ?? {};
 
@@ -308,9 +300,8 @@ export class XO {
 
     this.eslint ||= await this.initEslint();
 
-    this.fixableEslint ||= await this.initializeFixableEslint();
+    this.fixableEslint ||= await this.initFixableEslint();
 
-    // console.log('code', code);
     const results = await this[fix ? 'fixableEslint' : 'eslint']?.lintText(
       code,
       {

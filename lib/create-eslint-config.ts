@@ -5,6 +5,7 @@ import pluginUnicorn from 'eslint-plugin-unicorn';
 import pluginImport from 'eslint-plugin-import-x';
 import pluginN from 'eslint-plugin-n';
 import pluginComments from '@eslint-community/eslint-plugin-eslint-comments';
+import pluginPromise from 'eslint-plugin-promise';
 import pluginNoUseExtendNative from 'eslint-plugin-no-use-extend-native';
 import configXoTypescript from 'eslint-config-xo-typescript';
 import configXo from 'eslint-config-xo';
@@ -58,6 +59,7 @@ async function createConfig(
         'import-x': pluginImport,
         n: pluginN,
         '@eslint-community/eslint-comments': pluginComments,
+        promise: pluginPromise,
       },
       languageOptions: {
         globals: {

@@ -52,9 +52,6 @@ const cli = meow(
       prettier: {
         type: 'boolean',
       },
-      ezTs: {
-        type: 'boolean',
-      },
       cwd: {
         type: 'string',
         default: process.cwd(),
@@ -81,7 +78,6 @@ const lintOptions: LintOptions = {
   prettier: cliOptions.prettier,
   cwd: (cliOptions.cwd && path.resolve(cliOptions.cwd)) ?? process.cwd(),
   tsconfig: cliOptions.tsconfig,
-  ezTs: cliOptions.ezTs,
   ignores: cliOptions.ignore,
 };
 
