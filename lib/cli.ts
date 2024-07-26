@@ -70,6 +70,8 @@ const cli = meow(
   },
 );
 
+export type CliOptions = typeof cli;
+
 const {input, flags: cliOptions, showVersion} = cli;
 
 const lintOptions: LintOptions = {
@@ -114,6 +116,7 @@ const log = async (report: {
   // ? await new XO(cliOptions).getFormatter(cliOptions.reporter ?? 'compact')
   // :
 
+  // @ts-expect-error upgrade stuff
   console.log(reporter(report.results, report));
 
   process.exitCode = report.errorCount === 0 ? 0 : 1;

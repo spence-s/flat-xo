@@ -2,7 +2,7 @@ import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
 import process from 'node:process';
-import {loadESLint, type ESLint} from 'eslint';
+import {loadESLint, type ESLint, type Linter} from 'eslint';
 import findCacheDir from 'find-cache-dir';
 import {globby} from 'globby';
 import arrify from 'arrify';
@@ -24,42 +24,7 @@ import createConfig from './create-eslint-config.js';
 import resolveXoConfig from './resolve-xo-config.js';
 import ezTsconfig from './ez-tsconfig.js';
 
-declare module 'eslint' {
-  type LoadESLintOptions = {
-    useFlatConfig?: boolean | undefined;
-    cwd?: string | undefined;
-  };
-
-  export class FlatESLint {
-    static version: string;
-    static outputFixes(results: ESLint.LintResult[]): Promise<void>;
-    static getErrorResults(results: ESLint.LintResult[]): ESLint.LintResult[];
-    cwd: string;
-    overrideConfigFile: boolean;
-    overrideConfig: FlatESLintConfig[];
-    cache: boolean;
-    cacheLocation: string;
-    constructor(options?: ESLint.Options);
-    lintFiles(patterns: string | string[]): Promise<ESLint.LintResult[]>;
-    lintText(
-      code: string,
-      options?: {
-        filePath?: string | undefined;
-        warnIgnored?: boolean | undefined;
-      },
-    ): Promise<ESLint.LintResult[]>;
-    getRulesMetaForResults(
-      results: ESLint.LintResult[],
-    ): ESLint.LintResultData['rulesMeta'];
-    calculateConfigForFile(filePath: string): Promise<any>;
-    isPathIgnored(filePath: string): Promise<boolean>;
-    loadFormatter(nameOrPath?: string): Promise<ESLint.Formatter>;
-  }
-
-  export const loadESLint: (options: LoadESLintOptions) => Promise<FlatESLint>;
-}
-
-const FlatESLint: ESLint = await loadESLint({useFlatConfig: true});
+const FlatESLint = await loadESLint({useFlatConfig: true});
 
 const findCacheLocation = (cwd: string) =>
   findCacheDir({name: CACHE_DIR_NAME, cwd}) ??
@@ -74,8 +39,7 @@ const findCacheLocation = (cwd: string) =>
 
 export class XO {
   static async outputFixes(results: XoLintResult) {
-    // @ts-expect-error - IDK whats going on here
-    return FlatESLint.outputFixes(results?.results ?? []); // eslint-disable-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
+    return FlatESLint.outputFixes(results?.results ?? []);
   }
 
   options: LintOptions;
@@ -161,11 +125,9 @@ export class XO {
       'flat-xo-cache.json',
     );
 
-    // @ts-expect-error - ESLint is not exported
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.eslint = new FlatESLint({
       cwd: this.options.cwd,
-      overrideConfig: this.overrideConfig,
+      overrideConfig: this.overrideConfig as Linter.Config,
       overrideConfigFile: true,
       globInputPaths: false,
       warnIgnored: false,
@@ -173,11 +135,13 @@ export class XO {
       cacheLocation,
     });
 
-    return this.eslint!;
+    return this.eslint;
   }
 
   async lintFiles(globs?: string | string[]): Promise<XoLintResult> {
     this.eslint ||= await this.initEslint();
+
+    this.fixableEslint ||= await this.initFixableEslint();
 
     if (!globs || (Array.isArray(globs) && globs.length === 0)) {
       globs = `**/*.{${ALL_EXTENSIONS.join(',')}}`;
@@ -189,11 +153,15 @@ export class XO {
         : path.resolve(this.options?.cwd ?? '.', glob),
     );
 
-    const files = await globby(globs, {
+    let files: string | string[] = await globby(globs, {
       gitignore: true,
       absolute: true,
       cwd: this.options.cwd,
     });
+
+    if (files.length === 0) {
+      files = '!**/*';
+    }
 
     const results = await this.eslint.lintFiles(files);
     const rulesMeta = this.eslint.getRulesMetaForResults(results);
@@ -275,11 +243,9 @@ export class XO {
       'flat-xo-cache.json',
     );
 
-    // @ts-expect-error - ESLint is not exported
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const eslint = new FlatESLint({
       cwd: this.options.cwd,
-      overrideConfig: this.overrideConfig,
+      overrideConfig: this.overrideConfig as Linter.Config,
       overrideConfigFile: true,
       globInputPaths: false,
       cache: true,
@@ -287,16 +253,16 @@ export class XO {
       fix: true,
     });
 
-    this.fixableEslint = eslint; // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+    this.fixableEslint = eslint;
 
-    return eslint; // eslint-disable-line @typescript-eslint/no-unsafe-return
+    return eslint;
   }
 
   async lintText(
     code: string,
     lintTextOptions: LintTextOptions,
   ): Promise<XoLintResult> {
-    const {filePath, warnIgnored, /* forceInitialize, */ fix} = lintTextOptions;
+    const {filePath, warnIgnored, fix} = lintTextOptions;
 
     this.eslint ||= await this.initEslint();
 
@@ -326,8 +292,7 @@ export class XO {
     {isQuiet = false, rulesMeta = {}} = {},
   ) {
     if (isQuiet) {
-      // @ts-expect-error - IDK whats going on here
-      report = FlatESLint.getErrorResults(report); // eslint-disable-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+      report = FlatESLint.getErrorResults(report);
     }
 
     const result = {

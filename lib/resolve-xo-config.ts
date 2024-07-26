@@ -6,14 +6,6 @@ import pick from 'lodash.pick';
 import {type LintOptions, type FlatXoConfig} from './types.js';
 import {MODULE_NAME} from './constants.js';
 
-// Async cosmiconfig loader for es module types
-// const loadModule = async (fp: string) => {
-//   const {default: module} = (await import(`${fp}?ts=${Date.now()}`)) as {
-//     default: FlatESLintConfig;
-//   };
-//   return module;
-// };
-
 /**
  * Finds the xo config file
  */

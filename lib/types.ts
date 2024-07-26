@@ -38,12 +38,11 @@ export type XoOptions = {
 export type LintOptions = XoOptions & {
   cwd?: string;
   filePath?: string;
+  fix?: boolean;
 };
 
 export type LintTextOptions = LintOptions & {
   warnIgnored?: boolean;
-  forceInitialize?: boolean;
-  fix?: boolean;
 };
 
 export type XoConfigItem = FlatESLintConfig & Partial<LintOptions>;
