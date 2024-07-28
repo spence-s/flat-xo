@@ -50,6 +50,7 @@ export class XO {
   configPath?: string;
   eslintConfig?: FlatESLintConfig[];
   flatConfigPath?: string;
+  cacheLocation?: string;
   globs?: string | string[];
 
   constructor(_options?: LintOptions) {
@@ -63,7 +64,7 @@ export class XO {
     }
   }
 
-  async handleXoConfig() {
+  async setXoConfig() {
     if (!this.xoConfig) {
       const {flatOptions, flatConfigPath} = await resolveXoConfig({
         ...this.options,
@@ -73,7 +74,7 @@ export class XO {
     }
   }
 
-  async handleTsConfig() {
+  async setTsConfig() {
     if (!this.options.tsconfig) {
       const {path: tsConfigPath, config: tsConfig} =
         ezTsconfig(this.options.cwd, this.options.tsconfig) ?? {};
@@ -104,10 +105,10 @@ export class XO {
     }
   }
 
-  async getEslintConfig() {
+  async setEslintConfig() {
     if (!this.eslintConfig) {
       if (!this.xoConfig) {
-        throw new Error('"XO.getEslintConfig" failed');
+        throw new Error('"XO.setEslintConfig" failed');
       }
 
       const eslintConfig = await createConfig(
@@ -120,15 +121,7 @@ export class XO {
     return this.eslintConfig;
   }
 
-  async initEslint(isFixable?: boolean): Promise<ESLint> {
-    await this.handleXoConfig();
-
-    if (!this.xoConfig) {
-      throw new Error('"XO.handleConfig" failed');
-    }
-
-    await this.handleTsConfig();
-
+  setIgnores() {
     let ignores: string[] = [];
 
     if (typeof this.options.ignores === 'string') {
@@ -137,32 +130,51 @@ export class XO {
       ignores = this.options.ignores;
     }
 
+    if (!this.xoConfig) {
+      throw new Error('"XO.setIgnores" failed');
+    }
+
     if (ignores.length > 0) {
       this.xoConfig.push({ignores});
     }
+  }
 
-    const overrideConfig = (await this.getEslintConfig()) as Linter.Config;
-    const cacheLocation = path.join(
+  setCacheLocation() {
+    this.cacheLocation = path.join(
       findCacheLocation(this.options.cwd),
       'flat-xo-cache.json',
     );
+  }
 
-    this.eslint = new FlatESLint({
+  async initEslint(isFixable?: boolean) {
+    await this.setXoConfig();
+    await this.setTsConfig();
+    this.setIgnores();
+    await this.setEslintConfig();
+    this.setCacheLocation();
+
+    if (!this.xoConfig) {
+      throw new Error('"XO.initEslint" failed');
+    }
+
+    this.eslint ??= new FlatESLint({
       cwd: this.options.cwd,
-      overrideConfig,
+      overrideConfig: this.eslintConfig as Linter.Config,
       overrideConfigFile: true,
       globInputPaths: false,
       warnIgnored: false,
       cache: true,
-      cacheLocation,
+      cacheLocation: this.cacheLocation,
       fix: isFixable,
     });
-
-    return this.eslint;
   }
 
   async lintFiles(globs?: string | string[]): Promise<XoLintResult> {
-    this.eslint ||= await this.initEslint();
+    await this.initEslint();
+
+    if (!this.eslint) {
+      throw new Error('Failed to initialize ESLint');
+    }
 
     if (!globs || (Array.isArray(globs) && globs.length === 0)) {
       globs = `**/*.{${ALL_EXTENSIONS.join(',')}}`;
@@ -199,15 +211,16 @@ export class XO {
   ): Promise<XoLintResult> {
     const {filePath, warnIgnored, fix} = lintTextOptions;
 
-    this.eslint ||= await this.initEslint();
+    await this.initEslint(fix);
 
-    const results = await this[fix ? 'fixableEslint' : 'eslint']?.lintText(
-      code,
-      {
-        filePath,
-        warnIgnored,
-      },
-    );
+    if (!this.eslint) {
+      throw new Error('Failed to initialize ESLint');
+    }
+
+    const results = await this.eslint?.lintText(code, {
+      filePath,
+      warnIgnored,
+    });
 
     const rulesMeta = this.eslint.getRulesMetaForResults(results ?? []);
 
@@ -215,7 +228,11 @@ export class XO {
   }
 
   async calculateConfigForFile(filePath: string): Promise<ESLint.Options> {
-    this.eslint ||= await this.initEslint();
+    await this.initEslint();
+
+    if (!this.eslint) {
+      throw new Error('Failed to initialize ESLint');
+    }
 
     return this.eslint.calculateConfigForFile(filePath) as ESLint.Options;
   }
