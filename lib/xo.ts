@@ -27,17 +27,6 @@ import ezTsconfig from './ez-tsconfig.js';
 
 const FlatESLint = await loadESLint({useFlatConfig: true});
 
-const findCacheLocation = (cwd: string) =>
-  findCacheDir({name: CACHE_DIR_NAME, cwd}) ??
-  path.join(os.homedir() ?? os.tmpdir(), '.xo-cache/');
-
-/**
- * Since we lint in 1 pass we can fully cache the eslint instance.
- *
- * This could really improve speed for lintText
- *
- */
-
 export class XO {
   static async outputFixes(results: XoLintResult) {
     return FlatESLint.outputFixes(results?.results ?? []);
@@ -50,8 +39,8 @@ export class XO {
   configPath?: string;
   eslintConfig?: FlatESLintConfig[];
   flatConfigPath?: string;
-  cacheLocation?: string;
-  globs?: string | string[];
+  cacheLocation: string;
+  ignores?: string | string[];
 
   constructor(_options?: LintOptions) {
     _options ??= {cwd: ''};
@@ -62,8 +51,16 @@ export class XO {
     if (!path.isAbsolute(this.options.cwd)) {
       this.options.cwd = path.resolve(process.cwd(), this.options.cwd);
     }
+
+    this.cacheLocation =
+      findCacheDir({name: CACHE_DIR_NAME, cwd: this.options.cwd}) ??
+      path.join(os.homedir() ?? os.tmpdir(), '.xo-cache/');
   }
 
+  /**
+   * setXoConfig sets the xo config on the XO instance
+   * @private
+   */
   async setXoConfig() {
     if (!this.xoConfig) {
       const {flatOptions, flatConfigPath} = await resolveXoConfig({
@@ -74,13 +71,17 @@ export class XO {
     }
   }
 
+  /**
+   * setTsConfig sets the tsconfig on the XO instance
+   * @private
+   */
   async setTsConfig() {
     if (!this.options.tsconfig) {
       const {path: tsConfigPath, config: tsConfig} =
         ezTsconfig(this.options.cwd, this.options.tsconfig) ?? {};
 
       const tsConfigCachePath = path.join(
-        findCacheLocation(this.options.cwd),
+        this.cacheLocation,
         'tsconfig.cached.json',
       );
       await fs.mkdir(path.dirname(tsConfigCachePath), {recursive: true});
@@ -105,48 +106,60 @@ export class XO {
     }
   }
 
+  /**
+   * setEslintConfig sets the eslint config on the XO instance
+   * @private
+   */
   async setEslintConfig() {
-    if (!this.eslintConfig) {
-      if (!this.xoConfig) {
-        throw new Error('"XO.setEslintConfig" failed');
-      }
-
-      const eslintConfig = await createConfig(
-        [...this.xoConfig],
-        this.options.tsconfig,
-      );
-      this.eslintConfig = eslintConfig;
-    }
-
-    return this.eslintConfig;
-  }
-
-  setIgnores() {
-    let ignores: string[] = [];
-
-    if (typeof this.options.ignores === 'string') {
-      ignores = arrify(this.options.ignores);
-    } else if (Array.isArray(this.options.ignores)) {
-      ignores = this.options.ignores;
-    }
-
     if (!this.xoConfig) {
-      throw new Error('"XO.setIgnores" failed');
+      throw new Error('"XO.setEslintConfig" failed');
     }
 
-    if (ignores.length > 0) {
-      this.xoConfig.push({ignores});
-    }
-  }
-
-  setCacheLocation() {
-    this.cacheLocation = path.join(
-      findCacheLocation(this.options.cwd),
-      'flat-xo-cache.json',
+    this.eslintConfig ??= await createConfig(
+      [...this.xoConfig],
+      this.options.tsconfig,
     );
   }
 
-  async initEslint(isFixable?: boolean) {
+  /**
+   * setIgnores sets the ignores on the XO instance
+   * @private
+   */
+  setIgnores() {
+    if (!this.ignores) {
+      let ignores: string[] = [];
+
+      if (typeof this.options.ignores === 'string') {
+        ignores = arrify(this.options.ignores);
+      } else if (Array.isArray(this.options.ignores)) {
+        ignores = this.options.ignores;
+      }
+
+      if (!this.xoConfig) {
+        throw new Error('"XO.setIgnores" failed');
+      }
+
+      if (ignores.length > 0) {
+        this.xoConfig.push({ignores});
+      }
+
+      this.ignores = ignores;
+    }
+  }
+
+  /**
+   * setCacheLocation sets the cache location on the XO instance
+   * @private
+   */
+  setCacheLocation() {
+    this.cacheLocation ??= path.join(this.cacheLocation, 'flat-xo-cache.json');
+  }
+
+  /**
+   * initEslint initializes the ESLint instance on the XO instance
+   * @param isFixable
+   */
+  public async initEslint(isFixable?: boolean) {
     await this.setXoConfig();
     await this.setTsConfig();
     this.setIgnores();
@@ -169,6 +182,12 @@ export class XO {
     });
   }
 
+  /**
+   * lintFiles lints the files on the XO instance
+   * @param globs
+   * @returns XoLintResult
+   * @throws Error
+   */
   async lintFiles(globs?: string | string[]): Promise<XoLintResult> {
     await this.initEslint();
 
@@ -205,6 +224,13 @@ export class XO {
     };
   }
 
+  /**
+   * lintText lints the text on the XO instance
+   * @param code
+   * @param lintTextOptions
+   * @returns XoLintResult
+   * @throws Error
+   */
   async lintText(
     code: string,
     lintTextOptions: LintTextOptions,
