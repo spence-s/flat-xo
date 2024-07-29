@@ -85,6 +85,7 @@
     "meow": "^13.2.0",
     "micromatch": "^4.0.7",
     "open-editor": "^5.0.0",
+    "piscina": "^4.6.1",
     "prettier": "^3.3.3",
     "semver": "^7.6.3",
     "slash": "^5.1.0",

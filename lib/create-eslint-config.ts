@@ -35,12 +35,18 @@ import {jsRules, tsRules, baseRules} from './rules.js';
 
 let cachedPrettierConfig: Record<string, unknown>;
 
+type CreateConfigOptions = {
+  tsconfigPath?: string;
+  isAllTs?: boolean;
+  isAllJs?: boolean;
+};
+
 /**
  * Takes a xo flat config and returns an eslint flat config
  */
 async function createConfig(
   userConfigs?: XoConfigItem[],
-  tsconfigPath?: string,
+  {tsconfigPath}: CreateConfigOptions = {},
 ): Promise<FlatESLintConfig[]> {
   // The default global options
   let _prettier;

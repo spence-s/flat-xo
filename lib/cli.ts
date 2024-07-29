@@ -140,6 +140,10 @@ if (typeof cliOptions.printConfig === 'string') {
   console.log(JSON.stringify(config, undefined, '\t'));
 } else {
   const xo = new XO(lintOptions);
+  const timeStart = Date.now();
+  await xo.initEslint();
+  const timeEnd = Date.now();
+  console.warn(`ESLint took ${timeEnd - timeStart}ms to initialize`);
   const report = await xo.lintFiles(input);
 
   if (cliOptions.fix) {
