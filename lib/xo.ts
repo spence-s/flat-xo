@@ -187,7 +187,7 @@ export class XO {
    * @throws Error
    */
   async lintFiles(globs?: string | string[]): Promise<XoLintResult> {
-    // await this.initEslint();
+    await this.initEslint();
 
     if (!this.eslint) {
       throw new Error('Failed to initialize ESLint');
