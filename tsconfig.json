@@ -4,12 +4,6 @@
     "outDir": "dist",
     "sourceMap": true
   },
-  "include": [
-    "**/*.mts",
-    "**/*.ts",
-    "scripts/test.js",
-    "xo.config.ts",
-    "lib/xo-worker.mts"
-  ],
+  "include": ["**/*.ts", "scripts/test.js", "xo.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

@@ -9,7 +9,6 @@ import arrify from 'arrify';
 import defineLazyProperty from 'define-lazy-prop';
 import {type FlatESLintConfig} from 'eslint-define-config';
 import {type SetRequired} from 'type-fest';
-// import {Piscina} from 'piscina';
 import {
   type XoLintResult,
   type LintOptions,
@@ -24,7 +23,6 @@ import {
 } from './constants.js';
 import createConfig from './create-eslint-config.js';
 import resolveXoConfig from './resolve-xo-config.js';
-// import {type WorkerOptions} from './xo-worker.mjs';
 import ezTsconfig from './ez-tsconfig.js';
 
 const FlatESLint = await loadESLint({useFlatConfig: true});
@@ -37,7 +35,6 @@ export class XO {
   options: SetRequired<LintOptions, 'cwd'>;
   cacheLocation: string;
   eslint?: ESLint;
-  fixableEslint?: ESLint;
   xoConfig?: FlatXoConfig;
   configPath?: string;
   eslintConfig?: FlatESLintConfig[];
@@ -183,43 +180,6 @@ export class XO {
     });
   }
 
-  // async lintFilesParallel(files: string[]) {
-  //   await this.initEslint();
-
-  //   if (
-  //     !this.eslint ||
-  //     !this.eslintConfig ||
-  //     !this.xoConfig ||
-  //     !this.ignores ||
-  //     !this.flatConfigPath
-  //   ) {
-  //     throw new Error('Failed to initialize ESLint');
-  //   }
-
-  //   const cpus = os.cpus().length;
-  //   const chunkSize = Math.ceil(files.length / cpus);
-
-  //   const chunks = Array.from({length: cpus}, (_, i) =>
-  //     files.slice(i * chunkSize, (i + 1) * chunkSize),
-  //   );
-
-  //   const piscina = new Piscina<WorkerOptions, ESLint.LintResult[]>({
-  //     filename: new URL('xo-worker.mjs', import.meta.url).href,
-  //   });
-
-  //   const results = await piscina.run({
-  //     files,
-  //     eslintConfig: this.eslintConfig,
-  //     xoConfig: this.xoConfig,
-  //     options: this.options,
-  //     ignores: this.ignores,
-  //     flatConfigPath: this.flatConfigPath,
-  //     cacheLocation: this.cacheLocation,
-  //   });
-
-  //   return this.processReport(results, {isQuiet});
-  // }
-
   /**
    * lintFiles lints the files on the XO instance
    * @param globs
@@ -227,7 +187,7 @@ export class XO {
    * @throws Error
    */
   async lintFiles(globs?: string | string[]): Promise<XoLintResult> {
-    await this.initEslint();
+    // await this.initEslint();
 
     if (!this.eslint) {
       throw new Error('Failed to initialize ESLint');
@@ -252,10 +212,6 @@ export class XO {
     if (files.length === 0) {
       files = '!**/*';
     }
-
-    // if (files.length > 20) {
-    //   return this.lintFilesParallel(arrify(files));
-    // }
 
     const results = await this.eslint.lintFiles(files);
     const rulesMeta = this.eslint.getRulesMetaForResults(results);
