@@ -1,5 +1,4 @@
 import fs from 'node:fs/promises';
-import process from 'node:process';
 import path from 'node:path';
 import tempDir from 'temp-dir';
 import {$} from 'execa';
@@ -47,12 +46,3 @@ await fs.writeFile(
 // npm install in the test project directory
 // which we will repeatedly copy in the temp dir to test the project against
 await $({cwd, stdio: 'inherit'})`npm install --save-dev typescript @types/node`;
-
-// run the build in and test the project in the local dir
-await $({stdio: 'inherit'})`npm run build`;
-try {
-  await $({stdio: 'inherit', env: {NODE_NO_WARNINGS: 1}})`ava`;
-} catch {
-  // eslint-disable-next-line unicorn/no-process-exit
-  process.exit(1);
-}

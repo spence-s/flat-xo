@@ -15,21 +15,14 @@ test.afterEach.always(async (t) => {
   await fs.rm(t.context.cwd, {recursive: true, force: true});
 });
 
-test.skip('cli xo --cwd', async (t) => {
+test('cli xo --cwd', async (t) => {
   const filePath = path.join(t.context.cwd, 'test.js');
-  await fs.writeFile(filePath, dedent`console.log('hello')\n`, 'utf8');
+  await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
 
-  try {
-    await $`node . --cwd ${t.context.cwd}`;
-  } catch (error) {
-    // @ts-expect-error TODO: type this better
-    t.log(error?.stderr);
-    // @ts-expect-error TODO: type this better
-    t.snapshot(error?.stdout);
-  }
+  await t.notThrowsAsync($`node . --cwd ${t.context.cwd}`);
 });
 
-test.skip('cli xo --cwd --printConfig', async (t) => {
+test('cli xo --cwd --printConfig', async (t) => {
   const filePath = path.join(t.context.cwd, 'test.js');
   await fs.writeFile(filePath, dedent`console.log('hello')\n`, 'utf8');
 
@@ -38,7 +31,7 @@ test.skip('cli xo --cwd --printConfig', async (t) => {
   } catch (error) {
     // @ts-expect-error TODO: type this better
     t.log(error?.stderr);
-    // @ts-expect-error TODO: type this better
-    t.snapshot(error?.stdout);
   }
+
+  t.fail();
 });

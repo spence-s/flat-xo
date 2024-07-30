@@ -6,11 +6,12 @@
   "main": "dist/lib/cli.js",
   "scripts": {
     "build": "npm run clean && tsc",
-    "build:watch": "npm run clean && tsc --watch",
+    "build:watch": "tsc --watch",
     "check": "tsc --project ./jsconfig.json",
     "clean": "rm -rf dist",
-    "test": "node scripts/test",
-    "test:watch": "ava --watch"
+    "test": "npm run test:setup  && npm run build && ava",
+    "test:setup": "node scripts/setup-tests",
+    "test:watch": "npm run test:setup && ava --watch"
   },
   "xo": {
     "ignores": [
@@ -35,11 +36,17 @@
     ]
   },
   "ava": {
+    "environmentVariables": {
+      "NODE_NO_WARNINGS": "1"
+    },
     "files": [
       "dist/test/**/*.js",
       "!dist/test/fixtures/**",
       "!dist/test/helpers/**",
       "!dist/test/scripts/**"
+    ],
+    "nodeArguments": [
+      "--enable-source-maps"
     ],
     "verbose": true
   },

@@ -4,6 +4,6 @@
     "outDir": "dist",
     "sourceMap": true
   },
-  "include": ["**/*.ts", "scripts/test.js", "xo.config.ts"],
+  "include": ["**/*.ts", "scripts/setup-tests.js", "xo.config.ts"],
   "exclude": ["node_modules", "dist"]
 }
