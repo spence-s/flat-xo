@@ -2,7 +2,7 @@ import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
 import process from 'node:process';
-import {loadESLint, type ESLint, type Linter} from 'eslint';
+import {ESLint, type Linter} from 'eslint';
 import findCacheDir from 'find-cache-dir';
 import {globby} from 'globby';
 import arrify from 'arrify';
@@ -25,11 +25,9 @@ import createConfig from './create-eslint-config.js';
 import resolveXoConfig from './resolve-xo-config.js';
 import ezTsconfig from './ez-tsconfig.js';
 
-const FlatESLint = await loadESLint({useFlatConfig: true});
-
 export class XO {
   static async outputFixes(results: XoLintResult) {
-    return FlatESLint.outputFixes(results?.results ?? []);
+    await ESLint.outputFixes(results?.results ?? []);
   }
 
   options: SetRequired<LintOptions, 'cwd'>;
@@ -168,16 +166,18 @@ export class XO {
       throw new Error('"XO.initEslint" failed');
     }
 
-    this.eslint ??= new FlatESLint({
+    const eslintOptions = {
       cwd: this.options.cwd,
       overrideConfig: this.eslintConfig as Linter.Config,
       overrideConfigFile: true,
       globInputPaths: false,
       warnIgnored: false,
-      cache: true,
-      cacheLocation: this.cacheLocation,
+      cache: !isFixable,
+      cacheLocation: isFixable ? undefined : this.cacheLocation,
       fix: isFixable,
-    });
+    };
+
+    this.eslint ??= new ESLint(eslintOptions);
   }
 
   /**
@@ -187,7 +187,7 @@ export class XO {
    * @throws Error
    */
   async lintFiles(globs?: string | string[]): Promise<XoLintResult> {
-    await this.initEslint();
+    await this.initEslint(this.options.fix);
 
     if (!this.eslint) {
       throw new Error('Failed to initialize ESLint');
@@ -266,7 +266,7 @@ export class XO {
     {isQuiet = false, rulesMeta = {}} = {},
   ) {
     if (isQuiet) {
-      report = FlatESLint.getErrorResults(report);
+      report = ESLint.getErrorResults(report);
     }
 
     const result = {

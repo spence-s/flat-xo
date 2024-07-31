@@ -3,7 +3,7 @@ import path from 'node:path';
 import _test, {type TestFn} from 'ava'; // eslint-disable-line ava/use-test
 import dedent from 'dedent';
 import {$} from 'execa';
-import {copyTestProject} from '../helpers/copy-test-project.js';
+import {copyTestProject} from './helpers/copy-test-project.js';
 
 const test = _test as TestFn<{cwd: string}>;
 
@@ -15,23 +15,17 @@ test.afterEach.always(async (t) => {
   await fs.rm(t.context.cwd, {recursive: true, force: true});
 });
 
-test('cli xo --cwd', async (t) => {
+test('xo --cwd', async (t) => {
   const filePath = path.join(t.context.cwd, 'test.js');
   await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
 
   await t.notThrowsAsync($`node . --cwd ${t.context.cwd}`);
 });
 
-test('cli xo --cwd --printConfig', async (t) => {
+test('xo --fix', async (t) => {
   const filePath = path.join(t.context.cwd, 'test.js');
   await fs.writeFile(filePath, dedent`console.log('hello')\n`, 'utf8');
-
-  try {
-    await $`node . --cwd ${t.context.cwd} --printConfig`;
-  } catch (error) {
-    // @ts-expect-error TODO: type this better
-    t.log(error?.stderr);
-  }
-
-  t.fail();
+  await t.notThrowsAsync($`node . --cwd ${t.context.cwd} --fix`);
+  const fileContent = await fs.readFile(filePath, 'utf8');
+  t.is(fileContent, dedent`console.log('hello');\n`);
 });

@@ -81,6 +81,7 @@ const lintOptions: LintOptions = {
   cwd: (cliOptions.cwd && path.resolve(cliOptions.cwd)) ?? process.cwd(),
   tsconfig: cliOptions.tsconfig,
   ignores: cliOptions.ignore,
+  fix: cliOptions.fix,
 };
 
 // Make data types for `options.space` match those of the API
@@ -141,7 +142,7 @@ if (typeof cliOptions.printConfig === 'string') {
 } else {
   const xo = new XO(lintOptions);
   const timeStart = Date.now();
-  await xo.initEslint();
+  await xo.initEslint(lintOptions.fix);
   const timeEnd = Date.now();
   console.warn(`ESLint took ${timeEnd - timeStart}ms to initialize`);
   const report = await xo.lintFiles(input);
