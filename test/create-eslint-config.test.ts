@@ -5,60 +5,54 @@ import {getJsRule, getTsRule} from './helpers/get-rule.js';
 test('base config rules', async (t) => {
   const flatConfig = await createConfig();
 
-  t.deepEqual(getJsRule(flatConfig, 'indent'), [
-    'error',
-    'tab',
-    {SwitchCase: 1},
-  ]);
-  t.deepEqual(getJsRule(flatConfig, 'semi'), ['error', 'always']);
-  t.deepEqual(getJsRule(flatConfig, 'quotes'), ['error', 'single']);
+  t.log(flatConfig);
 
-  t.deepEqual(getTsRule(flatConfig, '@typescript-eslint/indent'), [
+  t.deepEqual(getJsRule(flatConfig, '@stylistic/indent'), [
     'error',
     'tab',
     {SwitchCase: 1},
   ]);
-  t.deepEqual(getTsRule(flatConfig, '@typescript-eslint/semi'), [
+  t.deepEqual(getJsRule(flatConfig, '@stylistic/semi'), ['error', 'always']);
+  t.deepEqual(getJsRule(flatConfig, '@stylistic/quotes'), ['error', 'single']);
+
+  t.deepEqual(getTsRule(flatConfig, '@stylistic/indent'), [
     'error',
-    'always',
+    'tab',
+    {SwitchCase: 1},
   ]);
-  t.deepEqual(getTsRule(flatConfig, '@typescript-eslint/quotes'), [
-    'error',
-    'single',
-  ]);
+  t.deepEqual(getTsRule(flatConfig, '@stylistic/semi'), ['error', 'always']);
+  t.deepEqual(getTsRule(flatConfig, '@stylistic/quotes'), ['error', 'single']);
 });
 
 test('empty config rules', async (t) => {
   const flatConfig = await createConfig([]);
 
-  t.deepEqual(getJsRule(flatConfig, 'indent'), [
+  t.deepEqual(getJsRule(flatConfig, '@stylistic/indent'), [
     'error',
     'tab',
     {SwitchCase: 1},
   ]);
-  t.deepEqual(getJsRule(flatConfig, 'semi'), ['error', 'always']);
-  t.deepEqual(getJsRule(flatConfig, 'quotes'), ['error', 'single']);
+  t.deepEqual(getJsRule(flatConfig, '@stylistic/semi'), ['error', 'always']);
+  t.deepEqual(getJsRule(flatConfig, '@stylistic/quotes'), ['error', 'single']);
 
-  t.deepEqual(getTsRule(flatConfig, '@typescript-eslint/indent'), [
+  t.deepEqual(getTsRule(flatConfig, '@stylistic/indent'), [
     'error',
     'tab',
     {SwitchCase: 1},
   ]);
-  t.deepEqual(getTsRule(flatConfig, '@typescript-eslint/semi'), [
-    'error',
-    'always',
-  ]);
-  t.deepEqual(getTsRule(flatConfig, '@typescript-eslint/quotes'), [
-    'error',
-    'single',
-  ]);
+  t.deepEqual(getTsRule(flatConfig, '@stylistic/semi'), ['error', 'always']);
+  t.deepEqual(getTsRule(flatConfig, '@stylistic/quotes'), ['error', 'single']);
 });
 
 test('config with space option', async (t) => {
   const flatConfig = await createConfig([{space: true}]);
 
-  t.deepEqual(getJsRule(flatConfig, 'indent'), ['error', 2, {SwitchCase: 1}]);
-  t.deepEqual(getTsRule(flatConfig, '@typescript-eslint/indent'), [
+  t.deepEqual(getJsRule(flatConfig, '@stylistic/indent'), [
+    'error',
+    2,
+    {SwitchCase: 1},
+  ]);
+  t.deepEqual(getTsRule(flatConfig, '@stylistic/indent'), [
     'error',
     2,
     {SwitchCase: 1},
@@ -68,11 +62,8 @@ test('config with space option', async (t) => {
 test('config with semi false option', async (t) => {
   const flatConfig = await createConfig([{semicolon: false}]);
 
-  t.deepEqual(getJsRule(flatConfig, 'semi'), ['error', 'never']);
-  t.deepEqual(getTsRule(flatConfig, '@typescript-eslint/semi'), [
-    'error',
-    'never',
-  ]);
+  t.deepEqual(getJsRule(flatConfig, '@stylistic/semi'), ['error', 'never']);
+  t.deepEqual(getTsRule(flatConfig, '@stylistic/semi'), ['error', 'never']);
 });
 
 test('config with rules', async (t) => {

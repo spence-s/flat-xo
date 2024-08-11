@@ -20,7 +20,7 @@ test('no config > js > semi', async (t) => {
   await fs.writeFile(filePath, dedent`console.log('hello')\n`, 'utf8');
   const {results} = await new XO({cwd: t.context.cwd}).lintFiles('**/*');
   t.is(results?.[0]?.messages.length, 1);
-  t.is(results?.[0]?.messages?.[0]?.ruleId, 'semi');
+  t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
 
 test('no config > ts > semi', async (t) => {
@@ -28,7 +28,7 @@ test('no config > ts > semi', async (t) => {
   await fs.writeFile(filePath, dedent`console.log('hello')\n`, 'utf8');
   const {results} = await new XO({cwd: t.context.cwd}).lintFiles('**/*');
   t.is(results?.[0]?.messages?.length, 1);
-  t.is(results?.[0]?.messages?.[0]?.ruleId, '@typescript-eslint/semi');
+  t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
 
 test('flat config > semi > js', async (t) => {
@@ -47,7 +47,7 @@ test('flat config > semi > js', async (t) => {
   const xo = new XO({cwd: t.context.cwd});
   const {results} = await xo.lintFiles();
   t.is(results?.[0]?.messages?.length, 1);
-  t.is(results?.[0]?.messages?.[0]?.ruleId, 'semi');
+  t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
 
 test('typescript file with flat config - semicolon', async (t) => {
@@ -66,7 +66,7 @@ test('typescript file with flat config - semicolon', async (t) => {
   const xo = new XO({cwd: t.context.cwd});
   const {results} = await xo.lintFiles();
   t.is(results?.[0]?.messages?.length, 1);
-  t.is(results?.[0]?.messages?.[0]?.ruleId, '@typescript-eslint/semi');
+  t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
 
 test('flat config > space > js', async (t) => {
@@ -96,7 +96,7 @@ test('flat config > space > js', async (t) => {
   const {results} = await xo.lintFiles();
   t.is(results?.[0]?.messages.length, 1);
   t.is(results?.[0]?.messages?.[0]?.messageId, 'wrongIndentation');
-  t.is(results?.[0]?.messages?.[0]?.ruleId, 'indent');
+  t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/indent');
 });
 
 test('flat config > space > ts', async (t) => {
@@ -125,5 +125,5 @@ test('flat config > space > ts', async (t) => {
   const {results} = await xo.lintFiles();
   t.is(results?.[0]?.messages.length, 1);
   t.is(results?.[0]?.messages?.[0]?.messageId, 'wrongIndentation');
-  t.is(results?.[0]?.messages?.[0]?.ruleId, '@typescript-eslint/indent');
+  t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/indent');
 });

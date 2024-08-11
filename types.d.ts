@@ -5,12 +5,12 @@ declare module 'eslint-plugin-ava' {
   export default plugin;
 }
 
-declare module 'eslint-plugin-unicorn' {
-  import {type ESLint} from 'eslint';
+// declare module 'eslint-plugin-unicorn' {
+//   import {type ESLint} from 'eslint';
 
-  const plugin: ESLint.Plugin;
-  export default plugin;
-}
+//   const plugin: ESLint.Plugin;
+//   export default plugin;
+// }
 
 declare module 'eslint-plugin-import-x' {
   import {type ESLint} from 'eslint';
@@ -62,16 +62,16 @@ declare module 'eslint-plugin-promise' {
 }
 
 declare module 'eslint-config-xo-typescript' {
-  import {type ESLintConfig} from 'eslint-define-config';
+  import {type FlatESLintConfig} from 'eslint-define-config';
 
-  const config: ESLintConfig;
+  const config: FlatESLintConfig[];
   export default config;
 }
 
 declare module 'eslint-config-xo' {
-  import {type ESLintConfig} from 'eslint-define-config';
+  import {type FlatESLintConfig} from 'eslint-define-config';
 
-  const config: ESLintConfig;
+  const config: FlatESLintConfig[];
   export default config;
 }
 

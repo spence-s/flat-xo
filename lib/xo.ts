@@ -1,6 +1,6 @@
 import path from 'node:path';
 import os from 'node:os';
-import fs from 'node:fs/promises';
+// import fs from 'node:fs/promises';
 import process from 'node:process';
 import {ESLint, type Linter} from 'eslint';
 import findCacheDir from 'find-cache-dir';
@@ -15,15 +15,9 @@ import {
   type LintTextOptions,
   type FlatXoConfig,
 } from './types.js';
-import {
-  CACHE_DIR_NAME,
-  TSCONFIG_DEFAULTS,
-  TS_FILES_GLOB,
-  ALL_EXTENSIONS,
-} from './constants.js';
+import {DEFAULT_IGNORES, CACHE_DIR_NAME, ALL_EXTENSIONS} from './constants.js';
 import createConfig from './create-eslint-config.js';
 import resolveXoConfig from './resolve-xo-config.js';
-import ezTsconfig from './ez-tsconfig.js';
 
 export class XO {
   static async outputFixes(results: XoLintResult) {
@@ -69,41 +63,6 @@ export class XO {
   }
 
   /**
-   * setTsConfig sets the tsconfig on the XO instance
-   * @private
-   */
-  async setTsConfig() {
-    if (!this.options.tsconfig) {
-      const {path: tsConfigPath, config: tsConfig} =
-        ezTsconfig(this.options.cwd, this.options.tsconfig) ?? {};
-
-      const tsConfigCachePath = path.join(
-        this.cacheLocation,
-        'tsconfig.cached.json',
-      );
-      await fs.mkdir(path.dirname(tsConfigCachePath), {recursive: true});
-
-      const files = await globby(path.join(this.options.cwd, TS_FILES_GLOB), {
-        gitignore: true,
-        absolute: true,
-        cwd: this.options.cwd,
-      });
-
-      await fs.writeFile(
-        tsConfigCachePath,
-        JSON.stringify({
-          ...(tsConfig ?? TSCONFIG_DEFAULTS),
-          files,
-          include: [],
-          exclude: [],
-        }),
-      );
-
-      this.options.tsconfig = tsConfigPath;
-    }
-  }
-
-  /**
    * setEslintConfig sets the eslint config on the XO instance
    * @private
    */
@@ -112,9 +71,7 @@ export class XO {
       throw new Error('"XO.setEslintConfig" failed');
     }
 
-    this.eslintConfig ??= await createConfig([...this.xoConfig], {
-      tsconfigPath: this.options.tsconfig,
-    });
+    this.eslintConfig ??= await createConfig([...this.xoConfig]);
   }
 
   /**
@@ -139,6 +96,7 @@ export class XO {
         this.xoConfig.push({ignores});
       }
 
+      // console.log('ignores', ignores);
       this.ignores = ignores;
     }
   }
@@ -156,10 +114,14 @@ export class XO {
    * @param isFixable
    */
   public async initEslint(isFixable?: boolean) {
+    // console.time('setXoConfig');
     await this.setXoConfig();
-    await this.setTsConfig();
+    // console.timeEnd('setXoConfig');
+
+    // console.time('setEslintConfig');
     this.setIgnores();
     await this.setEslintConfig();
+    // console.timeEnd('setEslintConfig');
     this.setCacheLocation();
 
     if (!this.xoConfig) {
@@ -177,7 +139,9 @@ export class XO {
       fix: isFixable,
     };
 
+    // console.time('new ESLint');
     this.eslint ??= new ESLint(eslintOptions);
+    // console.timeEnd('new ESLint');
   }
 
   /**
@@ -197,24 +161,32 @@ export class XO {
       globs = `**/*.{${ALL_EXTENSIONS.join(',')}}`;
     }
 
-    globs = arrify(globs).map((glob) =>
-      path.isAbsolute(glob)
-        ? glob
-        : path.resolve(this.options?.cwd ?? '.', glob),
-    );
+    globs = arrify(globs);
 
+    // console.log('globs', globs);
+
+    // console.time('globby');
     let files: string | string[] = await globby(globs, {
+      ignore: DEFAULT_IGNORES,
+      onlyFiles: true,
       gitignore: true,
       absolute: true,
       cwd: this.options.cwd,
     });
+    // console.timeEnd('globby');
 
     if (files.length === 0) {
       files = '!**/*';
     }
 
+    // console.time('lintFiles');
     const results = await this.eslint.lintFiles(files);
+    // console.timeEnd('lintFiles');
+
+    // console.time('processReport');
     const rulesMeta = this.eslint.getRulesMetaForResults(results);
+    // console.timeEnd('processReport');
+
     return {
       results,
       rulesMeta,

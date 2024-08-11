@@ -1,3 +1,4 @@
+// import tsEslint, {tsEslint} from 'typescript-eslint';
 /* eslint-disable complexity */
 // import util from 'node:util';
 import pluginAva from 'eslint-plugin-ava';
@@ -8,9 +9,10 @@ import pluginComments from '@eslint-community/eslint-plugin-eslint-comments';
 import pluginPromise from 'eslint-plugin-promise';
 import pluginNoUseExtendNative from 'eslint-plugin-no-use-extend-native';
 import configXoTypescript from 'eslint-config-xo-typescript';
-import configXo from 'eslint-config-xo';
-import pluginTypescript from '@typescript-eslint/eslint-plugin';
-import * as tsParser from '@typescript-eslint/parser';
+import stylisticPlugin from '@stylistic/eslint-plugin';
+// import pluginTypescript from '@typescript-eslint/eslint-plugin';
+// import * as tsParser from '@typescript-eslint/parser';
+// import tsEslint from 'typescript-eslint';
 import pluginPrettier from 'eslint-plugin-prettier';
 import configPrettier from 'eslint-config-prettier';
 import arrify from 'arrify';
@@ -35,18 +37,22 @@ import {jsRules, tsRules, baseRules} from './rules.js';
 
 let cachedPrettierConfig: Record<string, unknown>;
 
-type CreateConfigOptions = {
-  tsconfigPath?: string;
-  isAllTs?: boolean;
-  isAllJs?: boolean;
-};
+// console.log('pluginTypescript', pluginTypescript);
+
+// console.log('tsParser', tsParser);
+
+// type CreateConfigOptions = {
+//   tsconfigPath?: string;
+//   isAllTs?: boolean;
+//   isAllJs?: boolean;
+// };
 
 /**
  * Takes a xo flat config and returns an eslint flat config
  */
 async function createConfig(
   userConfigs?: XoConfigItem[],
-  {tsconfigPath}: CreateConfigOptions = {},
+  // {tsconfigPath}: CreateConfigOptions = {},
 ): Promise<FlatESLintConfig[]> {
   // The default global options
   let _prettier;
@@ -66,16 +72,17 @@ async function createConfig(
         n: pluginN,
         '@eslint-community/eslint-comments': pluginComments,
         promise: pluginPromise,
+        '@stylistic': stylisticPlugin,
       },
       languageOptions: {
         globals: {
           ...globals.es2021,
           ...globals.node,
         },
-        ecmaVersion: configXo.parserOptions?.ecmaVersion,
-        sourceType: configXo.parserOptions?.sourceType,
+        ecmaVersion: configXoTypescript[0]?.languageOptions?.ecmaVersion,
+        sourceType: configXoTypescript[0]?.languageOptions?.sourceType,
         parserOptions: {
-          ...configXo.parserOptions,
+          ...configXoTypescript[0]?.languageOptions?.parserOptions,
         },
       },
       settings: {
@@ -99,16 +106,16 @@ async function createConfig(
       rules: {...baseRules, ...jsRules},
     },
     {
+      plugins: configXoTypescript[1]?.plugins,
       files: [TS_FILES_GLOB],
+      languageOptions: configXoTypescript[1]?.languageOptions,
       /** This turns on rules in typescript-eslint and turns off rules from eslint that conflict */
       rules: tsRules,
     },
-    ...(configXoTypescript.overrides?.map<FlatESLintConfig>((override) => ({
-      files: arrify(override.files),
-      ignores: arrify(override.excludedFiles),
-      rules: override.rules,
-    })) ?? []),
-  ].filter(Boolean);
+    ...configXoTypescript.slice(2),
+  ];
+
+  // console.log('baseConfig', baseConfig);
 
   /**
    * Since configs are merged and the last config takes precedence
@@ -156,9 +163,9 @@ async function createConfig(
     userConfig.rules ||= userConfig.rules ?? {};
 
     if (userConfig.semicolon === false) {
-      tsUserConfig.rules['@typescript-eslint/semi'] = ['error', 'never'];
-      userConfig.rules.semi = ['error', 'never'];
-      userConfig.rules['semi-spacing'] = [
+      tsUserConfig.rules['@stylistic/semi'] = ['error', 'never'];
+      userConfig.rules['@stylistic/semi'] = ['error', 'never'];
+      userConfig.rules['@stylistic/semi-spacing'] = [
         'error',
         {
           before: false,
@@ -173,24 +180,24 @@ async function createConfig(
 
       userConfig.rules = {
         ...userConfig.rules,
-        indent: ['error', spaces, {SwitchCase: 1}],
+        '@stylistic/indent': ['error', spaces, {SwitchCase: 1}],
       };
       tsUserConfig.rules = {
         ...tsUserConfig.rules,
-        '@typescript-eslint/indent': ['error', spaces, {SwitchCase: 1}],
+        '@stylistic/indent': ['error', spaces, {SwitchCase: 1}],
       };
     } else if (userConfig.space === false) {
       // If a user set this false for a small subset of files for some reason,
       // then we need to set them back to their original values
       userConfig.rules = {
         ...userConfig.rules,
-        indent: configXo?.rules?.indent,
+        '@stylistic/indent': configXoTypescript[0]?.rules?.indent,
       };
 
       tsUserConfig.rules = {
         ...tsUserConfig.rules,
-        '@typescript-eslint/indent':
-          configXoTypescript?.rules?.['@typescript-eslint/indent'],
+        '@stylistic/indent':
+          configXoTypescript[0]?.rules?.['@stylistic/indent'],
       };
     }
 
@@ -307,24 +314,29 @@ async function createConfig(
     }
   }
 
+  // console.log(tsEslint.configs.base);
+
   // Esnure all ts files are parsed with the ts parser so this is added last
   // this makes it easy to add '@typescript-eslint/*' rules anywhere with no worries
   // helps everything to load these last
-  baseConfig.push({
-    files: [TS_FILES_GLOB],
-    plugins: {
-      // @ts-expect-error just not typed correctly yet
-      '@typescript-eslint': pluginTypescript,
-    },
-    languageOptions: {
-      parser: tsParser,
-      parserOptions: {
-        ...configXoTypescript.parserOptions,
-        ecmaFeatures: {modules: true},
-        project: tsconfigPath ?? './tsconfig.json', // Tsconfig,
-      },
-    },
-  });
+  // baseConfig.push({
+  //   ...tsEslint.configs.base,
+  //   // @ts-expect-error just not typed correctly yet
+  //   files: [TS_FILES_GLOB] as Array<string | string[]>,
+  //   // plugins: {
+  //   //   // @ts-expect-error just not typed correctly yet
+  //   //   '@typescript-eslint': pluginTypescript,
+  //   // },
+  //   languageOptions: {
+  //     // parser: tsParser,
+  //     parserOptions: {
+  //       ...configXoTypescript[1]?.languageOptions?.parserOptions,
+  //       // ecmaFeatures: {modules: true},
+  //       // projectService: true,
+  //       // tsConfigRootDir: cwd,
+  //     },
+  //   },
+  // });
 
   return baseConfig;
 }

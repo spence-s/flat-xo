@@ -22,7 +22,7 @@ test('no config > js > semi', async (t) => {
     {filePath},
   );
   t.is(results.length, 1);
-  t.is(results?.[0]?.messages?.[0]?.ruleId, 'semi');
+  t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
 
 test('no config > ts > semi', async (t) => {
@@ -33,7 +33,7 @@ test('no config > ts > semi', async (t) => {
   );
 
   t.is(results?.[0]?.messages?.length, 1);
-  t.is(results?.[0]?.messages?.[0]?.ruleId, '@typescript-eslint/semi');
+  t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
 
 test('flat config > semi > js', async (t) => {
@@ -53,7 +53,7 @@ test('flat config > semi > js', async (t) => {
     filePath,
   });
   t.is(results?.[0]?.messages?.length, 1);
-  t.is(results?.[0]?.messages?.[0]?.ruleId, 'semi');
+  t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
 
 test('typescript file with flat config - semicolon', async (t) => {
@@ -73,7 +73,7 @@ test('typescript file with flat config - semicolon', async (t) => {
     filePath,
   });
   t.is(results?.[0]?.messages?.length, 1);
-  t.is(results?.[0]?.messages?.[0]?.ruleId, '@typescript-eslint/semi');
+  t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
 
 test('flat config > space > js', async (t) => {
@@ -103,7 +103,7 @@ test('flat config > space > js', async (t) => {
   );
   t.is(results?.[0]?.messages.length, 1);
   t.is(results?.[0]?.messages?.[0]?.messageId, 'wrongIndentation');
-  t.is(results?.[0]?.messages?.[0]?.ruleId, 'indent');
+  t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/indent');
 });
 
 test('flat config > space > ts', async (t) => {
@@ -133,5 +133,5 @@ test('flat config > space > ts', async (t) => {
   );
   t.is(results?.[0]?.messages.length, 1);
   t.is(results?.[0]?.messages?.[0]?.messageId, 'wrongIndentation');
-  t.is(results?.[0]?.messages?.[0]?.ruleId, '@typescript-eslint/indent');
+  t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/indent');
 });

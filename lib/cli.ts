@@ -140,6 +140,7 @@ if (typeof cliOptions.printConfig === 'string') {
   const config = await new XO().calculateConfigForFile(lintOptions.filePath);
   console.log(JSON.stringify(config, undefined, '\t'));
 } else {
+  console.log('lintOptions', lintOptions);
   const xo = new XO(lintOptions);
   const timeStart = Date.now();
   await xo.initEslint(lintOptions.fix);
