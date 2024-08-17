@@ -8,15 +8,9 @@ import pluginPromise from 'eslint-plugin-promise';
 import pluginNoUseExtendNative from 'eslint-plugin-no-use-extend-native';
 import configXoTypescript from 'eslint-config-xo-typescript';
 import stylisticPlugin from '@stylistic/eslint-plugin';
-import pluginPrettier from 'eslint-plugin-prettier';
-import configPrettier from 'eslint-config-prettier';
 import arrify from 'arrify';
 import globals from 'globals';
-// eslint-disable-next-line import-x/no-named-default
-import {default as prettier} from 'prettier';
-import pick from 'lodash.pick';
 import {type FlatESLintConfig} from 'eslint-define-config';
-import {type ESLint} from 'eslint';
 import {
   DEFAULT_IGNORES,
   TS_EXTENSIONS,
@@ -28,15 +22,12 @@ import {
 import {type XoConfigItem} from '../types.js';
 import {jsRules, tsRules, baseRules} from '../rules.js';
 import {xoToEslintConfigItem} from './xo-to-eslint-config-item.js';
-
-let cachedPrettierConfig: Record<string, unknown>;
+import {handlePrettierOptions} from './handle-prettier-options.js';
 
 /**
  * Takes a xo flat config and returns an eslint flat config
  */
 async function createConfig(userConfigs?: XoConfigItem[]): Promise<FlatESLintConfig[]> {
-  // The default global options
-  let _prettier;
   const cwd = '';
 
   const baseConfig: FlatESLintConfig[] = [
@@ -102,26 +93,26 @@ async function createConfig(userConfigs?: XoConfigItem[]): Promise<FlatESLintCon
    * ie... we need to turn prettier,space,semi,etc... on or off for a specific file
    */
   for (const xoUserConfig of userConfigs ?? []) {
-    if (Object.keys(xoUserConfig).length === 0) {
+    const keysOfXoConfig = Object.keys(xoUserConfig);
+
+    if (keysOfXoConfig.length === 0) {
       continue;
     }
-
-    const eslintConfigItem = xoToEslintConfigItem(xoUserConfig);
 
     /**
      * Special case
      * global ignores
     */
     if (
-      Object.keys(xoUserConfig).length === 1
-      && Object.keys(xoUserConfig)[0] === 'ignores'
+      keysOfXoConfig.length === 1
+      && keysOfXoConfig[0] === 'ignores'
     ) {
       baseConfig.push({ignores: arrify(xoUserConfig.ignores)});
       continue;
     }
 
-    // Set up a default rules object to potentially add to if needed
-    eslintConfigItem.rules ||= xoUserConfig.rules ?? {};
+    // An eslint config item with rules and files initialized
+    const eslintConfigItem = xoToEslintConfigItem(xoUserConfig);
 
     if (xoUserConfig.semicolon === false) {
       eslintConfigItem.rules['@stylistic/semi'] = ['error', 'never'];
@@ -144,84 +135,14 @@ async function createConfig(userConfigs?: XoConfigItem[]): Promise<FlatESLintCon
     }
 
     if (xoUserConfig.prettier) {
-      const prettierOptions
-        = cachedPrettierConfig
-        // eslint-disable-next-line no-await-in-loop
-        ?? (await prettier.resolveConfig(cwd, {editorconfig: true}))
-        ?? {};
-
-      // Only look up prettier once per run
-      cachedPrettierConfig = prettierOptions;
-
-      if (
-        (
-          xoUserConfig.semicolon
-          && prettierOptions['semi'] === false
-        )
-        ?? (
-          !xoUserConfig.semicolon
-          && prettierOptions['semi'] === true
-        )
-      ) {
-        throw new Error(`The Prettier config \`semi\` is ${prettierOptions['semi']} while XO \`semicolon\` is ${xoUserConfig.semicolon}`);
-      }
-
-      if (
-        ((xoUserConfig.space ?? typeof xoUserConfig.space === 'number')
-        && prettierOptions['useTabs'] === true)
-        || (!xoUserConfig.space && prettierOptions['useTabs'] === false)
-      ) {
-        throw new Error(`The Prettier config \`useTabs\` is ${prettierOptions['useTabs']} while XO \`space\` is ${xoUserConfig.space}`);
-      }
-
-      if (
-        typeof xoUserConfig.space === 'number'
-        && typeof prettierOptions['tabWidth'] === 'number'
-        && xoUserConfig.space !== prettierOptions['tabWidth']
-      ) {
-        throw new Error(`The Prettier config \`tabWidth\` is ${prettierOptions['tabWidth']} while XO \`space\` is ${xoUserConfig.space}`);
-      }
-
-      eslintConfigItem.plugins = {
-        ...eslintConfigItem.plugins,
-        prettier: pluginPrettier,
-      };
-
-      eslintConfigItem.rules = {
-        ...eslintConfigItem.rules,
-        ...(pluginPrettier.configs?.['recommended'] as ESLint.ConfigData)
-          ?.rules,
-        'prettier/prettier': [
-          'error',
-          {
-            singleQuote: true,
-            bracketSpacing: false,
-            bracketSameLine: false,
-            trailingComma: 'all',
-            tabWidth:
-              typeof xoUserConfig.space === 'number' ? xoUserConfig.space : 2,
-            useTabs: !xoUserConfig.space,
-            semi: xoUserConfig.semicolon,
-            ...prettierOptions,
-          },
-        ],
-        ...configPrettier.rules,
-      };
-    } else if (_prettier === false) {
+      // eslint-disable-next-line no-await-in-loop
+      await handlePrettierOptions(cwd, xoUserConfig, eslintConfigItem);
+    } else if (xoUserConfig.prettier === false) {
       // Turn prettier off for a subset of files
       eslintConfigItem.rules['prettier/prettier'] = 'off';
     }
 
-    const options = [
-      'files',
-      'ignores',
-      'languageOptions',
-      'plugins',
-      'settings',
-      'rules',
-    ];
-
-    baseConfig.push(pick(eslintConfigItem, options));
+    baseConfig.push(eslintConfigItem);
   }
 
   return baseConfig;

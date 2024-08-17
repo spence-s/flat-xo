@@ -49,6 +49,12 @@ export type XoConfigItem = ConfigOptions & Omit<FlatESLintConfig, 'files' | 'ign
      * @see [Ignore Patterns](https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new#excluding-files-with-ignores)
      */
   files?: string | string[] | undefined;
+  /**
+   * An array of glob patterns indicating the files that the configuration object should not apply to. If not specified, the configuration object applies to all files matched by files.
+   *
+   * @see [Ignore Patterns](https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new#excluding-files-with-ignores)
+   */
+  ignores?: string | string[] | undefined;
 };
 
 export type FlatXoConfig = XoConfigItem[];
