@@ -1,6 +1,4 @@
-// import tsEslint, {tsEslint} from 'typescript-eslint';
 /* eslint-disable complexity */
-// import util from 'node:util';
 import pluginAva from 'eslint-plugin-ava';
 import pluginUnicorn from 'eslint-plugin-unicorn';
 import pluginImport from 'eslint-plugin-import-x';
@@ -10,23 +8,18 @@ import pluginPromise from 'eslint-plugin-promise';
 import pluginNoUseExtendNative from 'eslint-plugin-no-use-extend-native';
 import configXoTypescript from 'eslint-config-xo-typescript';
 import stylisticPlugin from '@stylistic/eslint-plugin';
-// import pluginTypescript from '@typescript-eslint/eslint-plugin';
-// import * as tsParser from '@typescript-eslint/parser';
-// import tsEslint from 'typescript-eslint';
 import pluginPrettier from 'eslint-plugin-prettier';
 import configPrettier from 'eslint-config-prettier';
 import arrify from 'arrify';
 import globals from 'globals';
-// eslint-disable-next-line import/no-named-default
+// eslint-disable-next-line import-x/no-named-default
 import {default as prettier} from 'prettier';
-import isEmpty from 'lodash.isempty';
 import pick from 'lodash.pick';
 import {type FlatESLintConfig} from 'eslint-define-config';
 import {type ESLint} from 'eslint';
 import {
   DEFAULT_IGNORES,
   TS_EXTENSIONS,
-  JS_FILES_GLOB,
   TS_FILES_GLOB,
   ALL_FILES_GLOB,
   JS_EXTENSIONS,
@@ -37,23 +30,10 @@ import {jsRules, tsRules, baseRules} from './rules.js';
 
 let cachedPrettierConfig: Record<string, unknown>;
 
-// console.log('pluginTypescript', pluginTypescript);
-
-// console.log('tsParser', tsParser);
-
-// type CreateConfigOptions = {
-//   tsconfigPath?: string;
-//   isAllTs?: boolean;
-//   isAllJs?: boolean;
-// };
-
 /**
  * Takes a xo flat config and returns an eslint flat config
  */
-async function createConfig(
-  userConfigs?: XoConfigItem[],
-  // {tsconfigPath}: CreateConfigOptions = {},
-): Promise<FlatESLintConfig[]> {
+async function createConfig(userConfigs?: XoConfigItem[]): Promise<FlatESLintConfig[]> {
   // The default global options
   let _prettier;
   const cwd = '';
@@ -115,8 +95,6 @@ async function createConfig(
     ...configXoTypescript.slice(2),
   ];
 
-  // console.log('baseConfig', baseConfig);
-
   /**
    * Since configs are merged and the last config takes precedence
    * this means we need to handle both true AND false cases for each option.
@@ -141,8 +119,8 @@ async function createConfig(
      * global ignores
      */
     if (
-      Object.keys(userConfig).length === 1 &&
-      Object.keys(userConfig)[0] === 'ignores'
+      Object.keys(userConfig).length === 1
+      && Object.keys(userConfig)[0] === 'ignores'
     ) {
       // Accept ignores as a string or array of strings for user convenience
       userConfig.ignores = arrify(userConfig.ignores);
@@ -151,19 +129,13 @@ async function createConfig(
     }
 
     // ensure files is valid
-    userConfig.files ||= [JS_FILES_GLOB];
+    userConfig.files ||= [ALL_FILES_GLOB];
     userConfig.files = arrify(userConfig.files);
-
-    const tsUserConfig: Required<Pick<XoConfigItem, 'rules'>> & XoConfigItem = {
-      files: [TS_FILES_GLOB],
-      rules: {},
-    };
 
     // Set up a default rules object to potentially add to if needed
     userConfig.rules ||= userConfig.rules ?? {};
 
     if (userConfig.semicolon === false) {
-      tsUserConfig.rules['@stylistic/semi'] = ['error', 'never'];
       userConfig.rules['@stylistic/semi'] = ['error', 'never'];
       userConfig.rules['@stylistic/semi-spacing'] = [
         'error',
@@ -175,15 +147,10 @@ async function createConfig(
     }
 
     if (userConfig.space) {
-      const spaces =
-        typeof userConfig.space === 'number' ? userConfig.space : 2;
+      const spaces = typeof userConfig.space === 'number' ? userConfig.space : 2;
 
       userConfig.rules = {
         ...userConfig.rules,
-        '@stylistic/indent': ['error', spaces, {SwitchCase: 1}],
-      };
-      tsUserConfig.rules = {
-        ...tsUserConfig.rules,
         '@stylistic/indent': ['error', spaces, {SwitchCase: 1}],
       };
     } else if (userConfig.space === false) {
@@ -193,51 +160,39 @@ async function createConfig(
         ...userConfig.rules,
         '@stylistic/indent': configXoTypescript[0]?.rules?.indent,
       };
-
-      tsUserConfig.rules = {
-        ...tsUserConfig.rules,
-        '@stylistic/indent':
-          configXoTypescript[0]?.rules?.['@stylistic/indent'],
-      };
     }
 
     if (userConfig.prettier) {
-      const prettierOptions =
-        cachedPrettierConfig ??
+      const prettierOptions
+        = cachedPrettierConfig
         // eslint-disable-next-line no-await-in-loop
-        (await prettier.resolveConfig(cwd, {editorconfig: true})) ??
-        {};
+        ?? (await prettier.resolveConfig(cwd, {editorconfig: true}))
+        ?? {};
 
       // Only look up prettier once per run
       cachedPrettierConfig = prettierOptions;
 
       if (
-        (userConfig.semicolon && prettierOptions['semi'] === false) ??
-        (!userConfig.semicolon && prettierOptions['semi'] === true)
+        (userConfig.semicolon && prettierOptions['semi'] === false)
+        ?? (!userConfig.semicolon && prettierOptions['semi'] === true)
       ) {
-        throw new Error(
-          `The Prettier config \`semi\` is ${prettierOptions['semi']} while XO \`semicolon\` is ${userConfig.semicolon}`,
-        );
+        throw new Error(`The Prettier config \`semi\` is ${prettierOptions['semi']} while XO \`semicolon\` is ${userConfig.semicolon}`);
       }
 
       if (
-        ((userConfig.space ?? typeof userConfig.space === 'number') &&
-          prettierOptions['useTabs'] === true) ||
-        (!userConfig.space && prettierOptions['useTabs'] === false)
+        ((userConfig.space ?? typeof userConfig.space === 'number')
+        && prettierOptions['useTabs'] === true)
+        || (!userConfig.space && prettierOptions['useTabs'] === false)
       ) {
-        throw new Error(
-          `The Prettier config \`useTabs\` is ${prettierOptions['useTabs']} while XO \`space\` is ${userConfig.space}`,
-        );
+        throw new Error(`The Prettier config \`useTabs\` is ${prettierOptions['useTabs']} while XO \`space\` is ${userConfig.space}`);
       }
 
       if (
-        typeof userConfig.space === 'number' &&
-        typeof prettierOptions['tabWidth'] === 'number' &&
-        userConfig.space !== prettierOptions['tabWidth']
+        typeof userConfig.space === 'number'
+        && typeof prettierOptions['tabWidth'] === 'number'
+        && userConfig.space !== prettierOptions['tabWidth']
       ) {
-        throw new Error(
-          `The Prettier config \`tabWidth\` is ${prettierOptions['tabWidth']} while XO \`space\` is ${userConfig.space}`,
-        );
+        throw new Error(`The Prettier config \`tabWidth\` is ${prettierOptions['tabWidth']} while XO \`space\` is ${userConfig.space}`);
       }
 
       userConfig.plugins = {
@@ -245,33 +200,7 @@ async function createConfig(
         prettier: pluginPrettier,
       };
 
-      tsUserConfig.plugins = {
-        ...tsUserConfig.plugins,
-        prettier: pluginPrettier,
-      };
-
       userConfig.rules = {
-        ...userConfig.rules,
-        ...(pluginPrettier.configs?.['recommended'] as ESLint.ConfigData)
-          ?.rules,
-        'prettier/prettier': [
-          'error',
-          {
-            singleQuote: true,
-            bracketSpacing: false,
-            bracketSameLine: false,
-            trailingComma: 'all',
-            tabWidth:
-              typeof userConfig.space === 'number' ? userConfig.space : 2,
-            useTabs: !userConfig.space,
-            semi: userConfig.semicolon,
-            ...prettierOptions,
-          },
-        ],
-        ...configPrettier.rules,
-      };
-
-      tsUserConfig.rules = {
         ...userConfig.rules,
         ...(pluginPrettier.configs?.['recommended'] as ESLint.ConfigData)
           ?.rules,
@@ -309,34 +238,7 @@ async function createConfig(
     ];
 
     baseConfig.push(pick(userConfig, options));
-    if (!isEmpty(tsUserConfig.rules)) {
-      baseConfig.push(pick(tsUserConfig, options));
-    }
   }
-
-  // console.log(tsEslint.configs.base);
-
-  // Esnure all ts files are parsed with the ts parser so this is added last
-  // this makes it easy to add '@typescript-eslint/*' rules anywhere with no worries
-  // helps everything to load these last
-  // baseConfig.push({
-  //   ...tsEslint.configs.base,
-  //   // @ts-expect-error just not typed correctly yet
-  //   files: [TS_FILES_GLOB] as Array<string | string[]>,
-  //   // plugins: {
-  //   //   // @ts-expect-error just not typed correctly yet
-  //   //   '@typescript-eslint': pluginTypescript,
-  //   // },
-  //   languageOptions: {
-  //     // parser: tsParser,
-  //     parserOptions: {
-  //       ...configXoTypescript[1]?.languageOptions?.parserOptions,
-  //       // ecmaFeatures: {modules: true},
-  //       // projectService: true,
-  //       // tsConfigRootDir: cwd,
-  //     },
-  //   },
-  // });
 
   return baseConfig;
 }

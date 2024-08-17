@@ -7,22 +7,22 @@ import {copyTestProject} from './helpers/copy-test-project.js';
 
 const test = _test as TestFn<{cwd: string}>;
 
-test.beforeEach(async (t) => {
+test.beforeEach(async t => {
   t.context.cwd = await copyTestProject();
 });
 
-test.afterEach.always(async (t) => {
+test.afterEach.always(async t => {
   await fs.rm(t.context.cwd, {recursive: true, force: true});
 });
 
-test('xo --cwd', async (t) => {
+test('xo --cwd', async t => {
   const filePath = path.join(t.context.cwd, 'test.js');
   await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
 
   await t.notThrowsAsync($`node . --cwd ${t.context.cwd}`);
 });
 
-test('xo --fix', async (t) => {
+test('xo --fix', async t => {
   const filePath = path.join(t.context.cwd, 'test.js');
   await fs.writeFile(filePath, dedent`console.log('hello')\n`, 'utf8');
   await t.notThrowsAsync($`node . --cwd ${t.context.cwd} --fix`);

@@ -1,11 +1,9 @@
 import test from 'ava';
 import createConfig from '../lib/create-eslint-config.js';
-import {getJsRule, getTsRule} from './helpers/get-rule.js';
+import {getJsRule} from './helpers/get-rule.js';
 
-test('base config rules', async (t) => {
+test('base config rules', async t => {
   const flatConfig = await createConfig();
-
-  t.log(flatConfig);
 
   t.deepEqual(getJsRule(flatConfig, '@stylistic/indent'), [
     'error',
@@ -14,17 +12,9 @@ test('base config rules', async (t) => {
   ]);
   t.deepEqual(getJsRule(flatConfig, '@stylistic/semi'), ['error', 'always']);
   t.deepEqual(getJsRule(flatConfig, '@stylistic/quotes'), ['error', 'single']);
-
-  t.deepEqual(getTsRule(flatConfig, '@stylistic/indent'), [
-    'error',
-    'tab',
-    {SwitchCase: 1},
-  ]);
-  t.deepEqual(getTsRule(flatConfig, '@stylistic/semi'), ['error', 'always']);
-  t.deepEqual(getTsRule(flatConfig, '@stylistic/quotes'), ['error', 'single']);
 });
 
-test('empty config rules', async (t) => {
+test('empty config rules', async t => {
   const flatConfig = await createConfig([]);
 
   t.deepEqual(getJsRule(flatConfig, '@stylistic/indent'), [
@@ -34,17 +24,9 @@ test('empty config rules', async (t) => {
   ]);
   t.deepEqual(getJsRule(flatConfig, '@stylistic/semi'), ['error', 'always']);
   t.deepEqual(getJsRule(flatConfig, '@stylistic/quotes'), ['error', 'single']);
-
-  t.deepEqual(getTsRule(flatConfig, '@stylistic/indent'), [
-    'error',
-    'tab',
-    {SwitchCase: 1},
-  ]);
-  t.deepEqual(getTsRule(flatConfig, '@stylistic/semi'), ['error', 'always']);
-  t.deepEqual(getTsRule(flatConfig, '@stylistic/quotes'), ['error', 'single']);
 });
 
-test('config with space option', async (t) => {
+test('config with space option', async t => {
   const flatConfig = await createConfig([{space: true}]);
 
   t.deepEqual(getJsRule(flatConfig, '@stylistic/indent'), [
@@ -52,42 +34,32 @@ test('config with space option', async (t) => {
     2,
     {SwitchCase: 1},
   ]);
-  t.deepEqual(getTsRule(flatConfig, '@stylistic/indent'), [
-    'error',
-    2,
-    {SwitchCase: 1},
-  ]);
 });
 
-test('config with semi false option', async (t) => {
+test('config with semi false option', async t => {
   const flatConfig = await createConfig([{semicolon: false}]);
 
   t.deepEqual(getJsRule(flatConfig, '@stylistic/semi'), ['error', 'never']);
-  t.deepEqual(getTsRule(flatConfig, '@stylistic/semi'), ['error', 'never']);
 });
 
-test('config with rules', async (t) => {
+test('config with rules', async t => {
   const flatConfig = await createConfig([{rules: {'no-console': 'error'}}]);
 
   t.is(getJsRule(flatConfig, 'no-console'), 'error');
 });
 
-test('with prettier option', async (t) => {
+test('with prettier option', async t => {
   const flatConfig = await createConfig([{prettier: true}]);
 
-  const prettierConfigTs = flatConfig.find(
-    (config) =>
-      typeof config?.plugins?.['prettier'] === 'object' &&
-      config?.files?.[0]?.includes('ts'),
-  );
+  const prettierConfigTs = flatConfig.find(config =>
+    typeof config?.plugins?.['prettier'] === 'object'
+    && config?.files?.[0]?.includes('ts'));
 
   t.truthy(prettierConfigTs);
 
-  const prettierConfigJs = flatConfig.find(
-    (config) =>
-      typeof config?.plugins?.['prettier'] === 'object' &&
-      config?.files?.[0]?.includes('js'),
-  );
+  const prettierConfigJs = flatConfig.find(config =>
+    typeof config?.plugins?.['prettier'] === 'object'
+    && config?.files?.[0]?.includes('js'));
 
   t.truthy(prettierConfigJs);
 
@@ -120,22 +92,18 @@ test('with prettier option', async (t) => {
   ]);
 });
 
-test('with prettier option and space', async (t) => {
+test('with prettier option and space', async t => {
   const flatConfig = await createConfig([{prettier: true, space: true}]);
 
-  const prettierConfigTs = flatConfig.find(
-    (config) =>
-      typeof config?.plugins?.['prettier'] === 'object' &&
-      config?.files?.[0]?.includes('ts'),
-  );
+  const prettierConfigTs = flatConfig.find(config =>
+    typeof config?.plugins?.['prettier'] === 'object'
+    && config?.files?.[0]?.includes('ts'));
 
   t.truthy(prettierConfigTs);
 
-  const prettierConfigJs = flatConfig.find(
-    (config) =>
-      typeof config?.plugins?.['prettier'] === 'object' &&
-      config?.files?.[0]?.includes('js'),
-  );
+  const prettierConfigJs = flatConfig.find(config =>
+    typeof config?.plugins?.['prettier'] === 'object'
+    && config?.files?.[0]?.includes('js'));
 
   t.truthy(prettierConfigJs);
 

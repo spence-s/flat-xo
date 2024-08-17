@@ -4,8 +4,11 @@ import process from 'node:process';
 import {type Rule} from 'eslint';
 import formatterPretty, {type LintResult} from 'eslint-formatter-pretty';
 import meow from 'meow';
+import _debug from 'debug';
 import type {LintOptions} from './types.js';
 import {XO} from './xo.js';
+
+const debug = _debug('xo:cli');
 
 const cli = meow(
   `
@@ -65,6 +68,7 @@ const cli = meow(
       ignore: {
         type: 'string',
         isMultiple: true,
+        aliases: ['ignores'],
       },
     },
   },
@@ -102,8 +106,12 @@ if (typeof cliOptions.space === 'string') {
   }
 }
 
-// if (process.env['GITHUB_ACTIONS'] && !options.fix && !options.reporter) {
-//   options.quiet = true;
+// if (
+//   process.env['GITHUB_ACTIONS'] &&
+//   !lintOptions.fix &&
+//   !lintOptions.reporter
+// ) {
+//   lintOptions.quiet = true;
 // }
 
 const log = async (report: {
@@ -129,9 +137,7 @@ if (cliOptions.version) {
 
 if (typeof cliOptions.printConfig === 'string') {
   if (input.length > 0 || cliOptions.printConfig === '') {
-    console.error(
-      'The `--print-config` flag must be used with exactly one filename',
-    );
+    console.error('The `--print-config` flag must be used with exactly one filename');
     process.exit(1);
   }
 
@@ -140,16 +146,15 @@ if (typeof cliOptions.printConfig === 'string') {
   const config = await new XO().calculateConfigForFile(lintOptions.filePath);
   console.log(JSON.stringify(config, undefined, '\t'));
 } else {
-  console.log('lintOptions', lintOptions);
+  debug('lintOptions %O', lintOptions);
   const xo = new XO(lintOptions);
-  const timeStart = Date.now();
-  await xo.initEslint(lintOptions.fix);
-  const timeEnd = Date.now();
-  console.warn(`ESLint took ${timeEnd - timeStart}ms to initialize`);
+
   const report = await xo.lintFiles(input);
+  debug('xo.lintFiles success');
 
   if (cliOptions.fix) {
     await XO.outputFixes(report);
+    debug('xo.outputFixes success');
   }
 
   // @ts-expect-error idk man

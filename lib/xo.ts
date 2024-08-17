@@ -1,6 +1,5 @@
 import path from 'node:path';
 import os from 'node:os';
-// import fs from 'node:fs/promises';
 import process from 'node:process';
 import {ESLint, type Linter} from 'eslint';
 import findCacheDir from 'find-cache-dir';
@@ -9,6 +8,7 @@ import arrify from 'arrify';
 import defineLazyProperty from 'define-lazy-prop';
 import {type FlatESLintConfig} from 'eslint-define-config';
 import {type SetRequired} from 'type-fest';
+import _debug from 'debug';
 import {
   type XoLintResult,
   type LintOptions,
@@ -19,9 +19,23 @@ import {DEFAULT_IGNORES, CACHE_DIR_NAME, ALL_EXTENSIONS} from './constants.js';
 import createConfig from './create-eslint-config.js';
 import resolveXoConfig from './resolve-xo-config.js';
 
+const debug = _debug('xo');
+const initDebug = debug.extend('initEslint');
 export class XO {
   static async outputFixes(results: XoLintResult) {
     await ESLint.outputFixes(results?.results ?? []);
+  }
+
+  /** Static lintText helper for backwards compat */
+  static async lintText(code: string, options: LintTextOptions) {
+    const xo = new XO(options);
+    return xo.lintText(code, options);
+  }
+
+  /** Static lintFiles helper for backwards compat */
+  static async lintFiles(globs: string | undefined, options: LintOptions) {
+    const xo = new XO(options);
+    return xo.lintFiles(globs);
   }
 
   options: SetRequired<LintOptions, 'cwd'>;
@@ -43,9 +57,9 @@ export class XO {
       this.options.cwd = path.resolve(process.cwd(), this.options.cwd);
     }
 
-    this.cacheLocation =
-      findCacheDir({name: CACHE_DIR_NAME, cwd: this.options.cwd}) ??
-      path.join(os.homedir() ?? os.tmpdir(), '.xo-cache/');
+    this.cacheLocation
+      = findCacheDir({name: CACHE_DIR_NAME, cwd: this.options.cwd})
+      ?? path.join(os.homedir() ?? os.tmpdir(), '.xo-cache/');
   }
 
   /**
@@ -111,18 +125,19 @@ export class XO {
 
   /**
    * initEslint initializes the ESLint instance on the XO instance
-   * @param isFixable
    */
-  public async initEslint(isFixable?: boolean) {
-    // console.time('setXoConfig');
+  public async initEslint() {
     await this.setXoConfig();
-    // console.timeEnd('setXoConfig');
+    initDebug('setXoConfig complete');
 
-    // console.time('setEslintConfig');
     this.setIgnores();
+    initDebug('setIgnores complete');
+
     await this.setEslintConfig();
-    // console.timeEnd('setEslintConfig');
+    initDebug('setEslintConfig complete');
+
     this.setCacheLocation();
+    initDebug('setCacheLocation complete');
 
     if (!this.xoConfig) {
       throw new Error('"XO.initEslint" failed');
@@ -134,24 +149,27 @@ export class XO {
       overrideConfigFile: true,
       globInputPaths: false,
       warnIgnored: false,
-      cache: !isFixable,
-      cacheLocation: isFixable ? undefined : this.cacheLocation,
-      fix: isFixable,
+      cache: true,
+      cacheLocation: this.cacheLocation,
+      fix: this.options.fix,
     };
 
-    // console.time('new ESLint');
     this.eslint ??= new ESLint(eslintOptions);
-    // console.timeEnd('new ESLint');
+    initDebug('ESLint class created with options %O', eslintOptions);
   }
 
   /**
    * lintFiles lints the files on the XO instance
-   * @param globs
+   * @param globs glob pattern to pass to globby
    * @returns XoLintResult
    * @throws Error
    */
   async lintFiles(globs?: string | string[]): Promise<XoLintResult> {
-    await this.initEslint(this.options.fix);
+    const lintFilesDebug = debug.extend('lintFiles');
+    lintFilesDebug('lintFiles called with globs %O');
+
+    await this.initEslint();
+    lintFilesDebug('initEslint complete');
 
     if (!this.eslint) {
       throw new Error('Failed to initialize ESLint');
@@ -163,9 +181,6 @@ export class XO {
 
     globs = arrify(globs);
 
-    // console.log('globs', globs);
-
-    // console.time('globby');
     let files: string | string[] = await globby(globs, {
       ignore: DEFAULT_IGNORES,
       onlyFiles: true,
@@ -173,19 +188,20 @@ export class XO {
       absolute: true,
       cwd: this.options.cwd,
     });
-    // console.timeEnd('globby');
+
+    lintFilesDebug('globby success %O', files);
 
     if (files.length === 0) {
       files = '!**/*';
     }
 
-    // console.time('lintFiles');
     const results = await this.eslint.lintFiles(files);
-    // console.timeEnd('lintFiles');
 
-    // console.time('processReport');
+    lintFilesDebug('linting files success');
+
     const rulesMeta = this.eslint.getRulesMetaForResults(results);
-    // console.timeEnd('processReport');
+
+    lintFilesDebug('get rulesMeta success');
 
     return {
       results,
@@ -205,9 +221,9 @@ export class XO {
     code: string,
     lintTextOptions: LintTextOptions,
   ): Promise<XoLintResult> {
-    const {filePath, warnIgnored, fix} = lintTextOptions;
+    const {filePath, warnIgnored} = lintTextOptions;
 
-    await this.initEslint(fix);
+    await this.initEslint();
 
     if (!this.eslint) {
       throw new Error('Failed to initialize ESLint');
@@ -216,6 +232,7 @@ export class XO {
     const results = await this.eslint?.lintText(code, {
       filePath,
       warnIgnored,
+
     });
 
     const rulesMeta = this.eslint.getRulesMetaForResults(results ?? []);

@@ -4,12 +4,10 @@ const config: XoConfigItem[] = [
   {ignores: ['test/fixtures/**/*']},
   {
     space: true,
-    prettier: true,
-    files: [`**/*.{ts,js}`],
+    files: ['**/*.{ts,js}'],
     rules: {
       '@typescript-eslint/naming-convention': 'off',
       'ava/no-ignored-test-files': 'off',
-      // 'import-x/no-named-default': 'off',
     },
   },
 ];

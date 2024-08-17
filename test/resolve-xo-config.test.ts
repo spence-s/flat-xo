@@ -6,15 +6,15 @@ import {copyTestProject} from './helpers/copy-test-project.js';
 
 const test = _test as TestFn<{cwd: string}>;
 
-test.beforeEach(async (t) => {
+test.beforeEach(async t => {
   t.context.cwd = await copyTestProject();
 });
 
-test.afterEach.always(async (t) => {
+test.afterEach.always(async t => {
   await fs.rm(t.context.cwd, {recursive: true, force: true});
 });
 
-test('resolveXoConfig > no config', async (t) => {
+test('resolveXoConfig > no config', async t => {
   const {enginesOptions, flatOptions, flatConfigPath} = await resolveXoConfig({
     cwd: t.context.cwd,
   });
@@ -23,7 +23,7 @@ test('resolveXoConfig > no config', async (t) => {
   t.is(flatConfigPath, '');
 });
 
-test('resolveXoConfig > resolves xo config', async (t) => {
+test('resolveXoConfig > resolves xo config', async t => {
   const testConfig = `export default [
     {
       space: true,
@@ -43,7 +43,7 @@ test('resolveXoConfig > resolves xo config', async (t) => {
   t.deepEqual(flatOptions, [{space: true}]);
 });
 
-test('resolveXoConfig > resolves xo config with engines', async (t) => {
+test('resolveXoConfig > resolves xo config with engines', async t => {
   const testConfig = `export default [
     {
       space: true,
@@ -58,9 +58,7 @@ test('resolveXoConfig > resolves xo config with engines', async (t) => {
     path.join(t.context.cwd, 'package.json'),
     JSON.stringify({
       engines: {node: '>=16'},
-      ...JSON.parse(
-        await fs.readFile(path.join(t.context.cwd, 'package.json'), 'utf8'),
-      ),
+      ...JSON.parse(await fs.readFile(path.join(t.context.cwd, 'package.json'), 'utf8')),
     }),
     'utf8',
   );

@@ -19,7 +19,7 @@ test.after.always(async () => {
   await fs.rm(cwd, {recursive: true, force: true});
 });
 
-test('no-use-extend-native', async (t) => {
+test('no-use-extend-native', async t => {
   const {results} = await new XO({cwd}).lintText(
     dedent`
       import {util} from 'node:util';
@@ -36,7 +36,7 @@ test('no-use-extend-native', async (t) => {
   );
 });
 
-test('no-use-extend-native ts', async (t) => {
+test('no-use-extend-native ts', async t => {
   const {results} = await new XO({cwd}).lintText(
     dedent`
       import {util} from 'node:util';
@@ -54,7 +54,7 @@ test('no-use-extend-native ts', async (t) => {
   );
 });
 
-test('eslint-plugin-import import-x/order', async (t) => {
+test('eslint-plugin-import import-x/order', async t => {
   const {results} = await new XO({cwd}).lintText(
     dedent`
       import foo from 'foo';
@@ -70,7 +70,7 @@ test('eslint-plugin-import import-x/order', async (t) => {
   t.is(results[0]?.messages?.[0]?.ruleId, 'import-x/order');
 });
 
-test('eslint-plugin-import import-x/order ts', async (t) => {
+test('eslint-plugin-import import-x/order ts', async t => {
   const {results} = await new XO({cwd}).lintText(
     dedent`
       import foo from 'foo';
@@ -85,12 +85,12 @@ test('eslint-plugin-import import-x/order ts', async (t) => {
   t.is(results[0]?.messages?.[0]?.ruleId, 'import-x/order');
 });
 
-test('eslint-plugin-import import-x/extensions', async (t) => {
+test('eslint-plugin-import import-x/extensions', async t => {
   const {results} = await new XO({cwd}).lintText(
     dedent`
-    import foo from './foo';
+      import foo from './foo';
 
-    console.log(foo);\n
+      console.log(foo);\n
     `,
     {filePath},
   );
@@ -99,7 +99,7 @@ test('eslint-plugin-import import-x/extensions', async (t) => {
   t.is(results[0]?.messages?.[0]?.ruleId, 'import-x/extensions');
 });
 
-test('eslint-plugin-import import-x/extensions ts', async (t) => {
+test('eslint-plugin-import import-x/extensions ts', async t => {
   const {results} = await new XO({cwd}).lintText(
     dedent`
       import foo from './foo';
@@ -113,7 +113,7 @@ test('eslint-plugin-import import-x/extensions ts', async (t) => {
   t.is(results[0]?.messages?.[0]?.ruleId, 'import-x/extensions');
 });
 
-test('eslint-plugin-import import-x/no-absolute-path ts', async (t) => {
+test('eslint-plugin-import import-x/no-absolute-path ts', async t => {
   const {results} = await new XO({cwd}).lintText(
     dedent`
       import foo from '/foo';
@@ -122,14 +122,10 @@ test('eslint-plugin-import import-x/no-absolute-path ts', async (t) => {
     `,
     {filePath: tsFilePath},
   );
-  t.true(
-    results[0]?.messages?.some(
-      ({ruleId}) => ruleId === 'import-x/no-absolute-path',
-    ),
-  );
+  t.true(results[0]?.messages?.some(({ruleId}) => ruleId === 'import-x/no-absolute-path'));
 });
 
-test('eslint-plugin-import import-x/no-anonymous-default-export', async (t) => {
+test('eslint-plugin-import import-x/no-anonymous-default-export', async t => {
   const {results} = await new XO({cwd}).lintText(
     dedent`
       export default () => {};\n
@@ -137,14 +133,10 @@ test('eslint-plugin-import import-x/no-anonymous-default-export', async (t) => {
     {filePath},
   );
 
-  t.true(
-    results[0]?.messages?.some(
-      ({ruleId}) => ruleId === 'import-x/no-anonymous-default-export',
-    ),
-  );
+  t.true(results[0]?.messages?.some(({ruleId}) => ruleId === 'import-x/no-anonymous-default-export'));
 });
 
-test('eslint-plugin-n n/prefer-global/process', async (t) => {
+test('eslint-plugin-n n/prefer-global/process', async t => {
   const {results} = await new XO({cwd}).lintText(
     dedent`
       process.cwd();\n
@@ -156,7 +148,7 @@ test('eslint-plugin-n n/prefer-global/process', async (t) => {
   t.is(results[0]?.messages?.[0]?.ruleId, 'n/prefer-global/process');
 });
 
-test('eslint-plugin-n n/prefer-global/process ts', async (t) => {
+test('eslint-plugin-n n/prefer-global/process ts', async t => {
   const {results} = await new XO({
     cwd,
     tsconfig: path.join(cwd, 'tsconfig.json'),
@@ -171,40 +163,34 @@ test('eslint-plugin-n n/prefer-global/process ts', async (t) => {
   t.is(results[0]?.messages?.[0]?.ruleId, 'n/prefer-global/process');
 });
 
-test('eslint-plugin-eslint-comments enable-duplicate-disable', async (t) => {
+test('eslint-plugin-eslint-comments enable-duplicate-disable', async t => {
   const {results} = await new XO({
     cwd,
   }).lintText(
     dedent`
-    /* eslint-disable no-undef */
-    export const foo = bar(); // eslint-disable-line no-undef
-    \n`,
+      /* eslint-disable no-undef */
+      export const foo = bar(); // eslint-disable-line no-undef
+      \n
+    `,
     {filePath},
   );
   t.true(results[0]?.errorCount === 1);
-  t.true(
-    results[0]?.messages.some(
-      ({ruleId}) =>
-        ruleId === '@eslint-community/eslint-comments/no-duplicate-disable',
-    ),
-  );
+  t.true(results[0]?.messages.some(({ruleId}) =>
+    ruleId === '@eslint-community/eslint-comments/no-duplicate-disable'));
 });
 
-test('eslint-plugin-eslint-comments no-duplicate-disable ts', async (t) => {
+test('eslint-plugin-eslint-comments no-duplicate-disable ts', async t => {
   const {results} = await new XO({
     cwd,
   }).lintText(
     dedent`
-    /* eslint-disable no-undef */
-    export const foo = 10; // eslint-disable-line no-undef
-    \n`,
+      /* eslint-disable no-undef */
+      export const foo = 10; // eslint-disable-line no-undef
+      \n
+    `,
     {filePath: tsFilePath},
   );
   t.true(results[0]?.errorCount === 1);
-  t.true(
-    results[0]?.messages.some(
-      ({ruleId}) =>
-        ruleId === '@eslint-community/eslint-comments/no-duplicate-disable',
-    ),
-  );
+  t.true(results[0]?.messages.some(({ruleId}) =>
+    ruleId === '@eslint-community/eslint-comments/no-duplicate-disable'));
 });

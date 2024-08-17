@@ -2,7 +2,6 @@ import path from 'node:path';
 import process from 'node:process';
 import {cosmiconfig, defaultLoaders} from 'cosmiconfig';
 import pick from 'lodash.pick';
-// import {type FlatESLintConfig} from 'eslint-define-config';
 import {type LintOptions, type FlatXoConfig} from './types.js';
 import {MODULE_NAME} from './constants.js';
 
@@ -77,7 +76,7 @@ export async function resolveXoConfig(options: LintOptions): Promise<{
     'plugins',
   ];
 
-  flatOptions = flatOptions.map((config) => pick(config, globalKeys));
+  flatOptions = flatOptions.map(config => pick(config, globalKeys));
 
   return {
     enginesOptions,

@@ -4,31 +4,16 @@
   "description": "xo with eslint flat config",
   "type": "module",
   "main": "dist/lib/cli.js",
+  "bin": {
+    "xo": "dist/cli.js"
+  },
   "scripts": {
     "build": "npm run clean && tsc",
     "build:watch": "tsc --watch",
-    "check": "tsc --project ./jsconfig.json",
     "clean": "rm -rf dist",
     "test": "npm run test:setup  && npm run build && ava",
     "test:setup": "node scripts/setup-tests",
     "test:watch": "npm run test:setup && ava --watch"
-  },
-  "xo": {
-    "ignores": [
-      "test/fixtures/**/*",
-      "test/temp",
-      "coverage"
-    ],
-    "parserOptions": {
-      "project": "./tsconfig.json"
-    },
-    "prettier": true,
-    "rules": {
-      "capitalized-comments": "off",
-      "@typescript-eslint/naming-convention": "off",
-      "ava/no-ignored-test-files": "off"
-    },
-    "space": true
   },
   "prettier": {
     "plugins": [
@@ -100,6 +85,7 @@
     "@commitlint/cli": "^19.4.0",
     "@commitlint/config-conventional": "^19.2.2",
     "@sindresorhus/tsconfig": "^6.0.0",
+    "@types/debug": "^4.1.12",
     "@types/eslint": "9.6.0",
     "@types/find-cache-dir": "^3.2.1",
     "@types/lodash.isempty": "^4.4.9",
@@ -114,6 +100,6 @@
     "path-exists": "^5.0.0",
     "prettier-plugin-packagejson": "^2.5.1",
     "temp-dir": "^3.0.0",
-    "xo": "^0.59.3"
+    "xo": "file:./dist/lib/xo.js"
   }
 }

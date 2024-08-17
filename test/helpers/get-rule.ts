@@ -12,14 +12,12 @@ import {
  * @param ruleId
  */
 export const getJsRule = (flatConfig: FlatESLintConfig[], ruleId: string) => {
-  const config = [...flatConfig].reverse().find(
-    (config) =>
-      (typeof config !== 'string' &&
-        config?.rules?.[ruleId] &&
-        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-        config.files?.includes(ALL_FILES_GLOB)) ||
-      config.files?.includes(JS_FILES_GLOB),
-  );
+  const config = [...flatConfig].reverse().find(config =>
+    (typeof config !== 'string'
+    && config?.rules?.[ruleId]
+
+    && config.files?.includes(ALL_FILES_GLOB))
+    || config.files?.includes(JS_FILES_GLOB));
 
   if (typeof config === 'string') {
     return undefined;
@@ -37,12 +35,10 @@ export const getJsRule = (flatConfig: FlatESLintConfig[], ruleId: string) => {
 export const getTsRule = (flatConfig: FlatESLintConfig[], ruleId: string) => {
   const config = [...flatConfig]
     .reverse()
-    .find(
-      (config) =>
-        typeof config !== 'string' &&
-        config?.rules?.[ruleId] &&
-        config.files?.includes(TS_FILES_GLOB),
-    );
+    .find(config =>
+      typeof config !== 'string'
+      && config?.rules?.[ruleId]
+      && config.files?.includes(TS_FILES_GLOB));
 
   if (typeof config === 'string') {
     return undefined;

@@ -7,15 +7,15 @@ import {copyTestProject} from '../helpers/copy-test-project.js';
 
 const test = _test as TestFn<{cwd: string}>;
 
-test.beforeEach(async (t) => {
+test.beforeEach(async t => {
   t.context.cwd = await copyTestProject();
 });
 
-test.afterEach.always(async (t) => {
+test.afterEach.always(async t => {
   await fs.rm(t.context.cwd, {recursive: true, force: true});
 });
 
-test('no config > js > semi', async (t) => {
+test('no config > js > semi', async t => {
   const filePath = path.join(t.context.cwd, 'test.js');
   const {results} = await new XO({cwd: t.context.cwd}).lintText(
     dedent`console.log('hello')\n`,
@@ -25,7 +25,7 @@ test('no config > js > semi', async (t) => {
   t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
 
-test('no config > ts > semi', async (t) => {
+test('no config > ts > semi', async t => {
   const filePath = path.join(t.context.cwd, 'test.ts');
   const {results} = await new XO({cwd: t.context.cwd}).lintText(
     dedent`console.log('hello')\n`,
@@ -36,7 +36,7 @@ test('no config > ts > semi', async (t) => {
   t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
 
-test('flat config > semi > js', async (t) => {
+test('flat config > semi > js', async t => {
   const filePath = path.join(t.context.cwd, 'test.js');
   await fs.writeFile(
     path.join(t.context.cwd, 'xo.config.js'),
@@ -45,7 +45,8 @@ test('flat config > semi > js', async (t) => {
         {
           semicolon: false
         }
-      ]\n`,
+      ]\n
+    `,
     'utf8',
   );
   const xo = new XO({cwd: t.context.cwd});
@@ -56,7 +57,7 @@ test('flat config > semi > js', async (t) => {
   t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
 
-test('typescript file with flat config - semicolon', async (t) => {
+test('typescript file with flat config - semicolon', async t => {
   const filePath = path.join(t.context.cwd, 'test.ts');
   await fs.writeFile(
     path.join(t.context.cwd, 'xo.config.js'),
@@ -65,7 +66,8 @@ test('typescript file with flat config - semicolon', async (t) => {
         {
           semicolon: false
         }
-      ];\n`,
+      ];\n
+    `,
     'utf8',
   );
   const xo = new XO({cwd: t.context.cwd});
@@ -76,17 +78,18 @@ test('typescript file with flat config - semicolon', async (t) => {
   t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
 
-test('flat config > space > js', async (t) => {
+test('flat config > space > js', async t => {
   const filePath = path.join(t.context.cwd, 'test.js');
 
   await fs.writeFile(
     path.join(t.context.cwd, 'xo.config.js'),
     dedent`
-    export default [
-      {
-        space: true
-      }
-    ];\n`,
+      export default [
+        {
+          space: true
+        }
+      ];\n
+    `,
     'utf8',
   );
 
@@ -106,7 +109,7 @@ test('flat config > space > js', async (t) => {
   t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/indent');
 });
 
-test('flat config > space > ts', async (t) => {
+test('flat config > space > ts', async t => {
   const filePath = path.join(t.context.cwd, 'test.ts');
 
   await fs.writeFile(
@@ -116,7 +119,8 @@ test('flat config > space > ts', async (t) => {
         {
           space: true
         }
-      ];\n`,
+      ];\n
+    `,
     'utf8',
   );
 
