@@ -3,7 +3,7 @@ import {type ESLint, type Rule} from 'eslint';
 
 export type Space = boolean | number | string | undefined;
 
-export type ConfigOptions = {
+export type BaseXoConfigOptions = {
   /**
    * Use spaces for indentation.
    * Tabs are used if the value is `false`, otherwise the value is the number of spaces to use or true, the default number of spaces is 2.
@@ -23,26 +23,33 @@ export type ConfigOptions = {
   ignores?: string | string[];
 };
 
-export type LintOptions = ConfigOptions & {
+export type LinterOptions = {
   /**
    * The current working directory to use for relative paths.
    */
-  cwd?: string;
+  cwd: string;
+  /**
+   * Write fixes to the files.
+  */
+  fix?: boolean;
   /**
    * The path to the file being linted.
    */
   filePath?: string;
-  /**
-   * Write fixes to the files.
-   */
-  fix?: boolean;
 };
 
-export type LintTextOptions = LintOptions & {
+export type LintTextOptions = {
+  /**
+   * The path to the file being linted.
+   */
+  filePath: string;
+  /**
+   * Warn if the file is ignored.
+   */
   warnIgnored?: boolean;
 };
 
-export type XoConfigItem = ConfigOptions & Omit<FlatESLintConfig, 'files' | 'ignores'> & {
+export type XoConfigItem = BaseXoConfigOptions & Omit<FlatESLintConfig, 'files' | 'ignores'> & {
   /**
      * An array of glob patterns indicating the files that the configuration object should apply to. If not specified, the configuration object applies to all files.
      *

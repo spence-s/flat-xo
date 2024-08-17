@@ -11,9 +11,10 @@ import {type SetRequired} from 'type-fest';
 import _debug from 'debug';
 import {
   type XoLintResult,
-  type LintOptions,
+  type LinterOptions,
   type LintTextOptions,
   type FlatXoConfig,
+  type BaseXoConfigOptions,
 } from './types.js';
 import {DEFAULT_IGNORES, CACHE_DIR_NAME, ALL_EXTENSIONS} from './constants.js';
 import createConfig from './create-eslint-config/index.js';
@@ -27,38 +28,37 @@ export class XO {
   }
 
   /** Static lintText helper for backwards compat */
-  static async lintText(code: string, options: LintTextOptions) {
+  static async lintText(code: string, options: LintTextOptions & LinterOptions) {
     const xo = new XO(options);
     return xo.lintText(code, options);
   }
 
   /** Static lintFiles helper for backwards compat */
-  static async lintFiles(globs: string | undefined, options: LintOptions) {
+  static async lintFiles(globs: string | undefined, options: LinterOptions) {
     const xo = new XO(options);
     return xo.lintFiles(globs);
   }
 
-  options: SetRequired<LintOptions, 'cwd'>;
+  linterOptions: SetRequired<LinterOptions, 'cwd'>;
+  baseXoConfigOptions: BaseXoConfigOptions;
   cacheLocation: string;
   eslint?: ESLint;
   xoConfig?: FlatXoConfig;
   configPath?: string;
   eslintConfig?: FlatESLintConfig[];
   flatConfigPath?: string;
-  ignores?: string | string[];
 
-  constructor(_options?: LintOptions) {
-    _options ??= {cwd: ''};
-    _options.cwd ||= process.cwd();
-    this.options = _options as SetRequired<LintOptions, 'cwd'>;
+  constructor(_options: LinterOptions, baseConfigOptions: BaseXoConfigOptions = {}) {
+    this.linterOptions = _options;
+    this.baseXoConfigOptions = baseConfigOptions;
 
     // fix relative cwd paths
-    if (!path.isAbsolute(this.options.cwd)) {
-      this.options.cwd = path.resolve(process.cwd(), this.options.cwd);
+    if (!path.isAbsolute(this.linterOptions.cwd)) {
+      this.linterOptions.cwd = path.resolve(process.cwd(), this.linterOptions.cwd);
     }
 
     this.cacheLocation
-      = findCacheDir({name: CACHE_DIR_NAME, cwd: this.options.cwd})
+      = findCacheDir({name: CACHE_DIR_NAME, cwd: this.linterOptions.cwd})
       ?? path.join(os.homedir() ?? os.tmpdir(), '.xo-cache/');
   }
 
@@ -69,9 +69,9 @@ export class XO {
   async setXoConfig() {
     if (!this.xoConfig) {
       const {flatOptions, flatConfigPath} = await resolveXoConfig({
-        ...this.options,
+        ...this.linterOptions,
       });
-      this.xoConfig = flatOptions;
+      this.xoConfig = [this.baseXoConfigOptions, ...flatOptions];
       this.flatConfigPath = flatConfigPath;
     }
   }
@@ -93,13 +93,13 @@ export class XO {
    * @private
    */
   setIgnores() {
-    if (!this.ignores) {
+    if (!this.baseXoConfigOptions.ignores) {
       let ignores: string[] = [];
 
-      if (typeof this.options.ignores === 'string') {
-        ignores = arrify(this.options.ignores);
-      } else if (Array.isArray(this.options.ignores)) {
-        ignores = this.options.ignores;
+      if (typeof this.baseXoConfigOptions.ignores === 'string') {
+        ignores = arrify(this.baseXoConfigOptions.ignores);
+      } else if (Array.isArray(this.baseXoConfigOptions.ignores)) {
+        ignores = this.baseXoConfigOptions.ignores;
       }
 
       if (!this.xoConfig) {
@@ -109,9 +109,6 @@ export class XO {
       if (ignores.length > 0) {
         this.xoConfig.push({ignores});
       }
-
-      // console.log('ignores', ignores);
-      this.ignores = ignores;
     }
   }
 
@@ -130,8 +127,8 @@ export class XO {
     await this.setXoConfig();
     initDebug('setXoConfig complete');
 
-    this.setIgnores();
-    initDebug('setIgnores complete');
+    // this.setIgnores();
+    // initDebug('setIgnores complete');
 
     await this.setEslintConfig();
     initDebug('setEslintConfig complete');
@@ -144,14 +141,14 @@ export class XO {
     }
 
     const eslintOptions = {
-      cwd: this.options.cwd,
+      cwd: this.linterOptions.cwd,
       overrideConfig: this.eslintConfig as Linter.Config,
       overrideConfigFile: true,
       globInputPaths: false,
       warnIgnored: false,
       cache: true,
       cacheLocation: this.cacheLocation,
-      fix: this.options.fix,
+      fix: this.linterOptions.fix,
     };
 
     this.eslint ??= new ESLint(eslintOptions);
@@ -186,7 +183,7 @@ export class XO {
       onlyFiles: true,
       gitignore: true,
       absolute: true,
-      cwd: this.options.cwd,
+      cwd: this.linterOptions.cwd,
     });
 
     lintFilesDebug('globby success %O', files);
@@ -240,14 +237,14 @@ export class XO {
     return this.processReport(results ?? [], {rulesMeta});
   }
 
-  async calculateConfigForFile(filePath: string): Promise<ESLint.Options> {
+  async calculateConfigForFile(filePath: string): Promise<Linter.Config> {
     await this.initEslint();
 
     if (!this.eslint) {
       throw new Error('Failed to initialize ESLint');
     }
 
-    return this.eslint.calculateConfigForFile(filePath) as ESLint.Options;
+    return this.eslint.calculateConfigForFile(filePath) as Promise<Linter.Config>;
   }
 
   processReport(

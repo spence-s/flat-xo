@@ -5,7 +5,7 @@ import {type Rule} from 'eslint';
 import formatterPretty, {type LintResult} from 'eslint-formatter-pretty';
 import meow from 'meow';
 import _debug from 'debug';
-import type {LintOptions} from './types.js';
+import type {LinterOptions, BaseXoConfigOptions} from './types.js';
 import {XO} from './xo.js';
 
 const debug = _debug('xo:cli');
@@ -38,6 +38,7 @@ const cli = meow(
     flags: {
       fix: {
         type: 'boolean',
+        default: false,
       },
       reporter: {
         type: 'string',
@@ -74,13 +75,16 @@ export type CliOptions = typeof cli;
 
 const {input, flags: cliOptions, showVersion} = cli;
 
-const lintOptions: LintOptions = {
+const baseXoConfigOptions: BaseXoConfigOptions = {
   space: cliOptions.space,
   semicolon: cliOptions.semicolon,
   prettier: cliOptions.prettier,
-  cwd: (cliOptions.cwd && path.resolve(cliOptions.cwd)) ?? process.cwd(),
   ignores: cliOptions.ignore,
+};
+
+const linterOptions: LinterOptions = {
   fix: cliOptions.fix,
+  cwd: (cliOptions.cwd && path.resolve(cliOptions.cwd)) ?? process.cwd(),
 };
 
 // Make data types for `options.space` match those of the API
@@ -88,27 +92,27 @@ if (typeof cliOptions.space === 'string') {
   cliOptions.space = cliOptions.space.trim();
 
   if (/^\d+$/u.test(cliOptions.space)) {
-    lintOptions.space = Number.parseInt(cliOptions.space, 10);
+    baseXoConfigOptions.space = Number.parseInt(cliOptions.space, 10);
   } else if (cliOptions.space === 'true') {
-    lintOptions.space = true;
+    baseXoConfigOptions.space = true;
   } else if (cliOptions.space === 'false') {
-    lintOptions.space = false;
+    baseXoConfigOptions.space = false;
   } else {
     if (cliOptions.space !== '') {
       // Assume `options.space` was set to a filename when run as `xo --space file.js`
       input.push(cliOptions.space);
     }
 
-    lintOptions.space = true;
+    baseXoConfigOptions.space = true;
   }
 }
 
 // if (
 //   process.env['GITHUB_ACTIONS'] &&
-//   !lintOptions.fix &&
-//   !lintOptions.reporter
+//   !linterOptions.fix &&
+//   !linterOptions.reporter
 // ) {
-//   lintOptions.quiet = true;
+//   linterOptions.quiet = true;
 // }
 
 const log = async (report: {
@@ -138,13 +142,11 @@ if (typeof cliOptions.printConfig === 'string') {
     process.exit(1);
   }
 
-  lintOptions.filePath = cliOptions.printConfig;
-
-  const config = await new XO().calculateConfigForFile(lintOptions.filePath);
+  const config = await new XO(linterOptions, baseXoConfigOptions).calculateConfigForFile(cliOptions.printConfig);
   console.log(JSON.stringify(config, undefined, '\t'));
 } else {
-  debug('lintOptions %O', lintOptions);
-  const xo = new XO(lintOptions);
+  debug('linterOptions %O', linterOptions);
+  const xo = new XO(linterOptions, baseXoConfigOptions);
 
   const report = await xo.lintFiles(input);
   debug('xo.lintFiles success');

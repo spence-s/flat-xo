@@ -2,13 +2,13 @@ import path from 'node:path';
 import process from 'node:process';
 import {cosmiconfig, defaultLoaders} from 'cosmiconfig';
 import pick from 'lodash.pick';
-import {type LintOptions, type FlatXoConfig} from './types.js';
+import {type LinterOptions, type FlatXoConfig} from './types.js';
 import {MODULE_NAME} from './constants.js';
 
 /**
  * Finds the xo config file
  */
-export async function resolveXoConfig(options: LintOptions): Promise<{
+export async function resolveXoConfig(options: LinterOptions): Promise<{
   flatOptions: FlatXoConfig;
   flatConfigPath: string;
   enginesOptions: {engines?: string};

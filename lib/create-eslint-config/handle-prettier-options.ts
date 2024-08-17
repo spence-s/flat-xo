@@ -23,8 +23,6 @@ export async function handlePrettierOptions(cwd: string, xoUserConfig: XoConfigI
   // Only look up prettier once per run
   cachedPrettierConfig = prettierOptions;
 
-  console.log('prettierOptions', prettierOptions);
-
   // validate that prettier options match other xoConfig options
   if ((xoUserConfig.semicolon && prettierOptions['semi'] === false) ?? (!xoUserConfig.semicolon && prettierOptions['semi'] === true)) {
     throw new Error(`The Prettier config \`semi\` is ${prettierOptions['semi']} while XO \`semicolon\` is ${xoUserConfig.semicolon}`);
