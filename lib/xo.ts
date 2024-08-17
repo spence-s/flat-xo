@@ -16,7 +16,7 @@ import {
   type FlatXoConfig,
 } from './types.js';
 import {DEFAULT_IGNORES, CACHE_DIR_NAME, ALL_EXTENSIONS} from './constants.js';
-import createConfig from './create-eslint-config.js';
+import createConfig from './create-eslint-config/index.js';
 import resolveXoConfig from './resolve-xo-config.js';
 
 const debug = _debug('xo');

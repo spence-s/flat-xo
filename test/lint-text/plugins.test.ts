@@ -149,10 +149,7 @@ test('eslint-plugin-n n/prefer-global/process', async t => {
 });
 
 test('eslint-plugin-n n/prefer-global/process ts', async t => {
-  const {results} = await new XO({
-    cwd,
-    tsconfig: path.join(cwd, 'tsconfig.json'),
-  }).lintText(
+  const {results} = await new XO({cwd}).lintText(
     dedent`
       process.cwd();\n
     `,

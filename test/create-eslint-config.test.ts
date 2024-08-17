@@ -1,5 +1,5 @@
 import test from 'ava';
-import createConfig from '../lib/create-eslint-config.js';
+import createConfig from '../lib/create-eslint-config/index.js';
 import {getJsRule} from './helpers/get-rule.js';
 
 test('base config rules', async t => {

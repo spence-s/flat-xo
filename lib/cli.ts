@@ -39,10 +39,6 @@ const cli = meow(
       fix: {
         type: 'boolean',
       },
-      tsconfig: {
-        aliases: ['tsConfig'],
-        type: 'string',
-      },
       reporter: {
         type: 'string',
       },
@@ -83,13 +79,14 @@ const lintOptions: LintOptions = {
   semicolon: cliOptions.semicolon,
   prettier: cliOptions.prettier,
   cwd: (cliOptions.cwd && path.resolve(cliOptions.cwd)) ?? process.cwd(),
-  tsconfig: cliOptions.tsconfig,
   ignores: cliOptions.ignore,
   fix: cliOptions.fix,
 };
 
 // Make data types for `options.space` match those of the API
 if (typeof cliOptions.space === 'string') {
+  cliOptions.space = cliOptions.space.trim();
+
   if (/^\d+$/u.test(cliOptions.space)) {
     lintOptions.space = Number.parseInt(cliOptions.space, 10);
   } else if (cliOptions.space === 'true') {

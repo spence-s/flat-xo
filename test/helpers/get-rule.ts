@@ -15,7 +15,6 @@ export const getJsRule = (flatConfig: FlatESLintConfig[], ruleId: string) => {
   const config = [...flatConfig].reverse().find(config =>
     (typeof config !== 'string'
     && config?.rules?.[ruleId]
-
     && config.files?.includes(ALL_FILES_GLOB))
     ?? config.files?.includes(JS_FILES_GLOB));
 
