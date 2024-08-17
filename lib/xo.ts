@@ -7,14 +7,13 @@ import {globby} from 'globby';
 import arrify from 'arrify';
 import defineLazyProperty from 'define-lazy-prop';
 import {type FlatESLintConfig} from 'eslint-define-config';
-import {type SetRequired} from 'type-fest';
 import _debug from 'debug';
 import {
   type XoLintResult,
   type LinterOptions,
   type LintTextOptions,
   type FlatXoConfig,
-  type BaseXoConfigOptions,
+  type XoConfigOptions,
 } from './types.js';
 import {DEFAULT_IGNORES, CACHE_DIR_NAME, ALL_EXTENSIONS} from './constants.js';
 import createConfig from './create-eslint-config/index.js';
@@ -27,30 +26,54 @@ export class XO {
     await ESLint.outputFixes(results?.results ?? []);
   }
 
-  /** Static lintText helper for backwards compat */
+  /**
+   * Static lintText helper for backwards compat and use in editor extensions and other tools
+   */
   static async lintText(code: string, options: LintTextOptions & LinterOptions) {
     const xo = new XO(options);
     return xo.lintText(code, options);
   }
 
-  /** Static lintFiles helper for backwards compat */
+  /**
+   * Static lintFiles helper for backwards compat and use in editor extensions and other tools
+   */
   static async lintFiles(globs: string | undefined, options: LinterOptions) {
     const xo = new XO(options);
     return xo.lintFiles(globs);
   }
 
-  linterOptions: SetRequired<LinterOptions, 'cwd'>;
-  baseXoConfigOptions: BaseXoConfigOptions;
+  /**
+   * Required linter options,cwd, fix, and filePath (in case of lintText)
+   */
+  linterOptions: LinterOptions;
+  /**
+   * Base XO config options that allow configuration from cli or other sources
+   */
+  baseXoConfig: XoConfigOptions;
+  /**
+   * file path to the eslint cache
+   */
   cacheLocation: string;
+  /**
+   * A re-usable ESLint instance configured with options calculated from the XO config
+   */
   eslint?: ESLint;
+  /**
+   * XO config resolved from both the base config and the flat config
+   */
   xoConfig?: FlatXoConfig;
-  configPath?: string;
+  /**
+   * The ESLint config calculated from the resolved XO config
+  */
   eslintConfig?: FlatESLintConfig[];
-  flatConfigPath?: string;
+  /**
+  * The xo flat config path, if there is one
+  */
+  flatConfigPath?: string | undefined;
 
-  constructor(_options: LinterOptions, baseConfigOptions: BaseXoConfigOptions = {}) {
+  constructor(_options: LinterOptions, baseConfigOptions: XoConfigOptions = {}) {
     this.linterOptions = _options;
-    this.baseXoConfigOptions = baseConfigOptions;
+    this.baseXoConfig = baseConfigOptions;
 
     // fix relative cwd paths
     if (!path.isAbsolute(this.linterOptions.cwd)) {
@@ -71,7 +94,7 @@ export class XO {
       const {flatOptions, flatConfigPath} = await resolveXoConfig({
         ...this.linterOptions,
       });
-      this.xoConfig = [this.baseXoConfigOptions, ...flatOptions];
+      this.xoConfig = [this.baseXoConfig, ...flatOptions];
       this.flatConfigPath = flatConfigPath;
     }
   }
@@ -93,13 +116,13 @@ export class XO {
    * @private
    */
   setIgnores() {
-    if (!this.baseXoConfigOptions.ignores) {
+    if (!this.baseXoConfig.ignores) {
       let ignores: string[] = [];
 
-      if (typeof this.baseXoConfigOptions.ignores === 'string') {
-        ignores = arrify(this.baseXoConfigOptions.ignores);
-      } else if (Array.isArray(this.baseXoConfigOptions.ignores)) {
-        ignores = this.baseXoConfigOptions.ignores;
+      if (typeof this.baseXoConfig.ignores === 'string') {
+        ignores = arrify(this.baseXoConfig.ignores);
+      } else if (Array.isArray(this.baseXoConfig.ignores)) {
+        ignores = this.baseXoConfig.ignores;
       }
 
       if (!this.xoConfig) {

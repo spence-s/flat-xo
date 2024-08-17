@@ -5,7 +5,7 @@ import {type Rule} from 'eslint';
 import formatterPretty, {type LintResult} from 'eslint-formatter-pretty';
 import meow from 'meow';
 import _debug from 'debug';
-import type {LinterOptions, BaseXoConfigOptions} from './types.js';
+import type {LinterOptions, XoConfigOptions} from './types.js';
 import {XO} from './xo.js';
 
 const debug = _debug('xo:cli');
@@ -75,7 +75,7 @@ export type CliOptions = typeof cli;
 
 const {input, flags: cliOptions, showVersion} = cli;
 
-const baseXoConfigOptions: BaseXoConfigOptions = {
+const baseXoConfigOptions: XoConfigOptions = {
   space: cliOptions.space,
   semicolon: cliOptions.semicolon,
   prettier: cliOptions.prettier,
