@@ -5,8 +5,8 @@ import arrify from 'arrify';
 import {type Linter} from 'eslint';
 import {type XoConfigItem} from '../types.js';
 import {config} from './config.js';
-import {xoToEslintConfigItem} from './xo-to-eslint-config-item.js';
-import {handlePrettierOptions} from './handle-prettier-options.js';
+import {xoToEslintConfigItem} from './xo-to-eslint.js';
+import {handlePrettierOptions} from './prettier.js';
 
 /**
  * Takes a xo flat config and returns an eslint flat config
@@ -58,7 +58,6 @@ export async function createConfig(userConfigs?: XoConfigItem[], cwd?: string): 
     }
 
     if (xoUserConfig.prettier) {
-      // TODO: how to handle prettier options if user just wants eslint config and not cli?
       // eslint-disable-next-line no-await-in-loop
       await handlePrettierOptions(cwd ?? process.cwd(), xoUserConfig, eslintConfigItem);
     } else if (xoUserConfig.prettier === false) {

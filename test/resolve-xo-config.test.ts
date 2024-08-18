@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import _test, {type TestFn} from 'ava'; // eslint-disable-line ava/use-test
-import {resolveXoConfig} from '../lib/resolve-xo-config.js';
+import {resolveXoConfig} from '../lib/resolve-config.js';
 import {copyTestProject} from './helpers/copy-test-project.js';
 
 const test = _test as TestFn<{cwd: string}>;

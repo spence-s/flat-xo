@@ -16,7 +16,7 @@ import {
 } from './types.js';
 import {DEFAULT_IGNORES, CACHE_DIR_NAME, ALL_EXTENSIONS} from './constants.js';
 import createConfig from './create-eslint-config/index.js';
-import resolveXoConfig from './resolve-xo-config.js';
+import resolveXoConfig from './resolve-config.js';
 
 const debug = _debug('xo');
 const initDebug = debug.extend('initEslint');
@@ -268,7 +268,7 @@ export class XO {
     return this.eslint.loadFormatter(name);
   }
 
-  processReport(
+  private processReport(
     report: ESLint.LintResult[],
     {rulesMeta = {}} = {},
   ) {
@@ -303,7 +303,7 @@ export class XO {
     return result;
   }
 
-  getReportStatistics = (results: ESLint.LintResult[]) => {
+  private getReportStatistics(results: ESLint.LintResult[]) {
     const statistics = {
       errorCount: 0,
       warningCount: 0,
@@ -319,7 +319,7 @@ export class XO {
     }
 
     return statistics;
-  };
+  }
 }
 
 export * from './types.js';
