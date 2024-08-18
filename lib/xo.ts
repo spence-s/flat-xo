@@ -21,13 +21,9 @@ import resolveXoConfig from './resolve-xo-config.js';
 const debug = _debug('xo');
 const initDebug = debug.extend('initEslint');
 export class XO {
-  static async outputFixes(results: XoLintResult) {
-    await ESLint.outputFixes(results?.results ?? []);
-  }
-
   /**
    * Static lintText helper for backwards compat and use in editor extensions and other tools
-   */
+  */
   static async lintText(code: string, options: LintTextOptions & LinterOptions) {
     const xo = new XO(options);
     return xo.lintText(code, options);
@@ -35,10 +31,17 @@ export class XO {
 
   /**
    * Static lintFiles helper for backwards compat and use in editor extensions and other tools
-   */
+  */
   static async lintFiles(globs: string | undefined, options: LinterOptions) {
     const xo = new XO(options);
     return xo.lintFiles(globs);
+  }
+
+  /**
+   * Write the fixes to disk
+   */
+  static async outputFixes(results: XoLintResult) {
+    await ESLint.outputFixes(results?.results ?? []);
   }
 
   /**
@@ -47,6 +50,7 @@ export class XO {
   linterOptions: LinterOptions;
   /**
    * Base XO config options that allow configuration from cli or other sources
+   * not to be confused with the xoConfig property which is the resolved XO config from the flat config AND base config
    */
   baseXoConfig: XoConfigOptions;
   /**
@@ -66,13 +70,13 @@ export class XO {
   */
   eslintConfig?: Linter.Config[];
   /**
-  * The xo flat config path, if there is one
+  * The flat xo config path, if there is one
   */
   flatConfigPath?: string | undefined;
 
-  constructor(_options: LinterOptions, baseConfigOptions: XoConfigOptions = {}) {
-    this.linterOptions = _options;
-    this.baseXoConfig = baseConfigOptions;
+  constructor(_linterOptions: LinterOptions, _baseXoConfig: XoConfigOptions = {}) {
+    this.linterOptions = _linterOptions;
+    this.baseXoConfig = _baseXoConfig;
 
     // fix relative cwd paths
     if (!path.isAbsolute(this.linterOptions.cwd)) {
@@ -135,14 +139,6 @@ export class XO {
   }
 
   /**
-   * setCacheLocation sets the cache location on the XO instance
-   * @private
-   */
-  setCacheLocation() {
-    this.cacheLocation ??= path.join(this.cacheLocation, 'flat-xo-cache.json');
-  }
-
-  /**
    * initEslint initializes the ESLint instance on the XO instance
    */
   public async initEslint() {
@@ -154,9 +150,6 @@ export class XO {
 
     await this.setEslintConfig();
     initDebug('setEslintConfig complete');
-
-    this.setCacheLocation();
-    initDebug('setCacheLocation complete');
 
     if (!this.xoConfig) {
       throw new Error('"XO.initEslint" failed');

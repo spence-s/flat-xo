@@ -4,7 +4,7 @@ import configXoTypescript from 'eslint-config-xo-typescript';
 import arrify from 'arrify';
 import {type Linter} from 'eslint';
 import {type XoConfigItem} from '../types.js';
-import {xoPluginsConfig} from './xo-plugins-config.js';
+import {config} from './config.js';
 import {xoToEslintConfigItem} from './xo-to-eslint-config-item.js';
 import {handlePrettierOptions} from './handle-prettier-options.js';
 
@@ -12,7 +12,7 @@ import {handlePrettierOptions} from './handle-prettier-options.js';
  * Takes a xo flat config and returns an eslint flat config
  */
 export async function createConfig(userConfigs?: XoConfigItem[], cwd?: string): Promise<Linter.Config[]> {
-  const baseConfig: Linter.Config[] = [...xoPluginsConfig];
+  const baseConfig = [...config];
   /**
    * Since configs are merged and the last config takes precedence
    * this means we need to handle both true AND false cases for each option.

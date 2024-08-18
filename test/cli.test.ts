@@ -29,3 +29,16 @@ test('xo --fix', async t => {
   const fileContent = await fs.readFile(filePath, 'utf8');
   t.is(fileContent, dedent`console.log('hello');\n`);
 });
+
+test.skip('xo lints ts files not found in tsconfig.json', async t => {
+  const filePath = path.join(t.context.cwd, 'test.ts');
+  const tsConfigPath = path.join(t.context.cwd, 'tsconfig.json');
+  const xoTsConfigPath = path.join(t.context.cwd, 'tsconfig.xo.json');
+  const tsConfig = await fs.readFile(tsConfigPath, 'utf8');
+  await fs.writeFile(xoTsConfigPath, tsConfig);
+  await fs.rm(tsConfigPath);
+  await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
+  await t.notThrowsAsync($`node ./dist/lib/cli --cwd ${t.context.cwd}`);
+  await fs.writeFile(tsConfigPath, tsConfig);
+  await fs.rm(xoTsConfigPath);
+});
