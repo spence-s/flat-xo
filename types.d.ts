@@ -62,22 +62,22 @@ declare module 'eslint-plugin-promise' {
 }
 
 declare module 'eslint-config-xo-typescript' {
-  import {type FlatESLintConfig} from 'eslint-define-config';
+  import {type Linter} from 'eslint';
 
-  const config: FlatESLintConfig[];
+  const config: Linter.Config[];
   export default config;
 }
 
 declare module 'eslint-config-xo' {
-  import {type FlatESLintConfig} from 'eslint-define-config';
+  import {type Linter} from 'eslint';
 
-  const config: FlatESLintConfig[];
+  const config: Linter.Config[];
   export default config;
 }
 
 declare module 'eslint-config-prettier' {
-  import {type ESLintConfig} from 'eslint-define-config';
+  import {type Linter} from 'eslint';
 
-  const config: ESLintConfig;
+  const config: Linter.Config;
   export default config;
 }

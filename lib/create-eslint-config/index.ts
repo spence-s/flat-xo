@@ -1,92 +1,18 @@
-/* eslint-disable complexity */
-import pluginAva from 'eslint-plugin-ava';
-import pluginUnicorn from 'eslint-plugin-unicorn';
-import pluginImport from 'eslint-plugin-import-x';
-import pluginN from 'eslint-plugin-n';
-import pluginComments from '@eslint-community/eslint-plugin-eslint-comments';
-import pluginPromise from 'eslint-plugin-promise';
-import pluginNoUseExtendNative from 'eslint-plugin-no-use-extend-native';
+
+import process from 'node:process';
 import configXoTypescript from 'eslint-config-xo-typescript';
-import stylisticPlugin from '@stylistic/eslint-plugin';
 import arrify from 'arrify';
-import globals from 'globals';
-import {type FlatESLintConfig} from 'eslint-define-config';
-import {
-  DEFAULT_IGNORES,
-  TS_EXTENSIONS,
-  TS_FILES_GLOB,
-  ALL_FILES_GLOB,
-  JS_EXTENSIONS,
-  ALL_EXTENSIONS,
-} from '../constants.js';
+import {type Linter} from 'eslint';
 import {type XoConfigItem} from '../types.js';
-import {jsRules, tsRules, baseRules} from '../rules.js';
+import {xoPluginsConfig} from './xo-plugins-config.js';
 import {xoToEslintConfigItem} from './xo-to-eslint-config-item.js';
 import {handlePrettierOptions} from './handle-prettier-options.js';
 
 /**
  * Takes a xo flat config and returns an eslint flat config
  */
-async function createConfig(userConfigs?: XoConfigItem[]): Promise<FlatESLintConfig[]> {
-  const cwd = '';
-
-  const baseConfig: FlatESLintConfig[] = [
-    {
-      ignores: DEFAULT_IGNORES,
-    },
-    {
-      files: [ALL_FILES_GLOB],
-      plugins: {
-        'no-use-extend-native': pluginNoUseExtendNative,
-        ava: pluginAva,
-        unicorn: pluginUnicorn,
-        'import-x': pluginImport,
-        n: pluginN,
-        '@eslint-community/eslint-comments': pluginComments,
-        promise: pluginPromise,
-        '@stylistic': stylisticPlugin,
-      },
-      languageOptions: {
-        globals: {
-          ...globals.es2021,
-          ...globals.node,
-        },
-        ecmaVersion: configXoTypescript[0]?.languageOptions?.ecmaVersion,
-        sourceType: configXoTypescript[0]?.languageOptions?.sourceType,
-        parserOptions: {
-          ...configXoTypescript[0]?.languageOptions?.parserOptions,
-        },
-      },
-      settings: {
-        'import-x/extensions': ALL_EXTENSIONS,
-        'import-x/core-modules': ['electron', 'atom'],
-        'import-x/parsers': {
-          espree: JS_EXTENSIONS,
-          '@typescript-eslint/parser': TS_EXTENSIONS,
-        },
-        'import-x/external-module-folders': [
-          'node_modules',
-          'node_modules/@types',
-        ],
-        'import-x/resolver': {
-          node: ALL_EXTENSIONS,
-        },
-      },
-      /**
-       * These are the base rules that are always applied to all js and ts file types
-       */
-      rules: {...baseRules, ...jsRules},
-    },
-    {
-      plugins: configXoTypescript[1]?.plugins,
-      files: [TS_FILES_GLOB],
-      languageOptions: configXoTypescript[1]?.languageOptions,
-      /** This turns on rules in typescript-eslint and turns off rules from eslint that conflict */
-      rules: tsRules,
-    },
-    ...configXoTypescript.slice(2),
-  ];
-
+export async function createConfig(userConfigs?: XoConfigItem[], cwd?: string): Promise<Linter.Config[]> {
+  const baseConfig: Linter.Config[] = [...xoPluginsConfig];
   /**
    * Since configs are merged and the last config takes precedence
    * this means we need to handle both true AND false cases for each option.
@@ -99,10 +25,7 @@ async function createConfig(userConfigs?: XoConfigItem[]): Promise<FlatESLintCon
       continue;
     }
 
-    /**
-     * Special case
-     * global ignores
-    */
+    /** Special case global ignores */
     if (
       keysOfXoConfig.length === 1
       && keysOfXoConfig[0] === 'ignores'
@@ -111,7 +34,7 @@ async function createConfig(userConfigs?: XoConfigItem[]): Promise<FlatESLintCon
       continue;
     }
 
-    // An eslint config item with rules and files initialized
+    /**  An eslint config item derived from the xo config item with rules and files initialized */
     const eslintConfigItem = xoToEslintConfigItem(xoUserConfig);
 
     if (xoUserConfig.semicolon === false) {
@@ -135,8 +58,9 @@ async function createConfig(userConfigs?: XoConfigItem[]): Promise<FlatESLintCon
     }
 
     if (xoUserConfig.prettier) {
+      // TODO: how to handle prettier options if user just wants eslint config and not cli?
       // eslint-disable-next-line no-await-in-loop
-      await handlePrettierOptions(cwd, xoUserConfig, eslintConfigItem);
+      await handlePrettierOptions(cwd ?? process.cwd(), xoUserConfig, eslintConfigItem);
     } else if (xoUserConfig.prettier === false) {
       // Turn prettier off for a subset of files
       eslintConfigItem.rules['prettier/prettier'] = 'off';

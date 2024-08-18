@@ -19,13 +19,13 @@ test('xo --cwd', async t => {
   const filePath = path.join(t.context.cwd, 'test.js');
   await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
 
-  await t.notThrowsAsync($`node . --cwd ${t.context.cwd}`);
+  await t.notThrowsAsync($`node ./dist/lib/cli --cwd ${t.context.cwd}`);
 });
 
 test('xo --fix', async t => {
   const filePath = path.join(t.context.cwd, 'test.js');
   await fs.writeFile(filePath, dedent`console.log('hello')\n`, 'utf8');
-  await t.notThrowsAsync($`node . --cwd ${t.context.cwd} --fix`);
+  await t.notThrowsAsync($`node ./dist/lib/cli --cwd ${t.context.cwd} --fix`);
   const fileContent = await fs.readFile(filePath, 'utf8');
   t.is(fileContent, dedent`console.log('hello');\n`);
 });

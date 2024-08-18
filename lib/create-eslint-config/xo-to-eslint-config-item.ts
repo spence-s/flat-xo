@@ -1,7 +1,7 @@
 
 import arrify from 'arrify';
 import {type SetRequired} from 'type-fest';
-import {type FlatESLintConfig} from 'eslint-define-config';
+import {type Linter} from 'eslint';
 import {
   ALL_FILES_GLOB,
 } from '../constants.js';
@@ -16,10 +16,10 @@ import {type XoConfigItem} from '../types.js';
  * @param xoConfig
  * @returns eslintConfig
  */
-export const xoToEslintConfigItem = (xoConfig: XoConfigItem): SetRequired<FlatESLintConfig, 'rules' | 'files'> => {
+export const xoToEslintConfigItem = (xoConfig: XoConfigItem): SetRequired<Linter.Config, 'rules' | 'files'> => {
   const {files, rules, space, prettier, ignores, semicolon, ..._xoConfig} = xoConfig;
 
-  const eslintConfig: SetRequired<FlatESLintConfig, 'rules' | 'files'> = {
+  const eslintConfig: SetRequired<Linter.Config, 'rules' | 'files'> = {
     ..._xoConfig,
     files: arrify(xoConfig.files ?? ALL_FILES_GLOB),
     rules: xoConfig.rules ?? {},

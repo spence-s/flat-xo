@@ -1,8 +1,7 @@
 // eslint-disable-next-line import-x/no-named-default
 import {default as prettier} from 'prettier';
-import {type FlatESLintConfig} from 'eslint-define-config';
+import {type Linter, type ESLint} from 'eslint';
 import pluginPrettier from 'eslint-plugin-prettier';
-import {type ESLint} from 'eslint';
 import configPrettier from 'eslint-config-prettier';
 import {type XoConfigItem} from '../types.js';
 
@@ -17,7 +16,7 @@ let cachedPrettierConfig: Record<string, unknown>;
  * @param xoUserConfig
  * @param eslintConfigItem
  */
-export async function handlePrettierOptions(cwd: string, xoUserConfig: XoConfigItem, eslintConfigItem: FlatESLintConfig): Promise<void> {
+export async function handlePrettierOptions(cwd: string, xoUserConfig: XoConfigItem, eslintConfigItem: Linter.Config): Promise<void> {
   const prettierOptions = cachedPrettierConfig ?? (await prettier.resolveConfig(cwd, {editorconfig: true})) ?? {};
 
   // Only look up prettier once per run

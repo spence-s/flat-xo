@@ -1,4 +1,4 @@
-import {type FlatESLintConfig} from 'eslint-define-config';
+import {type Linter} from 'eslint';
 import {
   ALL_FILES_GLOB,
   JS_FILES_GLOB,
@@ -11,7 +11,7 @@ import {
  * @param flatConfig
  * @param ruleId
  */
-export const getJsRule = (flatConfig: FlatESLintConfig[], ruleId: string) => {
+export const getJsRule = (flatConfig: Linter.Config[], ruleId: string) => {
   const config = [...flatConfig].reverse().find(config =>
     (typeof config !== 'string'
     && config?.rules?.[ruleId]
@@ -31,7 +31,7 @@ export const getJsRule = (flatConfig: FlatESLintConfig[], ruleId: string) => {
  * @param flatConfig
  * @param ruleId
  */
-export const getTsRule = (flatConfig: FlatESLintConfig[], ruleId: string) => {
+export const getTsRule = (flatConfig: Linter.Config[], ruleId: string) => {
   const config = [...flatConfig]
     .reverse()
     .find(config =>

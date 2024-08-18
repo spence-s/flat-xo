@@ -1,9 +1,13 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S node --no-warnings=ExperimentalWarning
+// no-use-extend-native plugin creates an experimental warning so we silence it
+// https://github.com/nodejs/node/issues/30810#issuecomment-1893682691
+
 import path from 'node:path';
 import process from 'node:process';
-import {type Rule} from 'eslint';
-import formatterPretty, {type LintResult} from 'eslint-formatter-pretty';
-import meow from 'meow';
+import {type Rule, type ESLint} from 'eslint';
+import formatterPretty from 'eslint-formatter-pretty';
+// eslint-disable-next-line import-x/no-named-default
+import {default as meow} from 'meow';
 import _debug from 'debug';
 import type {LinterOptions, XoConfigOptions} from './types.js';
 import {XO} from './xo.js';
@@ -17,12 +21,12 @@ const cli = meow(
 
   Options
     --fix             Automagically fix issues
-    --space           Use space indent instead of tabs  [Default: 2]
-    --no-semicolon    Prevent use of semicolons
-    --prettier        Conform to Prettier code style
+    --space           Use space indent instead of tabs [Default: 2]
+    --semicolon       Use semicolons [Default: true]
+    --prettier        Conform to Prettier code style [Default: false]
     --print-config    Print the effective ESLint config for the given file
     --ignore          Ignore pattern globs, can be set multiple times
-    --cwd=<dir>       Working directory for files
+    --cwd=<dir>       Working directory for files [Default: process.cwd()]
 
   Examples
     $ xo
@@ -45,6 +49,12 @@ const cli = meow(
       },
       space: {
         type: 'string',
+      },
+      config: {
+        type: 'string',
+      },
+      quiet: {
+        type: 'boolean',
       },
       semicolon: {
         type: 'boolean',
@@ -85,6 +95,7 @@ const baseXoConfigOptions: XoConfigOptions = {
 const linterOptions: LinterOptions = {
   fix: cliOptions.fix,
   cwd: (cliOptions.cwd && path.resolve(cliOptions.cwd)) ?? process.cwd(),
+  quiet: cliOptions.quiet,
 };
 
 // Make data types for `options.space` match those of the API
@@ -107,27 +118,29 @@ if (typeof cliOptions.space === 'string') {
   }
 }
 
-// if (
-//   process.env['GITHUB_ACTIONS'] &&
-//   !linterOptions.fix &&
-//   !linterOptions.reporter
-// ) {
-//   linterOptions.quiet = true;
-// }
+if (
+  process.env['GITHUB_ACTIONS']
+  && !linterOptions.fix
+  && !cliOptions.reporter
+) {
+  linterOptions.quiet = true;
+}
 
 const log = async (report: {
-  cwd: string;
-  results: Array<Readonly<LintResult>>;
-  rulesMeta: Record<string, Rule.RuleMetaData> & {cwd: string};
-  errorCount?: number;
+  errorCount: number;
+  warningCount: number;
+  fixableErrorCount: number;
+  fixableWarningCount: number;
+  results: ESLint.LintResult[];
+  rulesMeta: Record<string, Rule.RuleMetaData>;
 }) => {
-  const reporter = formatterPretty;
-  // cliOptions.reporter
-  // ? await new XO(cliOptions).getFormatter(cliOptions.reporter ?? 'compact')
-  // :
+  const reporter
+  = cliOptions.reporter
+    ? await new XO(linterOptions, baseXoConfigOptions).getFormatter(cliOptions.reporter)
+    : {format: formatterPretty};
 
-  // @ts-expect-error upgrade stuff
-  console.log(reporter(report.results, report));
+  // @ts-expect-error the types don't quite match up here
+  console.log(reporter.format(report.results, {cwd: linterOptions.cwd, ...report}));
 
   process.exitCode = report.errorCount === 0 ? 0 : 1;
 };
@@ -156,6 +169,6 @@ if (typeof cliOptions.printConfig === 'string') {
     debug('xo.outputFixes success');
   }
 
-  // @ts-expect-error idk man
+  // @ts-expect-error dues to the types in the formatter
   await log(report);
 }

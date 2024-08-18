@@ -1,13 +1,13 @@
 import pluginAva from 'eslint-plugin-ava';
 import pluginUnicorn from 'eslint-plugin-unicorn';
 import configXoTypescript from 'eslint-config-xo-typescript';
-import {type Rules} from 'eslint-define-config';
+import {type Linter} from 'eslint';
 
 if (Array.isArray(pluginAva?.configs?.['recommended'])) {
   throw new TypeError('Invalid pluginAva');
 }
 
-export const baseRules: Partial<Rules> = {
+export const baseRules: Partial<Linter.RulesRecord> = {
   ...pluginAva?.configs?.['recommended']?.rules,
   ...pluginUnicorn.configs?.recommended?.rules,
   'no-use-extend-native/no-use-extend-native': 'error',
@@ -298,12 +298,12 @@ export const baseRules: Partial<Rules> = {
   '@eslint-community/eslint-comments/no-unused-enable': 'error',
 };
 
-export const jsRules: Partial<Rules> = {
+export const jsRules: Partial<Linter.RulesRecord> = {
   ...configXoTypescript[0]?.rules,
   'capitalized-comments': 'off',
 };
 
-const customTsRules: Partial<Rules> = {
+const customTsRules: Partial<Linter.RulesRecord> = {
   'unicorn/import-style': 'off',
   'n/file-extension-in-import': 'off',
   // Disabled because of https://github.com/benmosher/eslint-plugin-import-x/issues/1590
@@ -315,7 +315,7 @@ const customTsRules: Partial<Rules> = {
   'import-x/named': 'off',
 };
 
-export const tsRules: Partial<Rules> = {
+export const tsRules: Partial<Linter.RulesRecord> = {
   ...configXoTypescript[1]?.rules,
   ...customTsRules,
 };

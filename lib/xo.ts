@@ -6,7 +6,6 @@ import findCacheDir from 'find-cache-dir';
 import {globby} from 'globby';
 import arrify from 'arrify';
 import defineLazyProperty from 'define-lazy-prop';
-import {type FlatESLintConfig} from 'eslint-define-config';
 import _debug from 'debug';
 import {
   type XoLintResult,
@@ -65,7 +64,7 @@ export class XO {
   /**
    * The ESLint config calculated from the resolved XO config
   */
-  eslintConfig?: FlatESLintConfig[];
+  eslintConfig?: Linter.Config[];
   /**
   * The xo flat config path, if there is one
   */
@@ -108,7 +107,7 @@ export class XO {
       throw new Error('"XO.setEslintConfig" failed');
     }
 
-    this.eslintConfig ??= await createConfig([...this.xoConfig]);
+    this.eslintConfig ??= await createConfig([...this.xoConfig], this.linterOptions.cwd);
   }
 
   /**
@@ -223,11 +222,7 @@ export class XO {
 
     lintFilesDebug('get rulesMeta success');
 
-    return {
-      results,
-      rulesMeta,
-      ...results[0],
-    };
+    return this.processReport(results, {rulesMeta});
   }
 
   /**
@@ -270,11 +265,21 @@ export class XO {
     return this.eslint.calculateConfigForFile(filePath) as Promise<Linter.Config>;
   }
 
+  async getFormatter(name: string) {
+    await this.initEslint();
+
+    if (!this.eslint) {
+      throw new Error('Failed to initialize ESLint');
+    }
+
+    return this.eslint.loadFormatter(name);
+  }
+
   processReport(
     report: ESLint.LintResult[],
-    {isQuiet = false, rulesMeta = {}} = {},
+    {rulesMeta = {}} = {},
   ) {
-    if (isQuiet) {
+    if (this.linterOptions.quiet) {
       report = ESLint.getErrorResults(report);
     }
 
@@ -324,4 +329,6 @@ export class XO {
   };
 }
 
+export * from './types.js';
+export * from './create-eslint-config/index.js';
 export default XO;

@@ -1,3 +1,4 @@
+import process from 'node:process';
 import test from 'ava';
 import createConfig from '../lib/create-eslint-config/index.js';
 import {getJsRule} from './helpers/get-rule.js';
@@ -68,7 +69,6 @@ test('with prettier option', async t => {
     {
       bracketSameLine: false,
       bracketSpacing: false,
-      plugins: ['prettier-plugin-packagejson'],
       semi: undefined,
       singleQuote: true,
       tabWidth: 2,
@@ -82,7 +82,6 @@ test('with prettier option', async t => {
     {
       bracketSameLine: false,
       bracketSpacing: false,
-      plugins: ['prettier-plugin-packagejson'],
       semi: undefined,
       singleQuote: true,
       tabWidth: 2,
@@ -112,7 +111,6 @@ test('with prettier option and space', async t => {
     {
       bracketSameLine: false,
       bracketSpacing: false,
-      plugins: ['prettier-plugin-packagejson'],
       semi: undefined,
       singleQuote: true,
       tabWidth: 2,
@@ -121,12 +119,13 @@ test('with prettier option and space', async t => {
     },
   ]);
 
+  t.log(process.cwd());
+
   t.deepEqual(prettierConfigTs?.rules?.['prettier/prettier'], [
     'error',
     {
       bracketSameLine: false,
       bracketSpacing: false,
-      plugins: ['prettier-plugin-packagejson'],
       semi: undefined,
       singleQuote: true,
       tabWidth: 2,

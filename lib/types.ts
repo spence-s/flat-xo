@@ -1,5 +1,5 @@
-import {type FlatESLintConfig} from 'eslint-define-config';
-import {type ESLint, type Rule} from 'eslint';
+import type {Simplify} from 'type-fest';
+import {type ESLint, type Rule, type Linter} from 'eslint';
 
 export type Space = boolean | number | string | undefined;
 
@@ -36,6 +36,10 @@ export type LinterOptions = {
    * The path to the file being linted.
    */
   filePath?: string;
+  /**
+   * If true,show only errors and NOT warnings. false by default.
+   */
+  quiet?: boolean;
 };
 
 export type LintTextOptions = {
@@ -49,7 +53,7 @@ export type LintTextOptions = {
   warnIgnored?: boolean;
 };
 
-export type XoConfigItem = XoConfigOptions & Omit<FlatESLintConfig, 'files' | 'ignores'> & {
+export type XoConfigItem = Simplify<XoConfigOptions & Omit<Linter.Config, 'files' | 'ignores'> & {
   /**
      * An array of glob patterns indicating the files that the configuration object should apply to. If not specified, the configuration object applies to all files.
      *
@@ -62,7 +66,7 @@ export type XoConfigItem = XoConfigOptions & Omit<FlatESLintConfig, 'files' | 'i
    * @see [Ignore Patterns](https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new#excluding-files-with-ignores)
    */
   ignores?: string | string[] | undefined;
-};
+}>;
 
 export type FlatXoConfig = XoConfigItem[];
 
