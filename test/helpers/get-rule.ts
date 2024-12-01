@@ -1,3 +1,4 @@
+/* eslint-disable @stylistic/indent-binary-ops */
 import {type Linter} from 'eslint';
 import {
   ALL_FILES_GLOB,

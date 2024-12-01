@@ -7,6 +7,7 @@ const config: XoConfigItem[] = [
     rules: {
       '@typescript-eslint/naming-convention': 'off',
       'ava/no-ignored-test-files': 'off',
+      'capitalized-comments': 'off',
     },
   },
 ];

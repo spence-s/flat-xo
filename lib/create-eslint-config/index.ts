@@ -39,13 +39,7 @@ export async function createConfig(userConfigs?: XoConfigItem[], cwd?: string): 
 
     if (xoUserConfig.semicolon === false) {
       eslintConfigItem.rules['@stylistic/semi'] = ['error', 'never'];
-      eslintConfigItem.rules['@stylistic/semi-spacing'] = [
-        'error',
-        {
-          before: false,
-          after: true,
-        },
-      ];
+      eslintConfigItem.rules['@stylistic/semi-spacing'] = ['error', {before: false, after: true}];
     }
 
     if (xoUserConfig.space) {
@@ -67,6 +61,8 @@ export async function createConfig(userConfigs?: XoConfigItem[], cwd?: string): 
 
     baseConfig.push(eslintConfigItem);
   }
+
+  // console.log('baseConfig', baseConfig);
 
   return baseConfig;
 }

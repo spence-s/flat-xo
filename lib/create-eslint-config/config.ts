@@ -23,6 +23,13 @@ if (Array.isArray(pluginAva?.configs?.['recommended'])) {
   throw new TypeError('Invalid eslint-plugin-ava');
 }
 
+if (!configXoTypescript[1]) {
+  throw new Error('Invalid eslint-config-xo-typescript');
+}
+
+/**
+ * The base config that xo builds on top of from user options
+ */
 export const config: Linter.Config[] = [
   {
     ignores: DEFAULT_IGNORES,
@@ -37,6 +44,7 @@ export const config: Linter.Config[] = [
       n: pluginN,
       '@eslint-community/eslint-comments': pluginComments,
       promise: pluginPromise,
+      // @ts-expect-error: This is a private plugin
       '@stylistic': stylisticPlugin,
     },
     languageOptions: {
@@ -229,8 +237,6 @@ export const config: Linter.Config[] = [
 
       // Enabled, but disabled on TypeScript (https://github.com/xojs/xo/issues/576)
       'import-x/named': 'error',
-      // currently does not work with flat config
-      // TODO: Enable when it works with flat config
       'import-x/namespace': [
         'error',
         {
@@ -363,7 +369,9 @@ export const config: Linter.Config[] = [
   {
     plugins: configXoTypescript[1]?.plugins,
     files: [TS_FILES_GLOB],
-    languageOptions: configXoTypescript[1]?.languageOptions,
+    languageOptions: {
+      ...configXoTypescript[1]?.languageOptions,
+    },
     /** This turns on rules in typescript-eslint and turns off rules from eslint that conflict */
     rules: {
       ...configXoTypescript[1]?.rules,

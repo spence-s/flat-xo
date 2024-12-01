@@ -13,10 +13,12 @@ import {
   type LintTextOptions,
   type FlatXoConfig,
   type XoConfigOptions,
+  type XoConfigItem,
 } from './types.js';
 import {DEFAULT_IGNORES, CACHE_DIR_NAME, ALL_EXTENSIONS} from './constants.js';
 import createConfig from './create-eslint-config/index.js';
 import resolveXoConfig from './resolve-config.js';
+import {tsconfig} from './tsconfig.js';
 
 const debug = _debug('xo');
 const initDebug = debug.extend('initEslint');
@@ -62,7 +64,7 @@ export class XO {
    */
   eslint?: ESLint;
   /**
-   * XO config resolved from both the base config and the flat config
+   * XO config derived from both the base config and the resolved flat config
    */
   xoConfig?: FlatXoConfig;
   /**
@@ -138,15 +140,41 @@ export class XO {
     }
   }
 
+  async handleUnincludedTsFiles(files?: string[]) {
+    if (files && files.length > 0) {
+      const tsFiles = files.filter(file => file.endsWith('.ts') || file.endsWith('.mts') || file.endsWith('.cts'));
+
+      if (tsFiles.length > 0) {
+        const {defaultProject, allowDefaultProject} = await tsconfig({
+          cwd: this.linterOptions.cwd,
+          files: tsFiles,
+        });
+
+        if (this.xoConfig && allowDefaultProject.length > 0) {
+          const config: XoConfigItem = {};
+          config.files = allowDefaultProject;
+          config.languageOptions ??= {};
+          config.languageOptions.parserOptions ??= {};
+          config.languageOptions.parserOptions['projectService'] = false;
+          config.languageOptions.parserOptions['project'] = defaultProject;
+          this.xoConfig.push(config);
+        }
+      }
+    }
+  }
+
   /**
    * initEslint initializes the ESLint instance on the XO instance
    */
-  public async initEslint() {
+  public async initEslint(files?: string[]) {
     await this.setXoConfig();
     initDebug('setXoConfig complete');
 
-    // this.setIgnores();
-    // initDebug('setIgnores complete');
+    this.setIgnores();
+    initDebug('setIgnores complete');
+
+    await this.handleUnincludedTsFiles(files);
+    initDebug('handleUnincludedTsFiles complete');
 
     await this.setEslintConfig();
     initDebug('setEslintConfig complete');
@@ -180,13 +208,6 @@ export class XO {
     const lintFilesDebug = debug.extend('lintFiles');
     lintFilesDebug('lintFiles called with globs %O');
 
-    await this.initEslint();
-    lintFilesDebug('initEslint complete');
-
-    if (!this.eslint) {
-      throw new Error('Failed to initialize ESLint');
-    }
-
     if (!globs || (Array.isArray(globs) && globs.length === 0)) {
       globs = `**/*.{${ALL_EXTENSIONS.join(',')}}`;
     }
@@ -200,6 +221,13 @@ export class XO {
       absolute: true,
       cwd: this.linterOptions.cwd,
     });
+
+    await this.initEslint(files);
+    lintFilesDebug('initEslint complete');
+
+    if (!this.eslint) {
+      throw new Error('Failed to initialize ESLint');
+    }
 
     lintFilesDebug('globby success %O', files);
 
@@ -322,6 +350,6 @@ export class XO {
   }
 }
 
-export * from './types.js';
+export type * from './types.js';
 export * from './create-eslint-config/index.js';
 export default XO;

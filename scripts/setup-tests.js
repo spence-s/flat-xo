@@ -45,4 +45,4 @@ await fs.writeFile(
 
 // npm install in the test project directory
 // which we will repeatedly copy in the temp dir to test the project against
-await $({cwd, stdio: 'inherit'})`npm install --save-dev typescript @types/node`;
+await $({cwd, stdio: 'inherit'})`npm install --save-dev typescript @types/node @sindresorhus/tsconfig`;

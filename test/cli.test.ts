@@ -30,7 +30,7 @@ test('xo --fix', async t => {
   t.is(fileContent, dedent`console.log('hello');\n`);
 });
 
-test.skip('xo lints ts files not found in tsconfig.json', async t => {
+test('xo lints ts files not found in tsconfig.json', async t => {
   const filePath = path.join(t.context.cwd, 'test.ts');
   const tsConfigPath = path.join(t.context.cwd, 'tsconfig.json');
   const xoTsConfigPath = path.join(t.context.cwd, 'tsconfig.xo.json');

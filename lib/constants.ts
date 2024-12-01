@@ -114,7 +114,6 @@ export const CONFIG_FILES = [
 export const TSCONFIG_DEFAULTS = {
   compilerOptions: {
     target: 'es2018',
-    newLine: 'lf',
     strict: true,
     noImplicitReturns: true,
     noUnusedLocals: true,
