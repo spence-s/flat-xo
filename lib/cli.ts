@@ -24,6 +24,7 @@ const cli = meow(
     --space           Use space indent instead of tabs [Default: 2]
     --semicolon       Use semicolons [Default: true]
     --prettier        Conform to Prettier code style [Default: false]
+    --ts              Auto configure type aware linting on unincluded ts files [Default: true]
     --print-config    Print the effective ESLint config for the given file
     --ignore          Ignore pattern globs, can be set multiple times
     --cwd=<dir>       Working directory for files [Default: process.cwd()]
@@ -62,6 +63,10 @@ const cli = meow(
       prettier: {
         type: 'boolean',
       },
+      ts: {
+        type: 'boolean',
+        default: true,
+      },
       cwd: {
         type: 'string',
         default: process.cwd(),
@@ -96,6 +101,7 @@ const linterOptions: LinterOptions = {
   fix: cliOptions.fix,
   cwd: (cliOptions.cwd && path.resolve(cliOptions.cwd)) ?? process.cwd(),
   quiet: cliOptions.quiet,
+  ts: cliOptions.ts,
 };
 
 // Make data types for `options.space` match those of the API

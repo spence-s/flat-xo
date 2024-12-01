@@ -141,7 +141,7 @@ export class XO {
   }
 
   async handleUnincludedTsFiles(files?: string[]) {
-    if (files && files.length > 0) {
+    if (this.linterOptions.ts && files && files.length > 0) {
       const tsFiles = files.filter(file => file.endsWith('.ts') || file.endsWith('.mts') || file.endsWith('.cts'));
 
       if (tsFiles.length > 0) {

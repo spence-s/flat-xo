@@ -40,6 +40,10 @@ export type LinterOptions = {
    * If true,show only errors and NOT warnings. false by default.
    */
   quiet?: boolean;
+  /**
+   * Auto configure type aware linting on unincluded ts files.Ensures that TypeScript files are linted with the type aware parser even if they are not explicitly included in the tsconfig.
+   */
+  ts?: boolean;
 };
 
 export type LintTextOptions = {
