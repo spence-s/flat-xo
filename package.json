@@ -3,10 +3,17 @@
   "version": "0.0.0",
   "description": "xo with eslint flat config",
   "type": "module",
+  "exports": {
+    ".": "./dist/lib/xo.js",
+    "./create-eslint-config.js": "./dist/lib/create-eslint-config/index.js"
+  },
   "main": "dist/lib/xo.js",
   "bin": {
     "xo": "dist/lib/cli.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "npm run clean && tsc",
     "build:watch": "tsc --watch",
@@ -61,7 +68,7 @@
     "find-up": "^7.0.0",
     "get-stdin": "^9.0.0",
     "get-tsconfig": "^4.8.1",
-    "glob": "^11.0.0",
+    "glob": "^11.0.1",
     "globals": "^15.14.0",
     "globby": "^14.0.2",
     "imurmurhash": "^0.1.4",
@@ -94,6 +101,7 @@
     "execa": "^9.5.2",
     "husky": "^9.1.7",
     "lint-staged": "^15.3.0",
+    "np": "^10.1.0",
     "npm-package-json-lint": "^8.0.0",
     "npm-package-json-lint-config-default": "^7.0.1",
     "path-exists": "^5.0.0",
