@@ -10,6 +10,10 @@ const config: XoConfigItem[] = [
       'capitalized-comments': 'off',
     },
   },
+  {
+    files: ['prettier-test.ts'],
+    prettier: true,
+  },
 ];
 
 export default config;

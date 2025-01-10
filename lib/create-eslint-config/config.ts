@@ -35,6 +35,7 @@ export const config: Linter.Config[] = [
     ignores: DEFAULT_IGNORES,
   },
   {
+    name: 'XO',
     files: [ALL_FILES_GLOB],
     plugins: {
       'no-use-extend-native': pluginNoUseExtendNative,
@@ -367,6 +368,7 @@ export const config: Linter.Config[] = [
     },
   },
   {
+    name: 'XO TypeScript',
     plugins: configXoTypescript[1]?.plugins,
     files: [TS_FILES_GLOB],
     languageOptions: {

@@ -1,4 +1,3 @@
-
 import process from 'node:process';
 import configXoTypescript from 'eslint-config-xo-typescript';
 import arrify from 'arrify';
@@ -11,7 +10,10 @@ import {handlePrettierOptions} from './prettier.js';
 /**
  * Takes a xo flat config and returns an eslint flat config
  */
-export async function createConfig(userConfigs?: XoConfigItem[], cwd?: string): Promise<Linter.Config[]> {
+export async function createConfig(
+  userConfigs?: XoConfigItem[],
+  cwd?: string,
+): Promise<Linter.Config[]> {
   const baseConfig = [...config];
   /**
    * Since configs are merged and the last config takes precedence
@@ -26,10 +28,7 @@ export async function createConfig(userConfigs?: XoConfigItem[], cwd?: string): 
     }
 
     /** Special case global ignores */
-    if (
-      keysOfXoConfig.length === 1
-      && keysOfXoConfig[0] === 'ignores'
-    ) {
+    if (keysOfXoConfig.length === 1 && keysOfXoConfig[0] === 'ignores') {
       baseConfig.push({ignores: arrify(xoUserConfig.ignores)});
       continue;
     }
@@ -39,21 +38,34 @@ export async function createConfig(userConfigs?: XoConfigItem[], cwd?: string): 
 
     if (xoUserConfig.semicolon === false) {
       eslintConfigItem.rules['@stylistic/semi'] = ['error', 'never'];
-      eslintConfigItem.rules['@stylistic/semi-spacing'] = ['error', {before: false, after: true}];
+      eslintConfigItem.rules['@stylistic/semi-spacing'] = [
+        'error',
+        {before: false, after: true},
+      ];
     }
 
     if (xoUserConfig.space) {
-      const spaces = typeof xoUserConfig.space === 'number' ? xoUserConfig.space : 2;
-      eslintConfigItem.rules['@stylistic/indent'] = ['error', spaces, {SwitchCase: 1}];
+      const spaces
+        = typeof xoUserConfig.space === 'number' ? xoUserConfig.space : 2;
+      eslintConfigItem.rules['@stylistic/indent'] = [
+        'error',
+        spaces,
+        {SwitchCase: 1},
+      ];
     } else if (xoUserConfig.space === false) {
       // If a user set this false for a small subset of files for some reason,
       // then we need to set them back to their original values
-      eslintConfigItem.rules['@stylistic/indent'] = configXoTypescript[1]?.rules?.['@stylistic/indent'];
+      eslintConfigItem.rules['@stylistic/indent']
+        = configXoTypescript[1]?.rules?.['@stylistic/indent'];
     }
 
     if (xoUserConfig.prettier) {
       // eslint-disable-next-line no-await-in-loop
-      await handlePrettierOptions(cwd ?? process.cwd(), xoUserConfig, eslintConfigItem);
+      await handlePrettierOptions(
+        cwd ?? process.cwd(),
+        xoUserConfig,
+        eslintConfigItem,
+      );
     } else if (xoUserConfig.prettier === false) {
       // Turn prettier off for a subset of files
       eslintConfigItem.rules['prettier/prettier'] = 'off';
@@ -61,8 +73,6 @@ export async function createConfig(userConfigs?: XoConfigItem[], cwd?: string): 
 
     baseConfig.push(eslintConfigItem);
   }
-
-  // console.log('baseConfig', baseConfig);
 
   return baseConfig;
 }
