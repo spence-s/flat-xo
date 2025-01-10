@@ -18,6 +18,7 @@
     "build": "npm run clean && tsc",
     "build:watch": "tsc --watch",
     "clean": "rm -rf dist",
+    "release": "np",
     "test": "npm run test:setup  && npm run build && ava",
     "test:setup": "node scripts/setup-tests"
   },
