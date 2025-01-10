@@ -4,10 +4,10 @@
   "description": "xo with eslint flat config",
   "type": "module",
   "exports": {
-    ".": "./dist/lib/xo.js",
+    ".": "./dist/index.js",
     "./create-eslint-config.js": "./dist/lib/create-eslint-config/index.js"
   },
-  "main": "dist/lib/xo.js",
+  "main": "dist/index.js",
   "bin": {
     "xo": "dist/lib/cli.js"
   },
