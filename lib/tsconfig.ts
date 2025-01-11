@@ -1,9 +1,9 @@
 
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import {getTsconfig, type TsConfigJsonResolved} from 'get-tsconfig';
+import {getTsconfig} from 'get-tsconfig';
 import micromatch from 'micromatch';
-import {TSCONFIG_DEFAULTS} from './constants.js';
+import {TSCONFIG_DEFAULTS, CACHE_DIR_NAME} from './constants.js';
 
 /**
  * This function checks if the files are matched by the tsconfig include, exclude, and it returns the unmatched files.
@@ -13,7 +13,7 @@ import {TSCONFIG_DEFAULTS} from './constants.js';
  * @returns The unmatched files.
  */
 export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
-  const {config: tsConfig = TSCONFIG_DEFAULTS as TsConfigJsonResolved, path: tsConfigPath} = getTsconfig(cwd) ?? {};
+  const {config: tsConfig = TSCONFIG_DEFAULTS, path: tsConfigPath} = getTsconfig(cwd) ?? {};
 
   const unmatchedFiles: string[] = [];
 
@@ -56,7 +56,7 @@ export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
     }
   }
 
-  const fallbackTsConfigPath = path.join(cwd, 'node_modules', '.cache', 'xo', 'tsconfig.xo.json');
+  const fallbackTsConfigPath = path.join(cwd, 'node_modules', '.cache', CACHE_DIR_NAME, 'tsconfig.xo.json');
 
   await fs.mkdir(path.dirname(fallbackTsConfigPath), {recursive: true});
   await fs.writeFile(fallbackTsConfigPath, JSON.stringify(tsConfig, null, 2));

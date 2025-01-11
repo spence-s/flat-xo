@@ -1,3 +1,5 @@
+import {type TsConfigJsonResolved} from 'get-tsconfig';
+
 export const DEFAULT_IGNORES = [
   '**/node_modules/**',
   '**/bower_components/**',
@@ -111,7 +113,7 @@ export const CONFIG_FILES = [
   `${MODULE_NAME}.config.cjs`,
 ];
 
-export const TSCONFIG_DEFAULTS = {
+export const TSCONFIG_DEFAULTS: TsConfigJsonResolved = {
   compilerOptions: {
     target: 'es2018',
     strict: true,

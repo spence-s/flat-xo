@@ -163,8 +163,6 @@ If contradicting options are set for both Prettier and XO, an error will be thro
 
 By default, `XO` will handle all aspects of [type aware linting](https://typescript-eslint.io/getting-started/typed-linting/), even when a file is not included in a tsconfig, which would normally error when using ESLint directly. However, this incurs a small performance penalty of having to look up the tsconfig each time in order to calculate and write an appropriate default tscfonfig to use for the file. In situations where you are linting often, you may want to configure your project correctly for type aware linting. This can help performance in editor plugins.
 
-
-
 ### Monorepo
 
 Put a `xo.config.js` with your config at the root and do not add a config to any of your bundled packages.
