@@ -26,16 +26,16 @@ export class XO {
   /**
    * Static lintText helper for backwards compat and use in editor extensions and other tools
   */
-  static async lintText(code: string, options: LintTextOptions & LinterOptions) {
-    const xo = new XO(options);
+  static async lintText(code: string, options: LintTextOptions & LinterOptions & XoConfigOptions) {
+    const xo = new XO(options, options);
     return xo.lintText(code, options);
   }
 
   /**
    * Static lintFiles helper for backwards compat and use in editor extensions and other tools
   */
-  static async lintFiles(globs: string | undefined, options: LinterOptions) {
-    const xo = new XO(options);
+  static async lintFiles(globs: string | undefined, options: LinterOptions & XoConfigOptions) {
+    const xo = new XO(options, options);
     return xo.lintFiles(globs);
   }
 
