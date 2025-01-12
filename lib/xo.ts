@@ -173,14 +173,14 @@ export class XO {
       const tsFiles = files.filter(file => file.endsWith('.ts') || file.endsWith('.mts') || file.endsWith('.cts'));
 
       if (tsFiles.length > 0) {
-        const {defaultProject, allowDefaultProject} = await tsconfig({
+        const {defaultProject, unmatchedFiles} = await tsconfig({
           cwd: this.linterOptions.cwd,
           files: tsFiles,
         });
 
-        if (this.xoConfig && allowDefaultProject.length > 0) {
+        if (this.xoConfig && unmatchedFiles.length > 0) {
           const config: XoConfigItem = {};
-          config.files = allowDefaultProject;
+          config.files = unmatchedFiles;
           config.languageOptions ??= {};
           config.languageOptions.parserOptions ??= {};
           config.languageOptions.parserOptions['projectService'] = false;
@@ -213,7 +213,7 @@ export class XO {
 
     const eslintOptions = {
       cwd: this.linterOptions.cwd,
-      overrideConfig: this.eslintConfig as Linter.Config,
+      overrideConfig: this.eslintConfig,
       overrideConfigFile: true,
       globInputPaths: false,
       warnIgnored: false,

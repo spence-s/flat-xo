@@ -60,6 +60,7 @@ export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
 
   await fs.mkdir(path.dirname(fallbackTsConfigPath), {recursive: true});
   await fs.writeFile(fallbackTsConfigPath, JSON.stringify(tsConfig, null, 2));
+
   delete tsConfig.include;
   delete tsConfig.exclude;
   delete tsConfig.files;
@@ -67,5 +68,5 @@ export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
   await fs.mkdir(path.dirname(fallbackTsConfigPath), {recursive: true});
   await fs.writeFile(fallbackTsConfigPath, JSON.stringify(tsConfig, null, 2));
 
-  return {allowDefaultProject: unmatchedFiles.map(fp => path.relative(cwd, fp)), defaultProject: fallbackTsConfigPath};
+  return {unmatchedFiles: unmatchedFiles.map(fp => path.relative(cwd, fp)), defaultProject: fallbackTsConfigPath};
 }

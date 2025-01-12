@@ -1,4 +1,3 @@
-import process from 'node:process';
 import test from 'ava';
 import createConfig from '../lib/create-eslint-config/index.js';
 import {getJsRule} from './helpers/get-rule.js';
@@ -118,8 +117,6 @@ test('with prettier option and space', async t => {
       useTabs: false,
     },
   ]);
-
-  t.log(process.cwd());
 
   t.deepEqual(prettierConfigTs?.rules?.['prettier/prettier'], [
     'error',
