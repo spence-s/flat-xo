@@ -27,15 +27,43 @@ export class XO {
    * Static lintText helper for backwards compat and use in editor extensions and other tools
   */
   static async lintText(code: string, options: LintTextOptions & LinterOptions & XoConfigOptions) {
-    const xo = new XO(options, options);
-    return xo.lintText(code, options);
+    const xo = new XO(
+      {
+        cwd: options.cwd,
+        fix: options.fix,
+        filePath: options.filePath,
+        quiet: options.quiet,
+        ts: options.ts,
+      },
+      {
+        space: options.space,
+        semicolon: options.semicolon,
+        prettier: options.prettier,
+        ignores: options.ignores,
+      },
+    );
+    return xo.lintText(code, {filePath: options.filePath, warnIgnored: options.warnIgnored});
   }
 
   /**
    * Static lintFiles helper for backwards compat and use in editor extensions and other tools
   */
   static async lintFiles(globs: string | undefined, options: LinterOptions & XoConfigOptions) {
-    const xo = new XO(options, options);
+    const xo = new XO(
+      {
+        cwd: options.cwd,
+        fix: options.fix,
+        filePath: options.filePath,
+        quiet: options.quiet,
+        ts: options.ts,
+      },
+      {
+        space: options.space,
+        semicolon: options.semicolon,
+        prettier: options.prettier,
+        ignores: options.ignores,
+      },
+    );
     return xo.lintFiles(globs);
   }
 
