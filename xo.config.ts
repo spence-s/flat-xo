@@ -10,10 +10,6 @@ const xoConfig: FlatXoConfig = [
       'capitalized-comments': 'off',
     },
   },
-  {
-    files: ['prettier-test.ts'],
-    prettier: true,
-  },
 ];
 
 export default xoConfig;

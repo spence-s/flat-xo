@@ -1,9 +1,21 @@
-import test from 'ava';
+import fs from 'node:fs/promises';
+import _test, {type TestFn} from 'ava'; // eslint-disable-line ava/use-test
 import createConfig from '../lib/create-eslint-config/index.js';
+import {copyTestProject} from './helpers/copy-test-project.js';
 import {getJsRule} from './helpers/get-rule.js';
 
+const test = _test as TestFn<{cwd: string}>;
+
+test.beforeEach(async t => {
+  t.context.cwd = await copyTestProject();
+});
+
+test.afterEach.always(async t => {
+  await fs.rm(t.context.cwd, {recursive: true, force: true});
+});
+
 test('base config rules', async t => {
-  const flatConfig = await createConfig();
+  const flatConfig = await createConfig(undefined, t.context.cwd);
 
   t.deepEqual(getJsRule(flatConfig, '@stylistic/indent'), [
     'error',
@@ -15,7 +27,7 @@ test('base config rules', async t => {
 });
 
 test('empty config rules', async t => {
-  const flatConfig = await createConfig([]);
+  const flatConfig = await createConfig([], t.context.cwd);
 
   t.deepEqual(getJsRule(flatConfig, '@stylistic/indent'), [
     'error',
@@ -27,7 +39,7 @@ test('empty config rules', async t => {
 });
 
 test('config with space option', async t => {
-  const flatConfig = await createConfig([{space: true}]);
+  const flatConfig = await createConfig([{space: true}], t.context.cwd);
 
   t.deepEqual(getJsRule(flatConfig, '@stylistic/indent'), [
     'error',
@@ -37,19 +49,19 @@ test('config with space option', async t => {
 });
 
 test('config with semi false option', async t => {
-  const flatConfig = await createConfig([{semicolon: false}]);
+  const flatConfig = await createConfig([{semicolon: false}], t.context.cwd);
 
   t.deepEqual(getJsRule(flatConfig, '@stylistic/semi'), ['error', 'never']);
 });
 
 test('config with rules', async t => {
-  const flatConfig = await createConfig([{rules: {'no-console': 'error'}}]);
+  const flatConfig = await createConfig([{rules: {'no-console': 'error'}}], t.context.cwd);
 
   t.is(getJsRule(flatConfig, 'no-console'), 'error');
 });
 
 test('with prettier option', async t => {
-  const flatConfig = await createConfig([{prettier: true}]);
+  const flatConfig = await createConfig([{prettier: true}], t.context.cwd);
 
   const prettierConfigTs = flatConfig.find(config =>
     typeof config?.plugins?.['prettier'] === 'object'
@@ -91,7 +103,7 @@ test('with prettier option', async t => {
 });
 
 test('with prettier option and space', async t => {
-  const flatConfig = await createConfig([{prettier: true, space: true}]);
+  const flatConfig = await createConfig([{prettier: true, space: true}], t.context.cwd);
 
   const prettierConfigTs = flatConfig.find(config =>
     typeof config?.plugins?.['prettier'] === 'object'

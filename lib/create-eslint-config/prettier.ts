@@ -1,3 +1,4 @@
+import path from 'node:path';
 // eslint-disable-next-line import-x/no-named-default
 import {default as prettier, type Options} from 'prettier';
 import {type Linter, type ESLint} from 'eslint';
@@ -5,10 +6,9 @@ import pluginPrettier from 'eslint-plugin-prettier';
 import configPrettier from 'eslint-config-prettier';
 import {type XoConfigItem} from '../types.js';
 
-let cachedPrettierConfig: Options;
-
 /**
- * Looks up prettier options and adds them to the eslint config, if they conflict with the xo config, throws an error
+ * Looks up prettier options and adds them to the eslint config, if they conflict with the xo config, throws an error.
+ * Does not handle prettier overrides but will not fail for them in case they are setup to handle non js/ts files.
  *
  * Mutates the eslintConfigItem
  *
@@ -17,22 +17,19 @@ let cachedPrettierConfig: Options;
  * @param eslintConfigItem
  */
 export async function handlePrettierOptions(cwd: string, xoUserConfig: XoConfigItem, eslintConfigItem: Linter.Config): Promise<void> {
-  const prettierOptions: Options = cachedPrettierConfig ?? (await prettier.resolveConfig(cwd, {editorconfig: true})) ?? {};
-
-  // Only look up prettier once per run
-  cachedPrettierConfig = prettierOptions;
+  const prettierOptions: Options = await prettier.resolveConfig(path.join(cwd, 'xo.config.js'), {editorconfig: true}) ?? {};
 
   // validate that prettier options match other xoConfig options
   if ((xoUserConfig.semicolon && prettierOptions.semi === false) ?? (!xoUserConfig.semicolon && prettierOptions.semi === true)) {
-    throw new Error(`The Prettier config \`semi\` is ${prettierOptions.semi} while XO \`semicolon\` is ${xoUserConfig.semicolon}`);
+    throw new Error(`The Prettier config \`semi\` is ${prettierOptions.semi} while XO \`semicolon\` is ${xoUserConfig.semicolon}, also check your .editorconfig for inconsistencies.`);
   }
 
   if (((xoUserConfig.space ?? typeof xoUserConfig.space === 'number') && prettierOptions.useTabs === true) || (!xoUserConfig.space && prettierOptions.useTabs === false)) {
-    throw new Error(`The Prettier config \`useTabs\` is ${prettierOptions.useTabs} while XO \`space\` is ${xoUserConfig.space}`);
+    throw new Error(`The Prettier config \`useTabs\` is ${prettierOptions.useTabs} while XO \`space\` is ${xoUserConfig.space}, also check your .editorconfig for inconsistencies.`);
   }
 
   if (typeof xoUserConfig.space === 'number' && typeof prettierOptions.tabWidth === 'number' && xoUserConfig.space !== prettierOptions.tabWidth) {
-    throw new Error(`The Prettier config \`tabWidth\` is ${prettierOptions.tabWidth} while XO \`space\` is ${xoUserConfig.space}`);
+    throw new Error(`The Prettier config \`tabWidth\` is ${prettierOptions.tabWidth} while XO \`space\` is ${xoUserConfig.space}, also check your .editorconfig for inconsistencies.`);
   }
 
   // Add prettier plugin

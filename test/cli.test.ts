@@ -30,32 +30,6 @@ test('xo --fix', async t => {
   t.is(fileContent, dedent`console.log('hello');\n`);
 });
 
-test('xo lints ts files not found in tsconfig.json', async t => {
-  const filePath = path.join(t.context.cwd, 'test.ts');
-  const tsConfigPath = path.join(t.context.cwd, 'tsconfig.json');
-  const xoTsConfigPath = path.join(t.context.cwd, 'tsconfig.xo.json');
-  const tsConfig = await fs.readFile(tsConfigPath, 'utf8');
-  await fs.writeFile(xoTsConfigPath, tsConfig);
-  await fs.rm(tsConfigPath);
-  await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
-  await t.notThrowsAsync($`node ./dist/lib/cli --cwd ${t.context.cwd}`);
-  await fs.writeFile(tsConfigPath, tsConfig);
-  await fs.rm(xoTsConfigPath);
-});
-
-test('xo does not lint ts files not found in tsconfig.json when --ts=false', async t => {
-  const filePath = path.join(t.context.cwd, 'test.ts');
-  const tsConfigPath = path.join(t.context.cwd, 'tsconfig.json');
-  const xoTsConfigPath = path.join(t.context.cwd, 'tsconfig.xo.json');
-  const tsConfig = await fs.readFile(tsConfigPath, 'utf8');
-  await fs.writeFile(xoTsConfigPath, tsConfig);
-  await fs.rm(tsConfigPath);
-  await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
-  await t.throwsAsync($`node ./dist/lib/cli --cwd ${t.context.cwd} --ts=false`);
-  await fs.writeFile(tsConfigPath, tsConfig);
-  await fs.rm(xoTsConfigPath);
-});
-
 test('xo --space', async t => {
   const filePath = path.join(t.context.cwd, 'test.js');
   await fs.writeFile(filePath, dedent`function test() {\n   return true;\n}\n`, 'utf8');
@@ -99,4 +73,30 @@ test('xo --ignore', async t => {
 
   const {stdout} = await $`node ./dist/lib/cli --cwd ${t.context.cwd} --ignore="ignored.js"`;
   t.false(stdout.includes('ignored.js'));
+});
+
+test('xo lints ts files not found in tsconfig.json', async t => {
+  const filePath = path.join(t.context.cwd, 'test.ts');
+  const tsConfigPath = path.join(t.context.cwd, 'tsconfig.json');
+  const xoTsConfigPath = path.join(t.context.cwd, 'tsconfig.xo.json');
+  const tsConfig = await fs.readFile(tsConfigPath, 'utf8');
+  await fs.writeFile(xoTsConfigPath, tsConfig);
+  await fs.rm(tsConfigPath);
+  await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
+  await t.notThrowsAsync($`node ./dist/lib/cli --cwd ${t.context.cwd}`);
+  await fs.writeFile(tsConfigPath, tsConfig);
+  await fs.rm(xoTsConfigPath);
+});
+
+test('xo does not lint ts files not found in tsconfig.json when --ts=false', async t => {
+  const filePath = path.join(t.context.cwd, 'test.ts');
+  const tsConfigPath = path.join(t.context.cwd, 'tsconfig.json');
+  const xoTsConfigPath = path.join(t.context.cwd, 'tsconfig.xo.json');
+  const tsConfig = await fs.readFile(tsConfigPath, 'utf8');
+  await fs.writeFile(xoTsConfigPath, tsConfig);
+  await fs.rm(tsConfigPath);
+  await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
+  await t.throwsAsync($`node ./dist/lib/cli --cwd ${t.context.cwd} --ts=false`);
+  await fs.writeFile(tsConfigPath, tsConfig);
+  await fs.rm(xoTsConfigPath);
 });
