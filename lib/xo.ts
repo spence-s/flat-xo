@@ -192,7 +192,7 @@ export class XO {
       cache: true,
       cacheLocation: this.cacheLocation,
       fix: this.linterOptions.fix,
-    };
+    } as const;
 
     this.eslint ??= new ESLint(eslintOptions);
     initDebug('ESLint class created with options %O', eslintOptions);

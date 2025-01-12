@@ -77,7 +77,6 @@ test('xo --prettier --fix', async t => {
   await fs.writeFile(filePath, dedent`function test(){return true}\n`, 'utf8');
   await t.throwsAsync($`node ./dist/lib/cli --cwd ${t.context.cwd} --fix --prettier`);
   const fileContent = await fs.readFile(filePath, 'utf8');
-  t.log('fileContent', fileContent);
   t.is(fileContent, 'function test() {\n\treturn true;\n}\n');
 });
 
