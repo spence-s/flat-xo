@@ -75,6 +75,10 @@ export type XoConfigItem = Simplify<XoConfigOptions & Omit<Linter.Config, 'files
 export type FlatXoConfig = XoConfigItem[];
 
 export type XoLintResult = {
+  errorCount: number;
+  warningCount: number;
+  fixableErrorCount: number;
+  fixableWarningCount: number;
   results: ESLint.LintResult[];
   rulesMeta: Rule.RuleMetaData;
 };

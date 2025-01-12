@@ -259,7 +259,7 @@ export class XO {
   ): Promise<XoLintResult> {
     const {filePath, warnIgnored} = lintTextOptions;
 
-    await this.initEslint();
+    await this.initEslint([filePath]);
 
     if (!this.eslint) {
       throw new Error('Failed to initialize ESLint');
@@ -299,7 +299,7 @@ export class XO {
   private processReport(
     report: ESLint.LintResult[],
     {rulesMeta = {}} = {},
-  ) {
+  ): XoLintResult {
     if (this.linterOptions.quiet) {
       report = ESLint.getErrorResults(report);
     }

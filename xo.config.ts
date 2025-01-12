@@ -1,6 +1,6 @@
-import type {XoConfigItem} from './lib/types.js';
+import type {FlatXoConfig} from './lib/types.js';
 
-const config: XoConfigItem[] = [
+const xoConfig: FlatXoConfig = [
   {ignores: ['test/fixtures/**/*']},
   {
     space: true,
@@ -16,4 +16,4 @@ const config: XoConfigItem[] = [
   },
 ];
 
-export default config;
+export default xoConfig;

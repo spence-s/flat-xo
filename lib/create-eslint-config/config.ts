@@ -389,4 +389,10 @@ export const config: Linter.Config[] = [
     },
   },
   ...configXoTypescript.slice(2),
+  {
+    files: ['xo.config.{js,ts}'],
+    rules: {
+      'import-x/no-anonymous-default-export': 'off',
+    },
+  },
 ];
