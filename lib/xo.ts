@@ -113,9 +113,9 @@ export class XO {
       this.linterOptions.cwd = path.resolve(process.cwd(), this.linterOptions.cwd);
     }
 
-    this.cacheLocation
-      = findCacheDir({name: CACHE_DIR_NAME, cwd: this.linterOptions.cwd})
-      ?? path.join(os.homedir() ?? os.tmpdir(), '.xo-cache/');
+    const backupCacheLocation = path.join(os.tmpdir(), CACHE_DIR_NAME);
+
+    this.cacheLocation = findCacheDir({name: CACHE_DIR_NAME, cwd: this.linterOptions.cwd}) ?? backupCacheLocation;
   }
 
   /**
