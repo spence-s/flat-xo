@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node --no-warnings=ExperimentalWarning
+#!/usr/bin/env node
 // no-use-extend-native plugin creates an experimental warning so we silence it
 // https://github.com/nodejs/node/issues/30810#issuecomment-1893682691
 

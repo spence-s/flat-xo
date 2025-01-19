@@ -1,114 +1,114 @@
 {
-  "name": "@spence-s/flat-xo",
-  "version": "0.0.5",
-  "description": "xo with eslint flat config",
-  "type": "module",
-  "exports": {
-    ".": "./dist/index.js",
-    "./create-eslint-config.js": "./dist/lib/create-eslint-config/index.js"
-  },
-  "main": "dist/index.js",
-  "bin": {
-    "xo": "dist/lib/cli.js"
-  },
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "npm run clean && tsc",
-    "build:watch": "tsc --watch",
-    "clean": "rm -rf dist",
-    "lint": "node dist/lib/cli.js",
-    "release": "np",
-    "test": "npm run build && npm run lint && npm run test:setup && ava",
-    "test:setup": "node scripts/setup-tests"
-  },
-  "prettier": {
-    "plugins": [
-      "prettier-plugin-packagejson"
-    ]
-  },
-  "ava": {
-    "environmentVariables": {
-      "NODE_NO_WARNINGS": "1"
-    },
-    "files": [
-      "dist/test/**/*.js",
-      "!dist/test/fixtures/**",
-      "!dist/test/helpers/**",
-      "!dist/test/scripts/**"
-    ],
-    "nodeArguments": [
-      "--enable-source-maps"
-    ],
-    "verbose": true
-  },
-  "dependencies": {
-    "@eslint-community/eslint-plugin-eslint-comments": "^4.4.1",
-    "@eslint/eslintrc": "^3.2.0",
-    "@sindresorhus/tsconfig": "^7.0.0",
-    "@stylistic/eslint-plugin": "^2.13.0",
-    "@typescript-eslint/parser": "^8.20.0",
-    "arrify": "^3.0.0",
-    "cosmiconfig": "^9.0.0",
-    "debug": "^4.4.0",
-    "dedent": "^1.5.3",
-    "define-lazy-prop": "^3.0.0",
-    "eslint": "^9.18.0",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-config-xo-typescript": "^7.0.0",
-    "eslint-formatter-pretty": "^6.0.1",
-    "eslint-plugin-ava": "^15.0.1",
-    "eslint-plugin-import-x": "^4.6.1",
-    "eslint-plugin-n": "^17.15.1",
-    "eslint-plugin-no-use-extend-native": "^0.7.2",
-    "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-promise": "^7.2.1",
-    "eslint-plugin-unicorn": "^56.0.1",
-    "esm-utils": "^4.3.0",
-    "find-cache-dir": "^5.0.0",
-    "find-up": "^7.0.0",
-    "get-stdin": "^9.0.0",
-    "get-tsconfig": "^4.8.1",
-    "glob": "^11.0.1",
-    "globals": "^15.14.0",
-    "globby": "^14.0.2",
-    "imurmurhash": "^0.1.4",
-    "json-stable-stringify-without-jsonify": "^1.0.1",
-    "json5": "^2.2.3",
-    "lodash.isempty": "^4.4.0",
-    "lodash.pick": "^4.4.0",
-    "meow": "^13.2.0",
-    "micromatch": "^4.0.8",
-    "open-editor": "^5.1.0",
-    "prettier": "^3.4.2",
-    "semver": "^7.6.3",
-    "slash": "^5.1.0",
-    "to-absolute-glob": "^3.0.0",
-    "type-fest": "^4.32.0",
-    "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0",
-    "webpack": "^5.97.1"
-  },
-  "devDependencies": {
-    "@commitlint/cli": "^19.6.1",
-    "@commitlint/config-conventional": "^19.6.0",
-    "@types/debug": "^4.1.12",
-    "@types/eslint": "9.6.1",
-    "@types/lodash.isempty": "^4.4.9",
-    "@types/lodash.pick": "^4.4.9",
-    "@types/micromatch": "^4.0.9",
-    "@types/prettier": "^3.0.0",
-    "ava": "^6.2.0",
-    "execa": "^9.5.2",
-    "husky": "^9.1.7",
-    "lint-staged": "^15.3.0",
-    "np": "^10.1.0",
-    "npm-package-json-lint": "^8.0.0",
-    "npm-package-json-lint-config-default": "^7.0.1",
-    "path-exists": "^5.0.0",
-    "prettier-plugin-packagejson": "^2.5.6",
-    "temp-dir": "^3.0.0",
-    "xo": "file:."
-  }
+	"name": "@spence-s/flat-xo",
+	"version": "0.0.5",
+	"description": "xo with eslint flat config",
+	"type": "module",
+	"exports": {
+		".": "./dist/index.js",
+		"./create-eslint-config.js": "./dist/lib/create-eslint-config/index.js"
+	},
+	"main": "dist/index.js",
+	"bin": {
+		"xo": "dist/lib/cli.js"
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "npm run clean && tsc",
+		"build:watch": "tsc --watch",
+		"clean": "rm -rf dist",
+		"lint": "node dist/lib/cli.js",
+		"release": "np",
+		"test": "npm run build && npm run lint && npm run test:setup && ava",
+		"test:setup": "node scripts/setup-tests"
+	},
+	"prettier": {
+		"plugins": [
+			"prettier-plugin-packagejson"
+		]
+	},
+	"ava": {
+		"environmentVariables": {
+			"NODE_NO_WARNINGS": "1"
+		},
+		"files": [
+			"dist/test/**/*.js",
+			"!dist/test/fixtures/**",
+			"!dist/test/helpers/**",
+			"!dist/test/scripts/**"
+		],
+		"nodeArguments": [
+			"--enable-source-maps"
+		],
+		"verbose": true
+	},
+	"dependencies": {
+		"@eslint-community/eslint-plugin-eslint-comments": "^4.4.1",
+		"@eslint/eslintrc": "^3.2.0",
+		"@sindresorhus/tsconfig": "^7.0.0",
+		"@stylistic/eslint-plugin": "^2.13.0",
+		"@typescript-eslint/parser": "^8.20.0",
+		"arrify": "^3.0.0",
+		"cosmiconfig": "^9.0.0",
+		"debug": "^4.4.0",
+		"dedent": "^1.5.3",
+		"define-lazy-prop": "^3.0.0",
+		"eslint": "^9.18.0",
+		"eslint-config-prettier": "^10.0.1",
+		"eslint-config-xo-typescript": "^7.0.0",
+		"eslint-formatter-pretty": "^6.0.1",
+		"eslint-plugin-ava": "^15.0.1",
+		"eslint-plugin-import-x": "^4.6.1",
+		"eslint-plugin-n": "^17.15.1",
+		"eslint-plugin-no-use-extend-native": "^0.7.2",
+		"eslint-plugin-prettier": "^5.2.3",
+		"eslint-plugin-promise": "^7.2.1",
+		"eslint-plugin-unicorn": "^56.0.1",
+		"esm-utils": "^4.3.0",
+		"find-cache-dir": "^5.0.0",
+		"find-up": "^7.0.0",
+		"get-stdin": "^9.0.0",
+		"get-tsconfig": "^4.8.1",
+		"glob": "^11.0.1",
+		"globals": "^15.14.0",
+		"globby": "^14.0.2",
+		"imurmurhash": "^0.1.4",
+		"json-stable-stringify-without-jsonify": "^1.0.1",
+		"json5": "^2.2.3",
+		"lodash.isempty": "^4.4.0",
+		"lodash.pick": "^4.4.0",
+		"meow": "^13.2.0",
+		"micromatch": "^4.0.8",
+		"open-editor": "^5.1.0",
+		"prettier": "^3.4.2",
+		"semver": "^7.6.3",
+		"slash": "^5.1.0",
+		"to-absolute-glob": "^3.0.0",
+		"type-fest": "^4.32.0",
+		"typescript": "^5.7.3",
+		"typescript-eslint": "^8.20.0",
+		"webpack": "^5.97.1"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "^19.6.1",
+		"@commitlint/config-conventional": "^19.6.0",
+		"@types/debug": "^4.1.12",
+		"@types/eslint": "9.6.1",
+		"@types/lodash.isempty": "^4.4.9",
+		"@types/lodash.pick": "^4.4.9",
+		"@types/micromatch": "^4.0.9",
+		"@types/prettier": "^3.0.0",
+		"ava": "^6.2.0",
+		"execa": "^9.5.2",
+		"husky": "^9.1.7",
+		"lint-staged": "^15.4.1",
+		"np": "^10.1.0",
+		"npm-package-json-lint": "^8.0.0",
+		"npm-package-json-lint-config-default": "^7.0.1",
+		"path-exists": "^5.0.0",
+		"prettier-plugin-packagejson": "^2.5.8",
+		"temp-dir": "^3.0.0",
+		"xo": "file:."
+	}
 }
