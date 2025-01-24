@@ -4,7 +4,6 @@ import fs from 'node:fs/promises';
 import {getTsconfig} from 'get-tsconfig';
 import micromatch from 'micromatch';
 import {TSCONFIG_DEFAULTS, CACHE_DIR_NAME} from './constants.js';
-
 /**
  * This function checks if the files are matched by the tsconfig include, exclude, and it returns the unmatched files.
  * If no tsconfig is found, it will create a fallback tsconfig file in the node_modules/.cache/xo directory.
@@ -58,15 +57,15 @@ export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
 
   const fallbackTsConfigPath = path.join(cwd, 'node_modules', '.cache', CACHE_DIR_NAME, 'tsconfig.xo.json');
 
-  await fs.mkdir(path.dirname(fallbackTsConfigPath), {recursive: true});
-  await fs.writeFile(fallbackTsConfigPath, JSON.stringify(tsConfig, null, 2));
-
   delete tsConfig.include;
   delete tsConfig.exclude;
   delete tsConfig.files;
   tsConfig.files = files;
-  await fs.mkdir(path.dirname(fallbackTsConfigPath), {recursive: true});
-  await fs.writeFile(fallbackTsConfigPath, JSON.stringify(tsConfig, null, 2));
+
+  try {
+    await fs.mkdir(path.dirname(fallbackTsConfigPath), {recursive: true});
+    await fs.writeFile(fallbackTsConfigPath, JSON.stringify(tsConfig, null, 2));
+  } catch {}
 
   return {unmatchedFiles: unmatchedFiles.map(fp => path.relative(cwd, fp)), defaultProject: fallbackTsConfigPath};
 }
