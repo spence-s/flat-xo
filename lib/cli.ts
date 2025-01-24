@@ -67,6 +67,10 @@ const cli = meow(
         type: 'boolean',
         default: true,
       },
+      react: {
+        type: 'boolean',
+        default: false,
+      },
       cwd: {
         type: 'string',
         default: process.cwd(),
@@ -95,6 +99,7 @@ const baseXoConfigOptions: XoConfigOptions = {
   semicolon: cliOptions.semicolon,
   prettier: cliOptions.prettier,
   ignores: cliOptions.ignore,
+  react: cliOptions.react,
 };
 
 const linterOptions: LinterOptions = {

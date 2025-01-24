@@ -74,3 +74,10 @@ declare module 'eslint-config-prettier' {
   const config: Linter.Config;
   export default config;
 }
+
+declare module 'eslint-config-xo-react' {
+  import {type Linter} from 'eslint';
+
+  const config: Linter.Config;
+  export default config;
+}

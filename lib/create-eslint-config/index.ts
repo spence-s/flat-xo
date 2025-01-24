@@ -2,6 +2,7 @@ import process from 'node:process';
 import configXoTypescript from 'eslint-config-xo-typescript';
 import arrify from 'arrify';
 import {type Linter} from 'eslint';
+import configReact from 'eslint-config-xo-react';
 import {type XoConfigItem} from '../types.js';
 import {config} from './config.js';
 import {xoToEslintConfigItem} from './xo-to-eslint.js';
@@ -69,6 +70,10 @@ export async function createConfig(
     } else if (xoUserConfig.prettier === false) {
       // Turn prettier off for a subset of files
       eslintConfigItem.rules['prettier/prettier'] = 'off';
+    }
+
+    if (xoUserConfig.react) {
+      baseConfig.push(configReact);
     }
 
     baseConfig.push(eslintConfigItem);

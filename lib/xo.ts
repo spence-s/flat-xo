@@ -33,9 +33,10 @@ export class XO {
         fix: options.fix,
         filePath: options.filePath,
         quiet: options.quiet,
-        ts: options.ts,
+        ts: options.ts ?? true,
       },
       {
+        react: options.react,
         space: options.space,
         semicolon: options.semicolon,
         prettier: options.prettier,
@@ -58,6 +59,7 @@ export class XO {
         ts: options.ts,
       },
       {
+        react: options.react,
         space: options.space,
         semicolon: options.semicolon,
         prettier: options.prettier,

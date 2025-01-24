@@ -17,7 +17,7 @@ import {type XoConfigItem} from '../types.js';
  * @returns eslintConfig
  */
 export const xoToEslintConfigItem = (xoConfig: XoConfigItem): SetRequired<Linter.Config, 'rules' | 'files'> => {
-  const {files, rules, space, prettier, ignores, semicolon, ..._xoConfig} = xoConfig;
+  const {files, rules, space, prettier, ignores, semicolon, react, ..._xoConfig} = xoConfig;
 
   const eslintConfig: SetRequired<Linter.Config, 'rules' | 'files'> = {
     ..._xoConfig,

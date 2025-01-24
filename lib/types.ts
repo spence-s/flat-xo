@@ -18,6 +18,10 @@ export type XoConfigOptions = {
    */
   prettier?: boolean;
   /**
+	 * Add react support
+	 */
+  react?: boolean;
+  /**
    * Files to ignore, can be a glob or array of globs.
    */
   ignores?: string | string[];

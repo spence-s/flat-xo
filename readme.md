@@ -62,6 +62,7 @@ $ xo --help
     --space           Use space indent instead of tabs  [Default: 2]
     --no-semicolon    Prevent use of semicolons
     --prettier        Conform to Prettier code style
+		--react           Add react plugins and the xo-react config
     --plugin          Include third-party plugins  [Can be set multiple times]
     --extend          Extend defaults with a custom config  [Can be set multiple times]
     --quiet           Show only errors and no warnings
@@ -156,6 +157,13 @@ export default {
 ```
 
 If contradicting options are set for both Prettier and XO, an error will be thrown.
+
+### react
+
+Type: `boolean`\
+Default: `false`
+
+Adds eslint-config-plugin-react, eslint-plugin-react-hooks and eslint-config-xo-react to get all the react best practices applied automatically
 
 ## Tips
 
