@@ -15,8 +15,13 @@ export type XoConfigOptions = {
   semicolon?: boolean;
   /**
    * Use Prettier to format code.
-   */
-  prettier?: boolean;
+	 *
+	 * If `compat` is used, xo will not format with prettier but will produce prettier compatible code so prettier can be used as a separate formatting tool.
+  */
+  prettier?: boolean | 'compat';
+  /**
+	 */
+  prettierCompat?: boolean;
   /**
 	 * Add react support
 	 */

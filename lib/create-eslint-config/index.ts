@@ -3,11 +3,11 @@ import configXoTypescript from 'eslint-config-xo-typescript';
 import arrify from 'arrify';
 import {type Linter} from 'eslint';
 import configReact from 'eslint-config-xo-react';
+import eslintConfigPrettier from 'eslint-config-prettier';
 import {type XoConfigItem} from '../types.js';
 import {config} from './config.js';
 import {xoToEslintConfigItem} from './xo-to-eslint.js';
 import {handlePrettierOptions} from './prettier.js';
-
 /**
  * Takes a xo flat config and returns an eslint flat config
  */
@@ -61,12 +61,16 @@ export async function createConfig(
     }
 
     if (xoUserConfig.prettier) {
-      // eslint-disable-next-line no-await-in-loop
-      await handlePrettierOptions(
-        cwd ?? process.cwd(),
-        xoUserConfig,
-        eslintConfigItem,
-      );
+      if (xoUserConfig.prettier === 'compat') {
+        baseConfig.push(eslintConfigPrettier);
+      } else {
+        // eslint-disable-next-line no-await-in-loop
+        await handlePrettierOptions(
+          cwd ?? process.cwd(),
+          xoUserConfig,
+          eslintConfigItem,
+        );
+      }
     } else if (xoUserConfig.prettier === false) {
       // Turn prettier off for a subset of files
       eslintConfigItem.rules['prettier/prettier'] = 'off';
