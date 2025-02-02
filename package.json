@@ -93,8 +93,8 @@
     "webpack": "^5.97.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.6.1",
-    "@commitlint/config-conventional": "^19.6.0",
+    "@commitlint/cli": "^19.7.1",
+    "@commitlint/config-conventional": "^19.7.1",
     "@types/debug": "^4.1.12",
     "@types/eslint": "9.6.1",
     "@types/lodash.isempty": "^4.4.9",
