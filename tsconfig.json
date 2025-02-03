@@ -5,6 +5,6 @@
     "resolveJsonModule": true,
     "sourceMap": true
   },
-  "include": ["**/*.ts", "scripts/setup-tests.js", "package.json"],
-  "exclude": ["node_modules", "dist", "./test.ts"]
+  "include": ["**/*.ts", "scripts/setup-tests.js", "package.json", "**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
 }

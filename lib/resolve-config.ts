@@ -74,6 +74,7 @@ export async function resolveXoConfig(options: LinterOptions): Promise<{
     'extension',
     'files',
     'plugins',
+    'react',
   ];
 
   flatOptions = flatOptions.map(config => pick(config, globalKeys));

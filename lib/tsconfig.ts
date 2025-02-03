@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 
 import path from 'node:path';
 import fs from 'node:fs/promises';
@@ -13,6 +14,9 @@ import {TSCONFIG_DEFAULTS, CACHE_DIR_NAME} from './constants.js';
  */
 export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
   const {config: tsConfig = TSCONFIG_DEFAULTS, path: tsConfigPath} = getTsconfig(cwd) ?? {};
+
+  tsConfig.compilerOptions ??= {};
+  tsConfig.compilerOptions.rootDir = cwd;
 
   const unmatchedFiles: string[] = [];
 
