@@ -23,7 +23,6 @@ export async function createConfig(
    * ie... we need to turn prettier,space,semi,etc... on or off for a specific file
    */
   for (const xoUserConfig of userConfigs ?? []) {
-    console.log(xoUserConfig);
     const keysOfXoConfig = Object.keys(xoUserConfig);
 
     if (keysOfXoConfig.length === 0) {
@@ -79,7 +78,6 @@ export async function createConfig(
     }
 
     if (xoUserConfig.react) {
-      console.log('react is pushing');
       baseConfig.push(...configReact);
     }
 
