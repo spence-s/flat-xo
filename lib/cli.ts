@@ -25,7 +25,7 @@ const cli = meow(
     --semicolon       Use semicolons [Default: true]
     --prettier        Conform to Prettier code style [Default: false]
     --react           Include React specific parsing and xo-react linting rules [Default: false]
-    --prettier        Compat with prettier, but do not use xo to format prettier rules. Use this option to use prettier as a separate formatting tool. This can improve performance as opposed to the prettier option which can slow down eslint. This option has no effect if the prettier option is true.
+    --prettier        Format with prettier or turn off prettier conflicted rules when set to 'compat' [Default: false]
     --ts              Auto configure type aware linting on unincluded ts files [Default: true]
     --print-config    Print the effective ESLint config for the given file
     --ignore          Ignore pattern globs, can be set multiple times
