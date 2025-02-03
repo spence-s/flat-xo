@@ -5,6 +5,7 @@ import {type Linter} from 'eslint';
 import configReact from 'eslint-config-xo-react';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import {type XoConfigItem} from '../types.js';
+import {ALL_FILES_GLOB} from '../constants.js';
 import {config} from './config.js';
 import {xoToEslintConfigItem} from './xo-to-eslint.js';
 import {handlePrettierOptions} from './prettier.js';
@@ -77,7 +78,7 @@ export async function createConfig(
     }
 
     if (xoUserConfig.react) {
-      baseConfig.push(configReact);
+      baseConfig.push({files: [ALL_FILES_GLOB], ...configReact});
     }
 
     baseConfig.push(eslintConfigItem);

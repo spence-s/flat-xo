@@ -32,6 +32,7 @@ if (!configXoTypescript[1]) {
  */
 export const config: Linter.Config[] = [
   {
+    name: 'Xo Default Ignores',
     ignores: DEFAULT_IGNORES,
   },
   {
