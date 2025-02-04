@@ -132,7 +132,7 @@ Set it to `false` to enforce no-semicolon style.
 
 ### prettier
 
-Type: `boolean`\
+Type: `boolean|'compat'`\
 Default: `false`
 
 Format code with [Prettier](https://github.com/prettier/prettier).
@@ -157,6 +157,8 @@ export default {
 ```
 
 If contradicting options are set for both Prettier and XO, an error will be thrown.
+
+If the prettier option is set to "compat", instead of formatting your code automatically, xo will turn off all rules that conflict with prettier code style and allow you to pass your formatting to the prettier tool directly.
 
 ### react
 
