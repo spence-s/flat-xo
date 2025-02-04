@@ -102,6 +102,26 @@ test('with prettier option', async t => {
   ]);
 });
 
+test('with prettier option compat', async t => {
+  const flatConfig = await createConfig([{prettier: 'compat'}], t.context.cwd);
+
+  const prettierConfigTs = flatConfig.find(config =>
+    typeof config?.plugins?.['prettier'] === 'object'
+    && config?.files?.[0]?.includes('ts'));
+
+  t.is(prettierConfigTs, undefined);
+
+  t.is(getJsRule(flatConfig, '@typescript-eslint/semi'), 'off');
+
+  const prettierConfigJs = flatConfig.find(config =>
+    typeof config?.plugins?.['prettier'] === 'object'
+    && config?.files?.[0]?.includes('js'));
+
+  t.falsy(prettierConfigJs, undefined);
+
+  t.is(getJsRule(flatConfig, '@stylistic/semi'), 'off');
+});
+
 test('with prettier option and space', async t => {
   const flatConfig = await createConfig([{prettier: true, space: true}], t.context.cwd);
 
@@ -142,4 +162,18 @@ test('with prettier option and space', async t => {
       useTabs: false,
     },
   ]);
+});
+
+test('with react option', async t => {
+  const flatConfig = await createConfig([{react: true}], t.context.cwd);
+
+  const reactPlugin = flatConfig.find(config =>
+    typeof config?.plugins?.['react'] === 'object');
+
+  const reactHooksPlugin = flatConfig.find(config =>
+    typeof config?.plugins?.['react-hooks'] === 'object');
+
+  t.true(reactPlugin instanceof Object);
+  t.true(reactHooksPlugin instanceof Object);
+  t.is(getJsRule(flatConfig, 'react/no-danger'), 'error');
 });

@@ -63,7 +63,7 @@ export async function createConfig(
 
     if (xoUserConfig.prettier) {
       if (xoUserConfig.prettier === 'compat') {
-        baseConfig.push(eslintConfigPrettier);
+        baseConfig.push({files: eslintConfigItem.files, ...eslintConfigPrettier});
       } else {
         // eslint-disable-next-line no-await-in-loop
         await handlePrettierOptions(
@@ -78,7 +78,8 @@ export async function createConfig(
     }
 
     if (xoUserConfig.react) {
-      baseConfig.push(...configReact);
+      // ensure the files applied to the react config are the same as the config they are derived from
+      baseConfig.push({files: eslintConfigItem.files, ...configReact[0]});
     }
 
     baseConfig.push(eslintConfigItem);
