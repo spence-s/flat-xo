@@ -96,7 +96,6 @@ test('typescript file with no tsconfig - semicolon', async t => {
   const {results} = await xo.lintText(dedent`console.log('hello');\n`, {
     filePath,
   });
-  t.log(results[0]);
   t.is(results?.[0]?.messages?.length, 1);
   t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });

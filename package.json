@@ -52,7 +52,6 @@
     "@typescript-eslint/parser": "^8.23.0",
     "arrify": "^3.0.0",
     "cosmiconfig": "^9.0.0",
-    "debug": "^4.4.0",
     "dedent": "^1.5.3",
     "define-lazy-prop": "^3.0.0",
     "eslint": "^9.20.0",
@@ -95,7 +94,6 @@
   "devDependencies": {
     "@commitlint/cli": "^19.7.1",
     "@commitlint/config-conventional": "^19.7.1",
-    "@types/debug": "^4.1.12",
     "@types/eslint": "9.6.1",
     "@types/lodash.isempty": "^4.4.9",
     "@types/lodash.pick": "^4.4.9",

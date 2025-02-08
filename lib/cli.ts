@@ -9,12 +9,9 @@ import formatterPretty from 'eslint-formatter-pretty';
 import getStdin from 'get-stdin';
 // eslint-disable-next-line import-x/no-named-default
 import {default as meow} from 'meow';
-import _debug from 'debug';
 import type {LinterOptions, XoConfigOptions} from './types.js';
 import {XO} from './xo.js';
 import openReport from './open-report.js';
-
-const debug = _debug('xo:cli');
 
 const cli = meow(
   `
@@ -211,15 +208,12 @@ if (typeof cliOptions.printConfig === 'string') {
   const config = await new XO(linterOptions, baseXoConfigOptions).calculateConfigForFile(cliOptions.printConfig);
   console.log(JSON.stringify(config, undefined, '\t'));
 } else {
-  debug('linterOptions %O', linterOptions);
   const xo = new XO(linterOptions, baseXoConfigOptions);
 
   const report = await xo.lintFiles(input);
-  debug('xo.lintFiles success');
 
   if (cliOptions.fix) {
     await XO.outputFixes(report);
-    debug('xo.outputFixes success');
   }
 
   if (cliOptions.open) {

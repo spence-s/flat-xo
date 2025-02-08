@@ -6,7 +6,6 @@ import findCacheDir from 'find-cache-dir';
 import {globby} from 'globby';
 import arrify from 'arrify';
 import defineLazyProperty from 'define-lazy-prop';
-import _debug from 'debug';
 import {
   type XoLintResult,
   type LinterOptions,
@@ -20,8 +19,6 @@ import createConfig from './create-eslint-config/index.js';
 import resolveXoConfig from './resolve-config.js';
 import {tsconfig} from './tsconfig.js';
 
-const debug = _debug('xo');
-const initDebug = debug.extend('initEslint');
 export class XO {
   /**
    * Static lintText helper for backwards compat and use in editor extensions and other tools
@@ -198,16 +195,12 @@ export class XO {
    */
   public async initEslint(files?: string[]) {
     await this.setXoConfig();
-    initDebug('setXoConfig complete');
 
     this.setIgnores();
-    initDebug('setIgnores complete');
 
     await this.handleUnincludedTsFiles(files);
-    initDebug('handleUnincludedTsFiles complete');
 
     await this.setEslintConfig();
-    initDebug('setEslintConfig complete');
 
     if (!this.xoConfig) {
       throw new Error('"XO.initEslint" failed');
@@ -225,7 +218,6 @@ export class XO {
     } as const;
 
     this.eslint ??= new ESLint(eslintOptions);
-    initDebug('ESLint class created with options %O', eslintOptions);
   }
 
   /**
@@ -235,9 +227,6 @@ export class XO {
    * @throws Error
    */
   async lintFiles(globs?: string | string[]): Promise<XoLintResult> {
-    const lintFilesDebug = debug.extend('lintFiles');
-    lintFilesDebug('lintFiles called with globs %O');
-
     if (!globs || (Array.isArray(globs) && globs.length === 0)) {
       globs = `**/*.{${ALL_EXTENSIONS.join(',')}}`;
     }
@@ -253,13 +242,10 @@ export class XO {
     });
 
     await this.initEslint(files);
-    lintFilesDebug('initEslint complete');
 
     if (!this.eslint) {
       throw new Error('Failed to initialize ESLint');
     }
-
-    lintFilesDebug('globby success %O', files);
 
     if (files.length === 0) {
       files = '!**/*';
@@ -267,11 +253,7 @@ export class XO {
 
     const results = await this.eslint.lintFiles(files);
 
-    lintFilesDebug('linting files success');
-
     const rulesMeta = this.eslint.getRulesMetaForResults(results);
-
-    lintFilesDebug('get rulesMeta success');
 
     return this.processReport(results, {rulesMeta});
   }
