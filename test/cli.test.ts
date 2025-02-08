@@ -38,10 +38,18 @@ test('xo --space', async t => {
   t.is(fileContent, 'function test() {\n  return true;\n}\n');
 });
 
-test('xo --no-semicolon', async t => {
+test('xo --semicolon=false', async t => {
   const filePath = path.join(t.context.cwd, 'test.js');
   await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
   await t.notThrowsAsync($`node ./dist/lib/cli --cwd ${t.context.cwd} --fix --semicolon=false`);
+  const fileContent = await fs.readFile(filePath, 'utf8');
+  t.is(fileContent, dedent`console.log('hello')\n`);
+});
+
+test('xo --no-semicolon', async t => {
+  const filePath = path.join(t.context.cwd, 'test.js');
+  await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
+  await t.notThrowsAsync($`node ./dist/lib/cli --cwd ${t.context.cwd} --fix --no-semicolon`);
   const fileContent = await fs.readFile(filePath, 'utf8');
   t.is(fileContent, dedent`console.log('hello')\n`);
 });

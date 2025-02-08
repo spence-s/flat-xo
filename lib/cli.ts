@@ -6,11 +6,13 @@ import path from 'node:path';
 import process from 'node:process';
 import {type Rule, type ESLint} from 'eslint';
 import formatterPretty from 'eslint-formatter-pretty';
+import getStdin from 'get-stdin';
 // eslint-disable-next-line import-x/no-named-default
 import {default as meow} from 'meow';
 import _debug from 'debug';
 import type {LinterOptions, XoConfigOptions} from './types.js';
 import {XO} from './xo.js';
+import openReport from './open-report.js';
 
 const debug = _debug('xo:cli');
 
@@ -28,6 +30,9 @@ const cli = meow(
     --prettier        Format with prettier or turn off prettier conflicted rules when set to 'compat' [Default: false]
     --ts              Auto configure type aware linting on unincluded ts files [Default: true]
     --print-config    Print the effective ESLint config for the given file
+    --open            Open files with issues in your editor
+    --stdin           Validate/fix code from stdin
+    --stdin-filename  Specify a filename for the --stdin option
     --ignore          Ignore pattern globs, can be set multiple times
     --cwd=<dir>       Working directory for files [Default: process.cwd()]
 
@@ -81,6 +86,15 @@ const cli = meow(
         type: 'string',
       },
       version: {
+        type: 'boolean',
+      },
+      stdin: {
+        type: 'boolean',
+      },
+      stdinFilename: {
+        type: 'string',
+      },
+      open: {
         type: 'boolean',
       },
       ignore: {
@@ -162,6 +176,32 @@ if (cliOptions.version) {
   showVersion();
 }
 
+if (cliOptions.stdin) {
+  if (!cliOptions.stdinFilename) {
+    console.error('The `--stdin-filename` flag must be used with `--stdin`');
+    process.exit(1);
+  }
+
+  const stdin = await getStdin();
+
+  if (cliOptions.fix) {
+    const xo = new XO(linterOptions, baseXoConfigOptions);
+    const {results: [result]} = await xo.lintText(stdin, {
+      filePath: cliOptions.stdinFilename,
+    });
+    process.stdout.write((result?.output) ?? stdin);
+    process.exit(0);
+  }
+
+  if (cliOptions.open) {
+    console.error('The `--open` flag is not supported on stdin');
+    process.exit(1);
+  }
+
+  const xo = new XO(linterOptions, baseXoConfigOptions);
+  await log(await xo.lintText(stdin, {filePath: cliOptions.stdinFilename}));
+}
+
 if (typeof cliOptions.printConfig === 'string') {
   if (input.length > 0 || cliOptions.printConfig === '') {
     console.error('The `--print-config` flag must be used with exactly one filename');
@@ -182,6 +222,9 @@ if (typeof cliOptions.printConfig === 'string') {
     debug('xo.outputFixes success');
   }
 
-  // @ts-expect-error dues to the types in the formatter
+  if (cliOptions.open) {
+    await openReport(report);
+  }
+
   await log(report);
 }

@@ -89,5 +89,5 @@ export type XoLintResult = {
   fixableErrorCount: number;
   fixableWarningCount: number;
   results: ESLint.LintResult[];
-  rulesMeta: Rule.RuleMetaData;
+  rulesMeta: Record<string, Rule.RuleMetaData>;
 };
