@@ -74,6 +74,7 @@ test('typescript file with flat config - semicolon', async t => {
 test('typescript file with no tsconfig - semicolon', async t => {
   const filePath = path.join(t.context.cwd, 'test.ts');
   await fs.rm(path.join(t.context.cwd, 'tsconfig.json'));
+  t.log('tsconfig path', path.join(t.context.cwd, 'tsconfig.json'));
   await fs.writeFile(
     path.join(t.context.cwd, 'xo.config.js'),
     dedent`
