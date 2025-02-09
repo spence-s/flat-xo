@@ -188,6 +188,7 @@ export class XO {
           config.languageOptions.parserOptions ??= {};
           config.languageOptions.parserOptions['projectService'] = false;
           config.languageOptions.parserOptions['project'] = fallbackTsConfigPath;
+          console.log('handleUnincludedTsFiles > config', config);
           this.xoConfig.push(config);
         }
       }
