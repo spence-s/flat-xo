@@ -96,8 +96,8 @@ test('typescript file with no tsconfig - semicolon', async t => {
     'utf8',
   );
 
-  const xo = new XO({cwd: t.context.cwd, ts: true});
-  const {results} = await xo.lintText(dedent`console.log('hello');\n`, {
+  const {results} = await XO.lintText(dedent`console.log('hello');\n`, {
+    cwd: t.context.cwd, ts: true,
     filePath,
   });
 
