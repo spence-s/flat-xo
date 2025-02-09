@@ -180,6 +180,7 @@ export class XO {
           files: tsFiles,
         });
 
+        console.log('unmatchedFiles', unmatchedFiles);
         if (this.xoConfig && unmatchedFiles.length > 0) {
           const config: XoConfigItem = {};
           config.files = unmatchedFiles;
