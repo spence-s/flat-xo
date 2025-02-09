@@ -15,7 +15,9 @@ import {
   type XoConfigOptions,
   type XoConfigItem,
 } from './types.js';
-import {DEFAULT_IGNORES, CACHE_DIR_NAME, ALL_EXTENSIONS, TS_FILES_GLOB} from './constants.js';
+import {
+  DEFAULT_IGNORES, CACHE_DIR_NAME, ALL_EXTENSIONS, TS_FILES_GLOB,
+} from './constants.js';
 import createConfig from './create-eslint-config/index.js';
 import resolveXoConfig from './resolve-config.js';
 import {tsconfig} from './tsconfig.js';
