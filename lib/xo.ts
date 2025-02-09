@@ -6,6 +6,7 @@ import findCacheDir from 'find-cache-dir';
 import {globby} from 'globby';
 import arrify from 'arrify';
 import defineLazyProperty from 'define-lazy-prop';
+import micromatch from 'micromatch';
 import {
   type XoLintResult,
   type LinterOptions,
@@ -14,7 +15,7 @@ import {
   type XoConfigOptions,
   type XoConfigItem,
 } from './types.js';
-import {DEFAULT_IGNORES, CACHE_DIR_NAME, ALL_EXTENSIONS} from './constants.js';
+import {DEFAULT_IGNORES, CACHE_DIR_NAME, ALL_EXTENSIONS, TS_FILES_GLOB} from './constants.js';
 import createConfig from './create-eslint-config/index.js';
 import resolveXoConfig from './resolve-config.js';
 import {tsconfig} from './tsconfig.js';
@@ -169,10 +170,10 @@ export class XO {
 
   async handleUnincludedTsFiles(files?: string[]) {
     if (this.linterOptions.ts && files && files.length > 0) {
-      const tsFiles = files.filter(file => file.endsWith('.ts') || file.endsWith('.mts') || file.endsWith('.cts'));
+      const tsFiles = files.filter(file => micromatch.isMatch(file, TS_FILES_GLOB, {dot: true}));
 
       if (tsFiles.length > 0) {
-        const {defaultProject, unmatchedFiles} = await tsconfig({
+        const {fallbackTsConfigPath, unmatchedFiles} = await tsconfig({
           cwd: this.linterOptions.cwd,
           files: tsFiles,
         });
@@ -183,7 +184,7 @@ export class XO {
           config.languageOptions ??= {};
           config.languageOptions.parserOptions ??= {};
           config.languageOptions.parserOptions['projectService'] = false;
-          config.languageOptions.parserOptions['project'] = defaultProject;
+          config.languageOptions.parserOptions['project'] = fallbackTsConfigPath;
           this.xoConfig.push(config);
         }
       }
@@ -280,7 +281,6 @@ export class XO {
     const results = await this.eslint?.lintText(code, {
       filePath,
       warnIgnored,
-
     });
 
     const rulesMeta = this.eslint.getRulesMetaForResults(results ?? []);

@@ -1,4 +1,3 @@
-/* eslint-disable complexity */
 
 import path from 'node:path';
 import fs from 'node:fs/promises';
@@ -38,7 +37,7 @@ export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
       // If we have an excludes property, we need to check it
       // If we match on excluded, then we definitively know that there is no tsconfig match
       if (Array.isArray(tsConfig.exclude)) {
-        const exclude = tsConfig && Array.isArray(tsConfig.exclude) ? tsConfig.exclude : [];
+        const exclude = Array.isArray(tsConfig.exclude) ? tsConfig.exclude : [];
         hasMatch = !micromatch.contains(filePath, exclude);
       } else {
         // Not explicitly excluded and included by tsconfig defaults
@@ -46,9 +45,9 @@ export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
       }
     } else {
       // We have either and include or a files property in tsconfig
-      const include = tsConfig && Array.isArray(tsConfig.include) ? tsConfig.include : [];
-      const files = tsConfig && Array.isArray(tsConfig.files) ? tsConfig.files : [];
-      const exclude = tsConfig && Array.isArray(tsConfig.exclude) ? tsConfig.exclude : [];
+      const include = Array.isArray(tsConfig.include) ? tsConfig.include : [];
+      const files = Array.isArray(tsConfig.files) ? tsConfig.files : [];
+      const exclude = Array.isArray(tsConfig.exclude) ? tsConfig.exclude : [];
       // If we also have an exlcude we need to check all the arrays, (files, include, exclude)
       // this check not excluded and included in one of the file/include array
       hasMatch = !micromatch.contains(filePath, exclude) && micromatch.contains(filePath, [...include, ...files]);
@@ -69,7 +68,9 @@ export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
   try {
     await fs.mkdir(path.dirname(fallbackTsConfigPath), {recursive: true});
     await fs.writeFile(fallbackTsConfigPath, JSON.stringify(tsConfig, null, 2));
-  } catch {}
+  } catch (error) {
+    console.error(error);
+  }
 
-  return {unmatchedFiles: unmatchedFiles.map(fp => path.relative(cwd, fp)), defaultProject: fallbackTsConfigPath};
+  return {unmatchedFiles: unmatchedFiles.map(fp => path.relative(cwd, fp)), fallbackTsConfigPath};
 }
