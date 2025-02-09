@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import _test, {type TestFn} from 'ava'; // eslint-disable-line ava/use-test
 import dedent from 'dedent';
+import {type TsConfigJson} from 'get-tsconfig';
 import {XO} from '../../lib/xo.js';
 import {copyTestProject} from '../helpers/copy-test-project.js';
 
@@ -96,6 +97,12 @@ test('typescript file with no tsconfig - semicolon', async t => {
   const {results} = await xo.lintText(dedent`console.log('hello');\n`, {
     filePath,
   });
+
+  const generatedTsconfig = JSON.parse(await fs.readFile(path.join(t.context.cwd, 'node_modules', '.cache', 'xo-linter', 'tsconfig.xo.json'), 'utf8')) as TsConfigJson;
+  t.log(generatedTsconfig);
+
+  t.true(generatedTsconfig.files?.includes(filePath));
+
   t.is(results?.[0]?.messages?.length, 1);
   t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });

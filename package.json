@@ -42,7 +42,16 @@
     "nodeArguments": [
       "--enable-source-maps"
     ],
-    "verbose": true
+    "verbose": true,
+    "watchMode": {
+      "ignoreChanges": [
+        ".history",
+        ".history/**/*",
+        "node_modules",
+        "package.json",
+        "xo.config.*"
+      ]
+    }
   },
   "dependencies": {
     "@eslint-community/eslint-plugin-eslint-comments": "^4.4.1",

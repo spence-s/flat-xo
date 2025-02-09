@@ -209,7 +209,7 @@ export class XO {
       throw new Error('"XO.initEslint" failed');
     }
 
-    const eslintOptions = {
+    const eslintOptions: ESLint.Options = {
       cwd: this.linterOptions.cwd,
       overrideConfig: this.eslintConfig,
       overrideConfigFile: true,
@@ -218,7 +218,7 @@ export class XO {
       cache: true,
       cacheLocation: this.cacheLocation,
       fix: this.linterOptions.fix,
-    } as const;
+    };
 
     this.eslint ??= new ESLint(eslintOptions);
   }
