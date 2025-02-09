@@ -81,7 +81,9 @@ test('typescript file with flat config - semicolon', async t => {
 
 test('typescript file with no tsconfig - semicolon', async t => {
   const filePath = path.join(t.context.cwd, 'test.ts');
-  await fs.rm(path.join(t.context.cwd, 'tsconfig.json'));
+  t.log('filePath', filePath);
+  await fs.rm(path.join(t.context.cwd, 'tsconfig.json'), {force: true});
+
   await fs.writeFile(
     path.join(t.context.cwd, 'xo.config.js'),
     dedent`
@@ -93,17 +95,22 @@ test('typescript file with no tsconfig - semicolon', async t => {
     `,
     'utf8',
   );
+
   const xo = new XO({cwd: t.context.cwd, ts: true});
   const {results} = await xo.lintText(dedent`console.log('hello');\n`, {
     filePath,
   });
 
+  t.log(results[0]);
+
   const generatedTsconfig = JSON.parse(await fs.readFile(path.join(t.context.cwd, 'node_modules', '.cache', 'xo-linter', 'tsconfig.xo.json'), 'utf8')) as TsConfigJson;
+
   t.log(generatedTsconfig);
 
   t.true(generatedTsconfig.files?.includes(filePath));
 
   t.is(results?.[0]?.messages?.length, 1);
+
   t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
 
