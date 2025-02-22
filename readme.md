@@ -63,6 +63,7 @@ $ xo --help
 		--no-semicolon    Prevent use of semicolons
 		--prettier        Conform to Prettier code style or turn off conflicting rules
 		--react           Add react plugins and the xo-react config
+		--open            Open files with issues in your editor
 		--quiet           Show only errors and no warnings
 		--cwd=<dir>       Working directory for files
 		--stdin           Validate/fix code from stdin
@@ -76,6 +77,10 @@ $ xo --help
 		$ xo --space
 		$ xo --print-config=index.js
 		$ echo 'const x=true' | xo --stdin --fix
+
+	Tips
+		- Add XO to your project with `npm init xo`.
+		- Put options in xo.config.js instead of using flags so other tools can read it.
 ```
 
 ## Default code style
@@ -100,7 +105,27 @@ Simply run `$ npm init xo` (with any options) to add XO to create an `xo.config.
 
 ## Config
 
-You can configure XO options by creating an `xo.config.js` or an `xo.config.ts` file in the root directory of your project. XO's config is an extension of ESLints Flat Config. Like ESLint, an XO config exports an array of XO config objects. XO config objects extend [ESLint Configuration Objects](https://eslint.org/docs/latest/use/configure/configuration-files#configuration-objects). This means all the available configuration params for ESLint also work for `XO`. However, `XO` enhances and adds extra params to the configuration objects to make them easier to work with.
+You can configure XO options by creating an `xo.config.js` or an `xo.config.ts` file in the root directory of your project. XO supports all js/ts file extensions (js,cjs,mjs,ts,cts,mts) automatically. A XO config is an extension of ESLint's Flat Config. Like ESLint, an XO config exports an array of XO config objects. XO config objects extend [ESLint Configuration Objects](https://eslint.org/docs/latest/use/configure/configuration-files#configuration-objects). This means all the available configuration params for ESLint also work for `XO`. However, `XO` enhances and adds extra params to the configuration objects to make them easier to work with.
+
+### Config types
+
+XO exports the types `FlatXoConfig`, `XoConfigItem`, and other types for you to get ts validation on your config files.
+
+examples:
+`xo.config.js`
+
+```js
+/** @type {import('xo').FlatXoconfig} */
+const xoConfig = [...]
+```
+
+`xo.config.ts`
+
+```js
+import {type FlatXoConfig} from 'xo';
+
+const xoConfig: FlatXoConfig = [...]
+```
 
 ### files
 
@@ -113,7 +138,7 @@ A glob or array of glob strings which the config object will apply. By default `
 
 Type: `string[]`
 
-Some [paths](lib/constants.ts) are ignored by default, including paths in `.gitignore`. Additional ignores can be added here. For global ignores,
+Some [paths](lib/constants.ts) are ignored by default, including paths in `.gitignore`. Additional ignores can be added here. For global ignores, keep `ignores` as the only key in the config item.
 
 ### space
 
