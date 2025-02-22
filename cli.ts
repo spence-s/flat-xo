@@ -8,9 +8,9 @@ import {type Rule, type ESLint} from 'eslint';
 import formatterPretty from 'eslint-formatter-pretty';
 import getStdin from 'get-stdin';
 import meow from 'meow';
-import type {LinterOptions, XoConfigOptions} from './types.js';
-import {XO} from './xo.js';
-import openReport from './open-report.js';
+import type {LinterOptions, XoConfigOptions} from './lib/types.js';
+import {XO} from './lib/xo.js';
+import openReport from './lib/open-report.js';
 
 const cli = meow(
 	`
@@ -89,6 +89,7 @@ const cli = meow(
 			},
 			stdinFilename: {
 				type: 'string',
+				default: 'stdin.js',
 			},
 			open: {
 				type: 'boolean',
@@ -172,11 +173,6 @@ if (cliOptions.version) {
 }
 
 if (cliOptions.stdin) {
-	if (!cliOptions.stdinFilename) {
-		console.error('The `--stdin-filename` flag must be used with `--stdin`');
-		process.exit(1);
-	}
-
 	const stdin = await getStdin();
 
 	if (cliOptions.fix) {

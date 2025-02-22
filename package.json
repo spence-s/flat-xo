@@ -9,7 +9,7 @@
 	},
 	"main": "dist/index.js",
 	"bin": {
-		"xo": "dist/lib/cli.js"
+		"xo": "dist/cli.js"
 	},
 	"files": [
 		"dist"
