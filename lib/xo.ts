@@ -180,7 +180,6 @@ export class XO {
           files: tsFiles,
         });
 
-        console.log('unmatchedFiles', unmatchedFiles);
         if (this.xoConfig && unmatchedFiles.length > 0) {
           const config: XoConfigItem = {};
           config.files = unmatchedFiles;
@@ -188,7 +187,6 @@ export class XO {
           config.languageOptions.parserOptions ??= {};
           config.languageOptions.parserOptions['projectService'] = false;
           config.languageOptions.parserOptions['project'] = fallbackTsConfigPath;
-          console.log('handleUnincludedTsFiles > config', config);
           this.xoConfig.push(config);
         }
       }

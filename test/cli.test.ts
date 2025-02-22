@@ -72,6 +72,16 @@ test('xo --print-config', async t => {
   t.true('rules' in config);
 });
 
+test('xo --print-config ts', async t => {
+  const filePath = path.join(t.context.cwd, 'test.ts');
+  await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
+  const {stdout} = await $`node ./dist/lib/cli --cwd ${t.context.cwd} --print-config=${filePath}`;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const config = JSON.parse(stdout);
+  t.true(typeof config === 'object');
+  t.true('rules' in config);
+});
+
 test('xo --ignore', async t => {
   const testFile = path.join(t.context.cwd, 'test.js');
   const ignoredFile = path.join(t.context.cwd, 'ignored.js');

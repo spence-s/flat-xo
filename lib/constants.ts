@@ -16,7 +16,6 @@ export const DEFAULT_IGNORES = [
 List of options that values will be concatenanted during option merge.
 Only applies to options defined as an Array.
 */
-export const MERGE_OPTIONS_CONCAT = ['extends', 'envs', 'globals', 'plugins'];
 
 export const TS_EXTENSIONS = ['ts', 'tsx', 'cts', 'mts'];
 
@@ -31,16 +30,6 @@ export const ALL_EXTENSIONS = [...JS_EXTENSIONS, ...TS_EXTENSIONS];
 export const ALL_FILES_GLOB = `**/*.{${ALL_EXTENSIONS.join(',')}}`;
 
 export const MODULE_NAME = 'xo';
-
-export const CONFIG_FILES = [
-  'package.json',
-  `.${MODULE_NAME}-config`,
-  `.${MODULE_NAME}-config.json`,
-  `.${MODULE_NAME}-config.js`,
-  `.${MODULE_NAME}-config.cjs`,
-  `${MODULE_NAME}.config.js`,
-  `${MODULE_NAME}.config.cjs`,
-];
 
 export const TSCONFIG_DEFAULTS: TsConfigJsonResolved = {
   compilerOptions: {

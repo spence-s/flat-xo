@@ -10,10 +10,6 @@ const xoConfig: FlatXoConfig = [
       'capitalized-comments': 'off',
     },
   },
-  {
-    files: './test.tsx',
-    react: true,
-  },
 ];
 
 export default xoConfig;

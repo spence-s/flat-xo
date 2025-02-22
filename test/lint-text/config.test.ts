@@ -80,7 +80,7 @@ test('typescript file with flat config - semicolon', async t => {
 });
 
 // test still failing on ubuntu latest github actions runner.
-// No idea why, cannot repro on macos. Possibly eslint or ts eslint bug.
+// No idea why, cannot repro on macos. Possibly eslint or @typescript-eslint bug.
 test.skip('typescript file with no tsconfig - semicolon', async t => {
   const filePath = path.join(t.context.cwd, 'test.ts');
   t.log('filePath', filePath);

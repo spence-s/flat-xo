@@ -46,7 +46,6 @@ export const config: Linter.Config[] = [
       n: pluginN,
       '@eslint-community/eslint-comments': pluginComments,
       promise: pluginPromise,
-      // @ts-expect-error: This is a private plugin
       '@stylistic': stylisticPlugin,
     },
     languageOptions: {
