@@ -1,9 +1,9 @@
 <h1 align="center">
-	<br>
-	<img width="400" src="media/logo.svg" alt="XO">
-	<br>
-	<br>
-	<br>
+  <br>
+  <img width="400" src="media/logo.svg" alt="XO">
+  <br>
+  <br>
+  <br>
 </h1>
 
 > JavaScript/TypeScript linter (ESLint wrapper) with great defaults
@@ -53,34 +53,34 @@ _You'll need [eslint-config-xo-vue](https://github.com/ChocPanda/eslint-config-x
 ```
 $ xo --help
 
-	Usage
-		$ xo [<file|glob> ...]
+  Usage
+    $ xo [<file|glob> ...]
 
-	Options
-		--fix             Automagically fix issues
-		--ignore          Additional paths to ignore  [Can be set multiple times]
-		--space           Use space indent instead of tabs  [Default: 2]
-		--no-semicolon    Prevent use of semicolons
-		--prettier        Conform to Prettier code style or turn off conflicting rules
-		--react           Add react plugins and the xo-react config
-		--open            Open files with issues in your editor
-		--quiet           Show only errors and no warnings
-		--cwd=<dir>       Working directory for files
-		--stdin           Validate/fix code from stdin
-		--stdin-filename  Specify a filename for the --stdin option
-		--print-config    Print the ESLint configuration for the given file
+  Options
+    --fix             Automagically fix issues
+    --ignore          Additional paths to ignore  [Can be set multiple times]
+    --space           Use space indent instead of tabs  [Default: 2]
+    --no-semicolon    Prevent use of semicolons
+    --prettier        Conform to Prettier code style or turn off conflicting rules
+    --react           Add react plugins and the xo-react config
+    --open            Open files with issues in your editor
+    --quiet           Show only errors and no warnings
+    --cwd=<dir>       Working directory for files
+    --stdin           Validate/fix code from stdin
+    --stdin-filename  Specify a filename for the --stdin option
+    --print-config    Print the ESLint configuration for the given file
 
-	Examples
-		$ xo
-		$ xo index.js
-		$ xo *.js !foo.js
-		$ xo --space
-		$ xo --print-config=index.js
-		$ echo 'const x=true' | xo --stdin --fix
+  Examples
+    $ xo
+    $ xo index.js
+    $ xo *.js !foo.js
+    $ xo --space
+    $ xo --print-config=index.js
+    $ echo 'const x=true' | xo --stdin --fix
 
-	Tips
-		- Add XO to your project with `npm init xo`.
-		- Put options in xo.config.js instead of using flags so other tools can read it.
+  Tips
+    - Add XO to your project with `npm init xo`.
+    - Put options in xo.config.js instead of using flags so other tools can read it.
 ```
 
 ## Default code style
@@ -176,9 +176,9 @@ To stick with Prettier's defaults, add this to your Prettier config:
 
 ```js
 export default {
-	trailingComma: "es5",
-	singleQuote: false,
-	bracketSpacing: true,
+  trailingComma: "es5",
+  singleQuote: false,
+  bracketSpacing: true,
 };
 ```
 
