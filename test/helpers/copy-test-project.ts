@@ -11,30 +11,30 @@ import {type XoConfigItem} from '../../lib/types.js';
  * @returns {string} The path to the copied test project.
  */
 export const copyTestProject = async () => {
-  if (!(await pathExists(tempDir))) {
-    throw new Error('temp-dir/test-project does not exist');
-  }
+	if (!(await pathExists(tempDir))) {
+		throw new Error('temp-dir/test-project does not exist');
+	}
 
-  const testCwd = path.join(tempDir, 'test-project');
-  const newCwd = path.join(tempDir, randomUUID());
+	const testCwd = path.join(tempDir, 'test-project');
+	const newCwd = path.join(tempDir, randomUUID());
 
-  await fs.cp(testCwd, newCwd, {recursive: true});
+	await fs.cp(testCwd, newCwd, {recursive: true});
 
-  // create a tsconfig.json file
-  await fs.writeFile(
-    path.join(newCwd, 'tsconfig.json'),
-    JSON.stringify({
-      compilerOptions: {
-        module: 'node16',
-        target: 'ES2022',
-        strictNullChecks: true,
-        lib: ['DOM', 'DOM.Iterable', 'ES2022'],
-      },
-      files: [path.join(newCwd, 'test.ts')],
-      exclude: ['node_modules'],
-    }),
-  );
-  return newCwd;
+	// create a tsconfig.json file
+	await fs.writeFile(
+		path.join(newCwd, 'tsconfig.json'),
+		JSON.stringify({
+			compilerOptions: {
+				module: 'node16',
+				target: 'ES2022',
+				strictNullChecks: true,
+				lib: ['DOM', 'DOM.Iterable', 'ES2022'],
+			},
+			files: [path.join(newCwd, 'test.ts')],
+			exclude: ['node_modules'],
+		}),
+	);
+	return newCwd;
 };
 
 /**
@@ -45,14 +45,14 @@ export const copyTestProject = async () => {
  * @param config - contents of a xo.config.js file as a string
  */
 export const addFlatConfigToProject = async (
-  cwd: string,
-  config: XoConfigItem[],
+	cwd: string,
+	config: XoConfigItem[],
 ) => {
-  const filePath = path.join(cwd, 'xo.config.js');
+	const filePath = path.join(cwd, 'xo.config.js');
 
-  if (await pathExists(filePath)) {
-    await fs.rm(filePath, {force: true});
-  }
+	if (await pathExists(filePath)) {
+		await fs.rm(filePath, {force: true});
+	}
 
-  await fs.writeFile(filePath, `export default ${JSON.stringify(config)};`);
+	await fs.writeFile(filePath, `export default ${JSON.stringify(config)};`);
 };

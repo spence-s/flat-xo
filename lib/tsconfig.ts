@@ -12,65 +12,65 @@ import {TSCONFIG_DEFAULTS, CACHE_DIR_NAME} from './constants.js';
  * @returns The unmatched files.
  */
 export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
-  const {config: tsConfig = TSCONFIG_DEFAULTS, path: tsConfigPath} = getTsconfig(cwd) ?? {};
+	const {config: tsConfig = TSCONFIG_DEFAULTS, path: tsConfigPath} = getTsconfig(cwd) ?? {};
 
-  tsConfig.compilerOptions ??= {};
-  tsConfig.compilerOptions.rootDir = cwd;
+	tsConfig.compilerOptions ??= {};
+	tsConfig.compilerOptions.rootDir = cwd;
 
-  const unmatchedFiles: string[] = [];
+	const unmatchedFiles: string[] = [];
 
-  for (const filePath of files) {
-    let hasMatch = false;
+	for (const filePath of files) {
+		let hasMatch = false;
 
-    if (!tsConfigPath) {
-      unmatchedFiles.push(filePath);
-      continue;
-    }
+		if (!tsConfigPath) {
+			unmatchedFiles.push(filePath);
+			continue;
+		}
 
-    // If there is no files or include property - ts uses **/* as default so all TS files are matched
-    // in tsconfig, excludes override includes - so we need to prioritize that matching logic
-    if (
-      tsConfig
-      && !tsConfig.include
-      && !tsConfig.files
-    ) {
-      // If we have an excludes property, we need to check it
-      // If we match on excluded, then we definitively know that there is no tsconfig match
-      if (Array.isArray(tsConfig.exclude)) {
-        const exclude = Array.isArray(tsConfig.exclude) ? tsConfig.exclude : [];
-        hasMatch = !micromatch.contains(filePath, exclude);
-      } else {
-        // Not explicitly excluded and included by tsconfig defaults
-        hasMatch = true;
-      }
-    } else {
-      // We have either and include or a files property in tsconfig
-      const include = Array.isArray(tsConfig.include) ? tsConfig.include : [];
-      const files = Array.isArray(tsConfig.files) ? tsConfig.files : [];
-      const exclude = Array.isArray(tsConfig.exclude) ? tsConfig.exclude : [];
-      // If we also have an exlcude we need to check all the arrays, (files, include, exclude)
-      // this check not excluded and included in one of the file/include array
-      hasMatch = !micromatch.contains(filePath, exclude) && micromatch.contains(filePath, [...include, ...files]);
-    }
+		// If there is no files or include property - ts uses **/* as default so all TS files are matched
+		// in tsconfig, excludes override includes - so we need to prioritize that matching logic
+		if (
+			tsConfig
+			&& !tsConfig.include
+			&& !tsConfig.files
+		) {
+			// If we have an excludes property, we need to check it
+			// If we match on excluded, then we definitively know that there is no tsconfig match
+			if (Array.isArray(tsConfig.exclude)) {
+				const exclude = Array.isArray(tsConfig.exclude) ? tsConfig.exclude : [];
+				hasMatch = !micromatch.contains(filePath, exclude);
+			} else {
+				// Not explicitly excluded and included by tsconfig defaults
+				hasMatch = true;
+			}
+		} else {
+			// We have either and include or a files property in tsconfig
+			const include = Array.isArray(tsConfig.include) ? tsConfig.include : [];
+			const files = Array.isArray(tsConfig.files) ? tsConfig.files : [];
+			const exclude = Array.isArray(tsConfig.exclude) ? tsConfig.exclude : [];
+			// If we also have an exlcude we need to check all the arrays, (files, include, exclude)
+			// this check not excluded and included in one of the file/include array
+			hasMatch = !micromatch.contains(filePath, exclude) && micromatch.contains(filePath, [...include, ...files]);
+		}
 
-    if (!hasMatch) {
-      unmatchedFiles.push(filePath);
-    }
-  }
+		if (!hasMatch) {
+			unmatchedFiles.push(filePath);
+		}
+	}
 
-  const fallbackTsConfigPath = path.join(cwd, 'node_modules', '.cache', CACHE_DIR_NAME, 'tsconfig.xo.json');
+	const fallbackTsConfigPath = path.join(cwd, 'node_modules', '.cache', CACHE_DIR_NAME, 'tsconfig.xo.json');
 
-  delete tsConfig.include;
-  delete tsConfig.exclude;
-  delete tsConfig.files;
-  tsConfig.files = files;
+	delete tsConfig.include;
+	delete tsConfig.exclude;
+	delete tsConfig.files;
+	tsConfig.files = files;
 
-  try {
-    await fs.mkdir(path.dirname(fallbackTsConfigPath), {recursive: true});
-    await fs.writeFile(fallbackTsConfigPath, JSON.stringify(tsConfig, null, 2));
-  } catch (error) {
-    console.error(error);
-  }
+	try {
+		await fs.mkdir(path.dirname(fallbackTsConfigPath), {recursive: true});
+		await fs.writeFile(fallbackTsConfigPath, JSON.stringify(tsConfig, null, 2));
+	} catch (error) {
+		console.error(error);
+	}
 
-  return {unmatchedFiles: unmatchedFiles.map(fp => path.relative(cwd, fp)), fallbackTsConfigPath};
+	return {unmatchedFiles: unmatchedFiles.map(fp => path.relative(cwd, fp)), fallbackTsConfigPath};
 }

@@ -1,15 +1,15 @@
 import {type TsConfigJsonResolved} from 'get-tsconfig';
 
 export const DEFAULT_IGNORES = [
-  '**/node_modules/**',
-  '**/bower_components/**',
-  'flow-typed/**',
-  'coverage/**',
-  '{tmp,temp}/**',
-  '**/*.min.js',
-  'vendor/**',
-  'dist/**',
-  'tap-snapshots/*.{cjs,js}',
+	'**/node_modules/**',
+	'**/bower_components/**',
+	'flow-typed/**',
+	'coverage/**',
+	'{tmp,temp}/**',
+	'**/*.min.js',
+	'vendor/**',
+	'dist/**',
+	'tap-snapshots/*.{cjs,js}',
 ];
 
 /**
@@ -32,14 +32,14 @@ export const ALL_FILES_GLOB = `**/*.{${ALL_EXTENSIONS.join(',')}}`;
 export const MODULE_NAME = 'xo';
 
 export const TSCONFIG_DEFAULTS: TsConfigJsonResolved = {
-  compilerOptions: {
-    target: 'es2018',
-    strict: true,
-    noImplicitReturns: true,
-    noUnusedLocals: true,
-    noUnusedParameters: true,
-    noFallthroughCasesInSwitch: true,
-  },
+	compilerOptions: {
+		target: 'es2018',
+		strict: true,
+		noImplicitReturns: true,
+		noUnusedLocals: true,
+		noUnusedParameters: true,
+		noFallthroughCasesInSwitch: true,
+	},
 };
 
 export const CACHE_DIR_NAME = 'xo-linter';

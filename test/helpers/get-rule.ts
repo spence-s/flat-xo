@@ -1,9 +1,9 @@
 /* eslint-disable @stylistic/indent-binary-ops */
 import {type Linter} from 'eslint';
 import {
-  ALL_FILES_GLOB,
-  JS_FILES_GLOB,
-  TS_FILES_GLOB,
+	ALL_FILES_GLOB,
+	JS_FILES_GLOB,
+	TS_FILES_GLOB,
 } from '../../lib/constants.js';
 
 /**
@@ -13,17 +13,17 @@ import {
  * @param ruleId
  */
 export const getJsRule = (flatConfig: Linter.Config[], ruleId: string) => {
-  const config = [...flatConfig].reverse().find(config =>
-    (typeof config !== 'string'
+	const config = [...flatConfig].reverse().find(config =>
+		(typeof config !== 'string'
     && config?.rules?.[ruleId]
     && config.files?.includes(ALL_FILES_GLOB))
     ?? config.files?.includes(JS_FILES_GLOB));
 
-  if (typeof config === 'string') {
-    return undefined;
-  }
+	if (typeof config === 'string') {
+		return undefined;
+	}
 
-  return config?.rules?.[ruleId];
+	return config?.rules?.[ruleId];
 };
 
 /**
@@ -33,16 +33,16 @@ export const getJsRule = (flatConfig: Linter.Config[], ruleId: string) => {
  * @param ruleId
  */
 export const getTsRule = (flatConfig: Linter.Config[], ruleId: string) => {
-  const config = [...flatConfig]
-    .reverse()
-    .find(config =>
-      typeof config !== 'string'
+	const config = [...flatConfig]
+		.reverse()
+		.find(config =>
+			typeof config !== 'string'
       && config?.rules?.[ruleId]
       && config.files?.includes(TS_FILES_GLOB));
 
-  if (typeof config === 'string') {
-    return undefined;
-  }
+	if (typeof config === 'string') {
+		return undefined;
+	}
 
-  return config?.rules?.[ruleId];
+	return config?.rules?.[ruleId];
 };

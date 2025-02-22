@@ -150,9 +150,9 @@ To stick with Prettier's defaults, add this to your Prettier config:
 
 ```js
 export default {
-  trailingComma: "es5",
-  singleQuote: false,
-  bracketSpacing: true,
+	trailingComma: "es5",
+	singleQuote: false,
+	bracketSpacing: true,
 };
 ```
 
@@ -183,9 +183,9 @@ To include files that XO [ignores by default](lib/constants.js#L1), add them as 
 
 ```json
 {
-  "xo": {
-    "ignores": ["!vendor/**"]
-  }
+	"xo": {
+		"ignores": ["!vendor/**"]
+	}
 }
 ```
 

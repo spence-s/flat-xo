@@ -14,15 +14,15 @@ import {type XoConfigItem} from '../types.js';
  * @returns eslintConfig
  */
 export const xoToEslintConfigItem = (xoConfig: XoConfigItem): SetRequired<Linter.Config, 'rules' | 'files'> => {
-  const {files, rules, space, prettier, ignores, semicolon, react, ..._xoConfig} = xoConfig;
+	const {files, rules, space, prettier, ignores, semicolon, react, ..._xoConfig} = xoConfig;
 
-  const eslintConfig: SetRequired<Linter.Config, 'rules' | 'files'> = {
-    ..._xoConfig,
-    files: arrify(xoConfig.files ?? ALL_FILES_GLOB),
-    rules: xoConfig.rules ?? {},
-  };
+	const eslintConfig: SetRequired<Linter.Config, 'rules' | 'files'> = {
+		..._xoConfig,
+		files: arrify(xoConfig.files ?? ALL_FILES_GLOB),
+		rules: xoConfig.rules ?? {},
+	};
 
-  eslintConfig.ignores &&= arrify(xoConfig.ignores);
+	eslintConfig.ignores &&= arrify(xoConfig.ignores);
 
-  return eslintConfig;
+	return eslintConfig;
 };

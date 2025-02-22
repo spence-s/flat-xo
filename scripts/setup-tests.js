@@ -13,7 +13,7 @@ import {pathExists} from 'path-exists';
 const cwd = path.join(tempDir, 'test-project');
 
 if (await pathExists(cwd)) {
-  await fs.rm(cwd, {recursive: true, force: true});
+	await fs.rm(cwd, {recursive: true, force: true});
 }
 
 // create the test project directory
@@ -21,31 +21,31 @@ await fs.mkdir(cwd, {recursive: true});
 
 // create a package.json file
 await fs.writeFile(
-  path.join(cwd, 'package.json'),
-  JSON.stringify({
-    type: 'module',
-    name: 'test-project',
-  }),
+	path.join(cwd, 'package.json'),
+	JSON.stringify({
+		type: 'module',
+		name: 'test-project',
+	}),
 );
 
 // create a tsconfig.json file
 await fs.writeFile(
-  path.join(cwd, 'tsconfig.json'),
-  JSON.stringify({
-    compilerOptions: {
-      module: 'node16',
-      target: 'ES2022',
-      strictNullChecks: true,
-      lib: ['DOM', 'DOM.Iterable', 'ES2022'],
-    },
-    files: [path.join(cwd, 'test.ts')],
-    exclude: ['node_modules'],
-  }),
+	path.join(cwd, 'tsconfig.json'),
+	JSON.stringify({
+		compilerOptions: {
+			module: 'node16',
+			target: 'ES2022',
+			strictNullChecks: true,
+			lib: ['DOM', 'DOM.Iterable', 'ES2022'],
+		},
+		files: [path.join(cwd, 'test.ts')],
+		exclude: ['node_modules'],
+	}),
 );
 
 // npm install in the test project directory
 // which we will repeatedly copy in the temp dir to test the project against
 await $({
-  cwd,
-  stdio: 'inherit',
+	cwd,
+	stdio: 'inherit',
 })`npm install --save-dev typescript @types/node @sindresorhus/tsconfig`;
