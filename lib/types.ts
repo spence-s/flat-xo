@@ -20,9 +20,6 @@ export type XoConfigOptions = {
   */
 	prettier?: boolean | 'compat';
 	/**
-	 */
-	prettierCompat?: boolean;
-	/**
 	 * Add react support
 	 */
 	react?: boolean;

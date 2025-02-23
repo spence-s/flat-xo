@@ -7,6 +7,7 @@ import {globby} from 'globby';
 import arrify from 'arrify';
 import defineLazyProperty from 'define-lazy-prop';
 import micromatch from 'micromatch';
+import prettier from 'prettier';
 import {
 	type XoLintResult,
 	type LinterOptions,
@@ -106,6 +107,15 @@ export class XO {
   */
 	flatConfigPath?: string | undefined;
 
+	/**
+	 * If any user configs container prettier, we will need to fetch the prettier config
+	 */
+	prettier?: boolean;
+	/**
+	 * The prettier config if it exists and is needed
+	 */
+	prettierConfig?: prettier.Options;
+
 	constructor(_linterOptions: LinterOptions, _baseXoConfig: XoConfigOptions = {}) {
 		this.linterOptions = _linterOptions;
 		this.baseXoConfig = _baseXoConfig;
@@ -130,12 +140,14 @@ export class XO {
 				...this.linterOptions,
 			});
 			this.xoConfig = [this.baseXoConfig, ...flatOptions];
+			this.prettier = this.xoConfig.some(config => config.prettier);
+			this.prettierConfig = await prettier.resolveConfig(flatConfigPath, {editorconfig: true}) ?? {};
 			this.flatConfigPath = flatConfigPath;
 		}
 	}
 
 	/**
-   * setEslintConfig sets the eslint config on the XO instance
+   * SetEslintConfig sets the eslint config on the XO instance
    * @private
    */
 	async setEslintConfig() {
@@ -143,7 +155,7 @@ export class XO {
 			throw new Error('"XO.setEslintConfig" failed');
 		}
 
-		this.eslintConfig ??= await createConfig([...this.xoConfig], this.linterOptions.cwd);
+		this.eslintConfig ??= await createConfig([...this.xoConfig], {prettierOptions: this.prettierConfig});
 	}
 
 	/**
@@ -170,6 +182,12 @@ export class XO {
 		}
 	}
 
+	/**
+	 * Checks every ts file to ensure its included in the tsconfig
+	 * and any that are not included are added to a generated tsconfig for type aware linting
+	 *
+	 * @param files the ts files being linted
+	 */
 	async handleUnincludedTsFiles(files?: string[]) {
 		if (this.linterOptions.ts && files && files.length > 0) {
 			const tsFiles = files.filter(file => micromatch.isMatch(file, TS_FILES_GLOB, {dot: true}));

@@ -93,6 +93,33 @@ test('xo --ignore', async t => {
 	t.false(stdout.includes('ignored.js'));
 });
 
+test('xo --stdin', async t => {
+	const {stdout} = await $`echo "const x = true"`.pipe`node ./dist/cli --stdin`;
+	t.true(stdout.trim().startsWith('stdin.js'));
+});
+
+test.skip('xo --stdin --fix', async t => {
+	const {stdout} = await $`echo "const x = true"`.pipe`node ./dist/cli --stdin --fix`;
+	t.is(stdout, 'const x = true;');
+});
+
+test('xo --stdin --stdin-filename', async t => {
+	const {stdout} = await $`echo "const x = true"`.pipe`node ./dist/cli --stdin --stdin-filename=test.js`;
+	t.true(stdout.trim().startsWith('test.js'));
+});
+
+test.failing('ts > xo --stdin --stdin-filename', async t => {
+	const {stdout} = await $`echo "const x: boolean = true"`.pipe`node ./dist/cli --stdin --stdin-filename=test.ts`;
+	t.log('stdout', stdout);
+	t.true(stdout.trim().startsWith('test.js'));
+});
+
+test.failing('ts > xo --stdin --stdin-filename --fix', async t => {
+	const {stdout} = await $`echo "const x: boolean = true"`.pipe`node ./dist/cli --stdin --stdin-filename=test.ts --fix`;
+	t.log('stdout', stdout);
+	t.is(stdout, 'const x = true;');
+});
+
 test('xo lints ts files not found in tsconfig.json', async t => {
 	const filePath = path.join(t.context.cwd, 'test.ts');
 	const tsConfigPath = path.join(t.context.cwd, 'tsconfig.json');

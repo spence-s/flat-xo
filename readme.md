@@ -58,11 +58,12 @@ $ xo --help
 
   Options
     --fix             Automagically fix issues
-    --ignore          Additional paths to ignore  [Can be set multiple times]
-    --space           Use space indent instead of tabs  [Default: 2]
+    --ignore          Ignore pattern globs, can be set multiple times
+    --space           Use space indent instead of tabs [Default: 2]
     --no-semicolon    Prevent use of semicolons
     --prettier        Conform to Prettier code style or turn off conflicting rules
-    --react           Add react plugins and the xo-react config
+    --react           Include React plugins and xo-react linting rules [Default: false]
+    --ts              Auto configure type aware linting on unincluded ts files [Default: true]
     --open            Open files with issues in your editor
     --quiet           Show only errors and no warnings
     --cwd=<dir>       Working directory for files
@@ -176,9 +177,9 @@ To stick with Prettier's defaults, add this to your Prettier config:
 
 ```js
 export default {
-  trailingComma: "es5",
-  singleQuote: false,
-  bracketSpacing: true,
+	trailingComma: "es5",
+	singleQuote: false,
+	bracketSpacing: true,
 };
 ```
 

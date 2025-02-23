@@ -191,6 +191,7 @@ if (cliOptions.stdin) {
 
 	const xo = new XO(linterOptions, baseXoConfigOptions);
 	await log(await xo.lintText(stdin, {filePath: cliOptions.stdinFilename}));
+	process.exit(0);
 }
 
 if (typeof cliOptions.printConfig === 'string') {
