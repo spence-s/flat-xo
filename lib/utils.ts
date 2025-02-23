@@ -1,8 +1,8 @@
 import arrify from 'arrify';
 import {type SetRequired} from 'type-fest';
 import {type Linter} from 'eslint';
-import {ALL_FILES_GLOB} from '../constants.js';
-import {type XoConfigItem} from '../types.js';
+import {ALL_FILES_GLOB} from './constants.js';
+import {type XoConfigItem} from './types.js';
 
 /**
  * Convert a `xo` config item to an ESLint config item.

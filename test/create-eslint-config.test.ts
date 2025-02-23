@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import _test, {type TestFn} from 'ava'; // eslint-disable-line ava/use-test
-import createConfig from '../lib/create-eslint-config/index.js';
+import createConfig from '../lib/xo-to-eslint.js';
 import {copyTestProject} from './helpers/copy-test-project.js';
 import {getJsRule} from './helpers/get-rule.js';
 

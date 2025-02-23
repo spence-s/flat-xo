@@ -19,11 +19,12 @@ import {
 import {
 	DEFAULT_IGNORES, CACHE_DIR_NAME, ALL_EXTENSIONS, TS_FILES_GLOB,
 } from './constants.js';
-import createConfig from './create-eslint-config/index.js';
+import createConfig from './xo-to-eslint.js';
 import resolveXoConfig from './resolve-config.js';
 import {tsconfig} from './tsconfig.js';
 
 export class XO {
+	static xoToEslintConfig = createConfig;
 	/**
    * Static lintText helper for backwards compat and use in editor extensions and other tools
   */
@@ -382,6 +383,4 @@ export class XO {
 	}
 }
 
-export type * from './types.js';
-export * from './create-eslint-config/index.js';
 export default XO;

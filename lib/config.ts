@@ -17,7 +17,7 @@ import {
 	ALL_FILES_GLOB,
 	JS_EXTENSIONS,
 	ALL_EXTENSIONS,
-} from '../constants.js';
+} from './constants.js';
 
 if (Array.isArray(pluginAva?.configs?.['recommended'])) {
 	throw new TypeError('Invalid eslint-plugin-ava');

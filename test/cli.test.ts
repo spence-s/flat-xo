@@ -98,7 +98,7 @@ test('xo --stdin', async t => {
 	t.true(stdout.trim().startsWith('stdin.js'));
 });
 
-test.skip('xo --stdin --fix', async t => {
+test.failing('xo --stdin --fix', async t => {
 	const {stdout} = await $`echo "const x = true"`.pipe`node ./dist/cli --stdin --fix`;
 	t.is(stdout, 'const x = true;');
 });

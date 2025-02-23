@@ -6,9 +6,9 @@ import configReact from 'eslint-config-xo-react';
 import {type Options} from 'prettier';
 import pluginPrettier from 'eslint-plugin-prettier';
 import eslintConfigPrettier from 'eslint-config-prettier';
-import {type FlatXoConfig} from '../types.js';
-import {config} from './base-config.js';
-import {xoToEslintConfigItem} from './xo-to-eslint-config-item.js';
+import {type FlatXoConfig} from './types.js';
+import {config} from './config.js';
+import {xoToEslintConfigItem} from './utils.js';
 
 export type CreateConfigOptions = {
 	prettierOptions?: Options;
