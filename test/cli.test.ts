@@ -94,28 +94,28 @@ test('xo --ignore', async t => {
 });
 
 test('xo --stdin', async t => {
-	const {stdout} = await $`echo ${'const x = true'}`.pipe`node ./dist/cli --stdin`;
+	const {stdout} = await $({cwd: t.context.cwd})`echo ${'const x = true'}`.pipe`node ./dist/cli --stdin`;
 	t.true(stdout.trim().startsWith('stdin.js'));
 });
 
 test('xo --stdin --fix', async t => {
-	const {stdout} = await $`echo ${'const x = true'}`.pipe`node ./dist/cli --stdin --fix`;
+	const {stdout} = await $({cwd: t.context.cwd})`echo ${'const x = true'}`.pipe`node ./dist/cli --stdin --fix`;
 	// not sure what these extra escaped single quotes are
 	t.is(stdout, 'const x = true;');
 });
 
 test('xo --stdin --stdin-filename', async t => {
-	const {stdout} = await $`echo ${'const x = true'}`.pipe`node ./dist/cli --stdin --stdin-filename=test.js`;
+	const {stdout} = await $({cwd: t.context.cwd})`echo ${'const x = true'}`.pipe`node ./dist/cli --stdin --stdin-filename=test.js`;
 	t.true(stdout.trim().startsWith('test.js'));
 });
 
 test.failing('ts > xo --stdin --stdin-filename', async t => {
-	const {stdout} = await $`echo ${'const x: boolean = true'}`.pipe`node ./dist/cli --stdin --stdin-filename=test.ts`;
+	const {stdout} = await $({cwd: t.context.cwd})`echo ${'const x: boolean = true'}`.pipe`node ./dist/cli --stdin --stdin-filename=test.ts`;
 	t.true(stdout.trim().startsWith('test.js'));
 });
 
 test.failing('ts > xo --stdin --stdin-filename --fix', async t => {
-	const {stdout} = await $`echo ${'const x: boolean = true'}`.pipe`node ./dist/cli --stdin --stdin-filename=test.ts --fix`;
+	const {stdout} = await $({cwd: t.context.cwd})`echo ${'const x: boolean = true'}`.pipe`node ./dist/cli --stdin --stdin-filename=test.ts --fix`;
 	t.is(stdout, 'const x = true;');
 });
 

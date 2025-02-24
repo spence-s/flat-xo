@@ -37,7 +37,7 @@ test('no config > ts > semi', async t => {
 	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
 
-test('flat config > semi > js', async t => {
+test('flat config > js > semi', async t => {
 	const filePath = path.join(t.context.cwd, 'test.js');
 	await fs.writeFile(
 		path.join(t.context.cwd, 'xo.config.js'),
@@ -58,7 +58,7 @@ test('flat config > semi > js', async t => {
 	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
 
-test('typescript file with flat config - semicolon', async t => {
+test('flat config > ts > semi', async t => {
 	const filePath = path.join(t.context.cwd, 'test.ts');
 	await fs.writeFile(
 		path.join(t.context.cwd, 'xo.config.js'),
@@ -81,7 +81,7 @@ test('typescript file with flat config - semicolon', async t => {
 
 // test still failing on ubuntu latest github actions runner.
 // No idea why, cannot repro on macos. Possibly eslint or @typescript-eslint bug.
-test.skip('typescript file with no tsconfig - semicolon', async t => {
+test.skip('flat config > ts > semi > no tsconfig', async t => {
 	const filePath = path.join(t.context.cwd, 'test.ts');
 	t.log('filePath', filePath);
 	await fs.rm(path.join(t.context.cwd, 'tsconfig.json'), {force: true});
@@ -116,7 +116,7 @@ test.skip('typescript file with no tsconfig - semicolon', async t => {
 	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
 
-test('flat config > space > js', async t => {
+test('flat config > js > space', async t => {
 	const filePath = path.join(t.context.cwd, 'test.js');
 
 	await fs.writeFile(
@@ -147,7 +147,7 @@ test('flat config > space > js', async t => {
 	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/indent');
 });
 
-test('flat config > space > ts', async t => {
+test('flat config > ts > space', async t => {
 	const filePath = path.join(t.context.cwd, 'test.ts');
 
 	await fs.writeFile(
@@ -178,7 +178,7 @@ test('flat config > space > ts', async t => {
 	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/indent');
 });
 
-test('no-use-extend-native', async t => {
+test('plugin > js > no-use-extend-native', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.js');
 	const {results} = await new XO({cwd}).lintText(
@@ -197,7 +197,7 @@ test('no-use-extend-native', async t => {
 	);
 });
 
-test('no-use-extend-native ts', async t => {
+test('pliugin > ts > no-use-extend-native', async t => {
 	const {cwd} = t.context;
 	const tsFilePath = path.join(t.context.cwd, 'test.ts');
 	const {results} = await new XO({cwd}).lintText(
@@ -217,7 +217,7 @@ test('no-use-extend-native ts', async t => {
 	);
 });
 
-test('eslint-plugin-import import-x/order', async t => {
+test('plugin > js > eslint-plugin-import import-x/order', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.js');
 	const {results} = await new XO({cwd}).lintText(
@@ -235,7 +235,7 @@ test('eslint-plugin-import import-x/order', async t => {
 	t.is(results[0]?.messages?.[0]?.ruleId, 'import-x/order');
 });
 
-test('eslint-plugin-import import-x/order ts', async t => {
+test('plugin > ts > eslint-plugin-import import-x/order', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.ts');
 	const {results} = await new XO({cwd}).lintText(
@@ -252,7 +252,7 @@ test('eslint-plugin-import import-x/order ts', async t => {
 	t.is(results[0]?.messages?.[0]?.ruleId, 'import-x/order');
 });
 
-test('eslint-plugin-import import-x/extensions', async t => {
+test('plugin > js > eslint-plugin-import import-x/extensions', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.js');
 	const {results} = await new XO({cwd}).lintText(
@@ -268,7 +268,7 @@ test('eslint-plugin-import import-x/extensions', async t => {
 	t.is(results[0]?.messages?.[0]?.ruleId, 'import-x/extensions');
 });
 
-test('eslint-plugin-import import-x/extensions ts', async t => {
+test('plugin > ts > eslint-plugin-import import-x/extensions', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.ts');
 	const {results} = await new XO({cwd}).lintText(
@@ -284,7 +284,7 @@ test('eslint-plugin-import import-x/extensions ts', async t => {
 	t.is(results[0]?.messages?.[0]?.ruleId, 'import-x/extensions');
 });
 
-test('eslint-plugin-import import-x/no-absolute-path ts', async t => {
+test('plugin > ts > eslint-plugin-import import-x/no-absolute-path', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.ts');
 	const {results} = await new XO({cwd}).lintText(
@@ -298,7 +298,7 @@ test('eslint-plugin-import import-x/no-absolute-path ts', async t => {
 	t.true(results[0]?.messages?.some(({ruleId}) => ruleId === 'import-x/no-absolute-path'));
 });
 
-test('eslint-plugin-import import-x/no-anonymous-default-export', async t => {
+test('plugin > js > eslint-plugin-import import-x/no-anonymous-default-export', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.js');
 	const {results} = await new XO({cwd}).lintText(
@@ -311,7 +311,7 @@ test('eslint-plugin-import import-x/no-anonymous-default-export', async t => {
 	t.true(results[0]?.messages?.some(({ruleId}) => ruleId === 'import-x/no-anonymous-default-export'));
 });
 
-test('eslint-plugin-n n/prefer-global/process', async t => {
+test('plugin > js > eslint-plugin-n n/prefer-global/process', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.js');
 	const {results} = await new XO({cwd}).lintText(
@@ -325,7 +325,7 @@ test('eslint-plugin-n n/prefer-global/process', async t => {
 	t.is(results[0]?.messages?.[0]?.ruleId, 'n/prefer-global/process');
 });
 
-test('eslint-plugin-n n/prefer-global/process ts', async t => {
+test('plugin > ts > eslint-plugin-n n/prefer-global/process', async t => {
 	const {cwd} = t.context;
 	const tsFilePath = path.join(cwd, 'test.ts');
 	const {results} = await new XO({cwd}).lintText(
@@ -339,7 +339,7 @@ test('eslint-plugin-n n/prefer-global/process ts', async t => {
 	t.is(results[0]?.messages?.[0]?.ruleId, 'n/prefer-global/process');
 });
 
-test('eslint-plugin-eslint-comments enable-duplicate-disable', async t => {
+test('plugin > js > eslint-plugin-eslint-comments enable-duplicate-disable', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.js');
 	const {results} = await new XO({
@@ -357,7 +357,7 @@ test('eslint-plugin-eslint-comments enable-duplicate-disable', async t => {
 		ruleId === '@eslint-community/eslint-comments/no-duplicate-disable'));
 });
 
-test('eslint-plugin-eslint-comments no-duplicate-disable ts', async t => {
+test('plugin > ts > eslint-plugin-eslint-comments no-duplicate-disable', async t => {
 	const {cwd} = t.context;
 	const tsFilePath = path.join(cwd, 'test.ts');
 	const {results} = await new XO({
