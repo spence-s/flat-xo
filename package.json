@@ -43,6 +43,7 @@
 		"nodeArguments": [
 			"--enable-source-maps"
 		],
+		"timeout": "1m",
 		"verbose": true,
 		"watchMode": {
 			"ignoreChanges": [
