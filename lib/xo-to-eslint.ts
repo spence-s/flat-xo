@@ -16,15 +16,15 @@ export type CreateConfigOptions = {
 /**
  * Takes a xo flat config and returns an eslint flat config
  */
-export async function xoToEslintConfig(userConfigs: FlatXoConfig | undefined, {prettierOptions = {}}: CreateConfigOptions = {}): Promise<Linter.Config[]> {
+export async function xoToEslintConfig(flatXoConfig: FlatXoConfig | undefined, {prettierOptions = {}}: CreateConfigOptions = {}): Promise<Linter.Config[]> {
 	const baseConfig = [...config];
 	/**
    * Since configs are merged and the last config takes precedence
    * this means we need to handle both true AND false cases for each option.
    * ie... we need to turn prettier,space,semi,etc... on or off for a specific file
    */
-	for (const xoUserConfigItem of userConfigs ?? []) {
-		const keysOfXoConfig = Object.keys(xoUserConfigItem);
+	for (const xoConfigItem of flatXoConfig ?? []) {
+		const keysOfXoConfig = Object.keys(xoConfigItem);
 
 		if (keysOfXoConfig.length === 0) {
 			continue;
@@ -32,14 +32,14 @@ export async function xoToEslintConfig(userConfigs: FlatXoConfig | undefined, {p
 
 		/** Special case global ignores */
 		if (keysOfXoConfig.length === 1 && keysOfXoConfig[0] === 'ignores') {
-			baseConfig.push({ignores: arrify(xoUserConfigItem.ignores)});
+			baseConfig.push({ignores: arrify(xoConfigItem.ignores)});
 			continue;
 		}
 
 		/**  An eslint config item derived from the xo config item with rules and files initialized */
-		const eslintConfigItem = xoToEslintConfigItem(xoUserConfigItem);
+		const eslintConfigItem = xoToEslintConfigItem(xoConfigItem);
 
-		if (xoUserConfigItem.semicolon === false) {
+		if (xoConfigItem.semicolon === false) {
 			eslintConfigItem.rules['@stylistic/semi'] = ['error', 'never'];
 			eslintConfigItem.rules['@stylistic/semi-spacing'] = [
 				'error',
@@ -47,39 +47,36 @@ export async function xoToEslintConfig(userConfigs: FlatXoConfig | undefined, {p
 			];
 		}
 
-		if (xoUserConfigItem.space) {
+		if (xoConfigItem.space) {
 			const spaces
-        = typeof xoUserConfigItem.space === 'number' ? xoUserConfigItem.space : 2;
+        = typeof xoConfigItem.space === 'number' ? xoConfigItem.space : 2;
 			eslintConfigItem.rules['@stylistic/indent'] = [
 				'error',
 				spaces,
 				{SwitchCase: 1},
 			];
-		} else if (xoUserConfigItem.space === false) {
+		} else if (xoConfigItem.space === false) {
 			// If a user set this false for a small subset of files for some reason,
 			// then we need to set them back to their original values
 			eslintConfigItem.rules['@stylistic/indent']
         = configXoTypescript[1]?.rules?.['@stylistic/indent'];
 		}
 
-		if (xoUserConfigItem.prettier) {
-			if (xoUserConfigItem.prettier === 'compat') {
+		if (xoConfigItem.prettier) {
+			if (xoConfigItem.prettier === 'compat') {
 				baseConfig.push({files: eslintConfigItem.files, ...eslintConfigPrettier});
 			} else {
 				// validate that prettier options match other xoConfig options
-				if ((xoUserConfigItem.semicolon && prettierOptions.semi === false) ?? (!xoUserConfigItem.semicolon && prettierOptions.semi === true)) {
-					// eslint-disable-next-line @stylistic/max-len
-					throw new Error(`The Prettier config \`semi\` is ${prettierOptions.semi} while XO \`semicolon\` is ${xoUserConfigItem.semicolon}, also check your .editorconfig for inconsistencies.`);
+				if ((xoConfigItem.semicolon && prettierOptions.semi === false) ?? (!xoConfigItem.semicolon && prettierOptions.semi === true)) {
+					throw new Error(`The Prettier config \`semi\` is ${prettierOptions.semi} while XO \`semicolon\` is ${xoConfigItem.semicolon}, also check your .editorconfig for inconsistencies.`);
 				}
 
-				if (((xoUserConfigItem.space ?? typeof xoUserConfigItem.space === 'number') && prettierOptions.useTabs === true) || (!xoUserConfigItem.space && prettierOptions.useTabs === false)) {
-					// eslint-disable-next-line @stylistic/max-len
-					throw new Error(`The Prettier config \`useTabs\` is ${prettierOptions.useTabs} while XO \`space\` is ${xoUserConfigItem.space}, also check your .editorconfig for inconsistencies.`);
+				if (((xoConfigItem.space ?? typeof xoConfigItem.space === 'number') && prettierOptions.useTabs === true) || (!xoConfigItem.space && prettierOptions.useTabs === false)) {
+					throw new Error(`The Prettier config \`useTabs\` is ${prettierOptions.useTabs} while XO \`space\` is ${xoConfigItem.space}, also check your .editorconfig for inconsistencies.`);
 				}
 
-				if (typeof xoUserConfigItem.space === 'number' && typeof prettierOptions.tabWidth === 'number' && xoUserConfigItem.space !== prettierOptions.tabWidth) {
-					// eslint-disable-next-line @stylistic/max-len
-					throw new Error(`The Prettier config \`tabWidth\` is ${prettierOptions.tabWidth} while XO \`space\` is ${xoUserConfigItem.space}, also check your .editorconfig for inconsistencies.`);
+				if (typeof xoConfigItem.space === 'number' && typeof prettierOptions.tabWidth === 'number' && xoConfigItem.space !== prettierOptions.tabWidth) {
+					throw new Error(`The Prettier config \`tabWidth\` is ${prettierOptions.tabWidth} while XO \`space\` is ${xoConfigItem.space}, also check your .editorconfig for inconsistencies.`);
 				}
 
 				// Add prettier plugin
@@ -93,9 +90,9 @@ export async function xoToEslintConfig(userConfigs: FlatXoConfig | undefined, {p
 					bracketSpacing: false,
 					bracketSameLine: false,
 					trailingComma: 'all',
-					tabWidth: typeof xoUserConfigItem.space === 'number' ? xoUserConfigItem.space : 2,
-					useTabs: !xoUserConfigItem.space,
-					semi: xoUserConfigItem.semicolon,
+					tabWidth: typeof xoConfigItem.space === 'number' ? xoConfigItem.space : 2,
+					useTabs: !xoConfigItem.space,
+					semi: xoConfigItem.semicolon,
 					...prettierOptions,
 				};
 
@@ -109,12 +106,12 @@ export async function xoToEslintConfig(userConfigs: FlatXoConfig | undefined, {p
 
 				eslintConfigItem.rules = rulesWithPrettier;
 			}
-		} else if (xoUserConfigItem.prettier === false) {
+		} else if (xoConfigItem.prettier === false) {
 			// Turn prettier off for a subset of files
 			eslintConfigItem.rules['prettier/prettier'] = 'off';
 		}
 
-		if (xoUserConfigItem.react) {
+		if (xoConfigItem.react) {
 			// ensure the files applied to the react config are the same as the config they are derived from
 			baseConfig.push({files: eslintConfigItem.files, ...configReact[0]});
 		}

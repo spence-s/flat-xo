@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import _test, {type TestFn} from 'ava'; // eslint-disable-line ava/use-test
-import createConfig from '../lib/xo-to-eslint.js';
+import {xoToEslintConfig} from '../lib/xo-to-eslint.js';
 import {copyTestProject} from './helpers/copy-test-project.js';
 import {getJsRule} from './helpers/get-rule.js';
 
@@ -15,7 +15,7 @@ test.afterEach.always(async t => {
 });
 
 test('base config rules', async t => {
-	const flatConfig = await createConfig(undefined);
+	const flatConfig = await xoToEslintConfig(undefined);
 
 	t.deepEqual(getJsRule(flatConfig, '@stylistic/indent'), [
 		'error',
@@ -27,7 +27,7 @@ test('base config rules', async t => {
 });
 
 test('empty config rules', async t => {
-	const flatConfig = await createConfig([]);
+	const flatConfig = await xoToEslintConfig([]);
 
 	t.deepEqual(getJsRule(flatConfig, '@stylistic/indent'), [
 		'error',
@@ -39,7 +39,7 @@ test('empty config rules', async t => {
 });
 
 test('config with space option', async t => {
-	const flatConfig = await createConfig([{space: true}]);
+	const flatConfig = await xoToEslintConfig([{space: true}]);
 
 	t.deepEqual(getJsRule(flatConfig, '@stylistic/indent'), [
 		'error',
@@ -49,19 +49,19 @@ test('config with space option', async t => {
 });
 
 test('config with semi false option', async t => {
-	const flatConfig = await createConfig([{semicolon: false}]);
+	const flatConfig = await xoToEslintConfig([{semicolon: false}]);
 
 	t.deepEqual(getJsRule(flatConfig, '@stylistic/semi'), ['error', 'never']);
 });
 
 test('config with rules', async t => {
-	const flatConfig = await createConfig([{rules: {'no-console': 'error'}}]);
+	const flatConfig = await xoToEslintConfig([{rules: {'no-console': 'error'}}]);
 
 	t.is(getJsRule(flatConfig, 'no-console'), 'error');
 });
 
 test('with prettier option', async t => {
-	const flatConfig = await createConfig([{prettier: true}]);
+	const flatConfig = await xoToEslintConfig([{prettier: true}]);
 
 	const prettierConfigTs = flatConfig.find(config =>
 		typeof config?.plugins?.['prettier'] === 'object'
@@ -103,7 +103,7 @@ test('with prettier option', async t => {
 });
 
 test('with prettier option compat', async t => {
-	const flatConfig = await createConfig([{prettier: 'compat'}]);
+	const flatConfig = await xoToEslintConfig([{prettier: 'compat'}]);
 
 	const prettierConfigTs = flatConfig.find(config =>
 		typeof config?.plugins?.['prettier'] === 'object'
@@ -123,7 +123,7 @@ test('with prettier option compat', async t => {
 });
 
 test('with prettier option and space', async t => {
-	const flatConfig = await createConfig([{prettier: true, space: true}]);
+	const flatConfig = await xoToEslintConfig([{prettier: true, space: true}]);
 
 	const prettierConfigTs = flatConfig.find(config =>
 		typeof config?.plugins?.['prettier'] === 'object'
@@ -165,7 +165,7 @@ test('with prettier option and space', async t => {
 });
 
 test('with react option', async t => {
-	const flatConfig = await createConfig([{react: true}]);
+	const flatConfig = await xoToEslintConfig([{react: true}]);
 
 	const reactPlugin = flatConfig.find(config =>
 		typeof config?.plugins?.['react'] === 'object');

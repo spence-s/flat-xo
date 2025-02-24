@@ -1,0 +1,376 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import _test, {type TestFn} from 'ava'; // eslint-disable-line ava/use-test
+import dedent from 'dedent';
+import {type TsConfigJson} from 'get-tsconfig';
+import {XO} from '../../lib/xo.js';
+import {copyTestProject} from '../helpers/copy-test-project.js';
+
+const test = _test as TestFn<{cwd: string}>;
+
+test.beforeEach(async t => {
+	t.context.cwd = await copyTestProject();
+});
+
+test.afterEach.always(async t => {
+	await fs.rm(t.context.cwd, {recursive: true, force: true});
+});
+
+test('no config > js > semi', async t => {
+	const filePath = path.join(t.context.cwd, 'test.js');
+	const {results} = await new XO({cwd: t.context.cwd}).lintText(
+		dedent`console.log('hello')\n`,
+		{filePath},
+	);
+	t.is(results.length, 1);
+	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
+});
+
+test('no config > ts > semi', async t => {
+	const filePath = path.join(t.context.cwd, 'test.ts');
+	const {results} = await new XO({cwd: t.context.cwd}).lintText(
+		dedent`console.log('hello')\n`,
+		{filePath},
+	);
+
+	t.is(results?.[0]?.messages?.length, 1);
+	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
+});
+
+test('flat config > semi > js', async t => {
+	const filePath = path.join(t.context.cwd, 'test.js');
+	await fs.writeFile(
+		path.join(t.context.cwd, 'xo.config.js'),
+		dedent`
+			export default [
+			  {
+			    semicolon: false
+			  }
+			]\n
+		`,
+		'utf8',
+	);
+	const xo = new XO({cwd: t.context.cwd});
+	const {results} = await xo.lintText(dedent`console.log('hello');\n`, {
+		filePath,
+	});
+	t.is(results?.[0]?.messages?.length, 1);
+	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
+});
+
+test('typescript file with flat config - semicolon', async t => {
+	const filePath = path.join(t.context.cwd, 'test.ts');
+	await fs.writeFile(
+		path.join(t.context.cwd, 'xo.config.js'),
+		dedent`
+			export default [
+			  {
+			    semicolon: false
+			  }
+			];\n
+		`,
+		'utf8',
+	);
+	const xo = new XO({cwd: t.context.cwd});
+	const {results} = await xo.lintText(dedent`console.log('hello');\n`, {
+		filePath,
+	});
+	t.is(results?.[0]?.messages?.length, 1);
+	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
+});
+
+// test still failing on ubuntu latest github actions runner.
+// No idea why, cannot repro on macos. Possibly eslint or @typescript-eslint bug.
+test.skip('typescript file with no tsconfig - semicolon', async t => {
+	const filePath = path.join(t.context.cwd, 'test.ts');
+	t.log('filePath', filePath);
+	await fs.rm(path.join(t.context.cwd, 'tsconfig.json'), {force: true});
+
+	await fs.writeFile(
+		path.join(t.context.cwd, 'xo.config.js'),
+		dedent`
+			export default [
+			  {
+			    semicolon: false
+			  }
+			];\n
+		`,
+		'utf8',
+	);
+
+	const {results} = await XO.lintText(dedent`console.log('hello');\n`, {
+		cwd: t.context.cwd, ts: true,
+		filePath,
+	});
+
+	t.log(results[0]);
+
+	const generatedTsconfig = JSON.parse(await fs.readFile(path.join(t.context.cwd, 'node_modules', '.cache', 'xo-linter', 'tsconfig.xo.json'), 'utf8')) as TsConfigJson;
+
+	t.log(generatedTsconfig);
+
+	t.true(generatedTsconfig.files?.includes(filePath));
+
+	t.is(results?.[0]?.messages?.length, 1);
+
+	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
+});
+
+test('flat config > space > js', async t => {
+	const filePath = path.join(t.context.cwd, 'test.js');
+
+	await fs.writeFile(
+		path.join(t.context.cwd, 'xo.config.js'),
+		dedent`
+			export default [
+			  {
+			    space: true
+			  }
+			];\n
+		`,
+		'utf8',
+	);
+
+	const xo = new XO({cwd: t.context.cwd});
+	const {results} = await xo.lintText(
+		dedent`
+			export function foo() {
+				console.log('hello');
+			}\n
+		`,
+		{
+			filePath,
+		},
+	);
+	t.is(results?.[0]?.messages.length, 1);
+	t.is(results?.[0]?.messages?.[0]?.messageId, 'wrongIndentation');
+	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/indent');
+});
+
+test('flat config > space > ts', async t => {
+	const filePath = path.join(t.context.cwd, 'test.ts');
+
+	await fs.writeFile(
+		path.join(t.context.cwd, 'xo.config.js'),
+		dedent`
+			export default [
+			  {
+			    space: true
+			  }
+			];\n
+		`,
+		'utf8',
+	);
+
+	const xo = new XO({cwd: t.context.cwd});
+	const {results} = await xo.lintText(
+		dedent`
+			export function foo() {
+				console.log('hello');
+			}\n
+		`,
+		{
+			filePath,
+		},
+	);
+	t.is(results?.[0]?.messages.length, 1);
+	t.is(results?.[0]?.messages?.[0]?.messageId, 'wrongIndentation');
+	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/indent');
+});
+
+test('no-use-extend-native', async t => {
+	const {cwd} = t.context;
+	const filePath = path.join(cwd, 'test.js');
+	const {results} = await new XO({cwd}).lintText(
+		dedent`
+			import {util} from 'node:util';
+
+			util.isBoolean('50bda47b09923e045759db8e8dd01a0bacd97370'.shortHash() === '50bdcs47');\n
+		`,
+		{filePath},
+	);
+	t.true(results[0]?.messages?.length === 1);
+	t.truthy(results[0]?.messages?.[0]);
+	t.is(
+		results[0]?.messages?.[0]?.ruleId,
+		'no-use-extend-native/no-use-extend-native',
+	);
+});
+
+test('no-use-extend-native ts', async t => {
+	const {cwd} = t.context;
+	const tsFilePath = path.join(t.context.cwd, 'test.ts');
+	const {results} = await new XO({cwd}).lintText(
+		dedent`
+			import {util} from 'node:util';
+
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+			util.isBoolean('50bda47b09923e045759db8e8dd01a0bacd97370'.shortHash() === '50bdcs47');\n
+		`,
+		{filePath: tsFilePath},
+	);
+	t.true(results[0]?.messages?.length === 1);
+	t.truthy(results[0]?.messages?.[0]);
+	t.is(
+		results[0]?.messages?.[0]?.ruleId,
+		'no-use-extend-native/no-use-extend-native',
+	);
+});
+
+test('eslint-plugin-import import-x/order', async t => {
+	const {cwd} = t.context;
+	const filePath = path.join(cwd, 'test.js');
+	const {results} = await new XO({cwd}).lintText(
+		dedent`
+			import foo from 'foo';
+			import {util} from 'node:util';
+
+			util.inspect(foo);\n
+		`,
+		{filePath},
+	);
+
+	t.true(results[0]?.messages?.length === 1);
+	t.truthy(results[0]?.messages?.[0]);
+	t.is(results[0]?.messages?.[0]?.ruleId, 'import-x/order');
+});
+
+test('eslint-plugin-import import-x/order ts', async t => {
+	const {cwd} = t.context;
+	const filePath = path.join(cwd, 'test.ts');
+	const {results} = await new XO({cwd}).lintText(
+		dedent`
+			import foo from 'foo';
+			import util from 'node:util';
+
+			util.inspect(foo);\n
+		`,
+		{filePath},
+	);
+	t.true(results[0]?.messages?.length === 1);
+	t.truthy(results[0]?.messages?.[0]);
+	t.is(results[0]?.messages?.[0]?.ruleId, 'import-x/order');
+});
+
+test('eslint-plugin-import import-x/extensions', async t => {
+	const {cwd} = t.context;
+	const filePath = path.join(cwd, 'test.js');
+	const {results} = await new XO({cwd}).lintText(
+		dedent`
+			import foo from './foo';
+
+			console.log(foo);\n
+		`,
+		{filePath},
+	);
+	t.true(results[0]?.messages?.length === 1);
+	t.truthy(results[0]?.messages?.[0]);
+	t.is(results[0]?.messages?.[0]?.ruleId, 'import-x/extensions');
+});
+
+test('eslint-plugin-import import-x/extensions ts', async t => {
+	const {cwd} = t.context;
+	const filePath = path.join(cwd, 'test.ts');
+	const {results} = await new XO({cwd}).lintText(
+		dedent`
+			import foo from './foo';
+
+			console.log(foo);\n
+		`,
+		{filePath},
+	);
+	t.true(results[0]?.messages?.length === 1);
+	t.truthy(results[0]?.messages?.[0]);
+	t.is(results[0]?.messages?.[0]?.ruleId, 'import-x/extensions');
+});
+
+test('eslint-plugin-import import-x/no-absolute-path ts', async t => {
+	const {cwd} = t.context;
+	const filePath = path.join(cwd, 'test.ts');
+	const {results} = await new XO({cwd}).lintText(
+		dedent`
+			import foo from '/foo';
+
+			console.log(foo);\n
+		`,
+		{filePath},
+	);
+	t.true(results[0]?.messages?.some(({ruleId}) => ruleId === 'import-x/no-absolute-path'));
+});
+
+test('eslint-plugin-import import-x/no-anonymous-default-export', async t => {
+	const {cwd} = t.context;
+	const filePath = path.join(cwd, 'test.js');
+	const {results} = await new XO({cwd}).lintText(
+		dedent`
+			export default () => {};\n
+		`,
+		{filePath},
+	);
+
+	t.true(results[0]?.messages?.some(({ruleId}) => ruleId === 'import-x/no-anonymous-default-export'));
+});
+
+test('eslint-plugin-n n/prefer-global/process', async t => {
+	const {cwd} = t.context;
+	const filePath = path.join(cwd, 'test.js');
+	const {results} = await new XO({cwd}).lintText(
+		dedent`
+			process.cwd();\n
+		`,
+		{filePath},
+	);
+	t.true(results[0]?.messages?.length === 1);
+	t.truthy(results[0]?.messages?.[0]);
+	t.is(results[0]?.messages?.[0]?.ruleId, 'n/prefer-global/process');
+});
+
+test('eslint-plugin-n n/prefer-global/process ts', async t => {
+	const {cwd} = t.context;
+	const tsFilePath = path.join(cwd, 'test.ts');
+	const {results} = await new XO({cwd}).lintText(
+		dedent`
+			process.cwd();\n
+		`,
+		{filePath: tsFilePath},
+	);
+	t.true(results[0]?.messages?.length === 1);
+	t.truthy(results[0]?.messages?.[0]);
+	t.is(results[0]?.messages?.[0]?.ruleId, 'n/prefer-global/process');
+});
+
+test('eslint-plugin-eslint-comments enable-duplicate-disable', async t => {
+	const {cwd} = t.context;
+	const filePath = path.join(cwd, 'test.js');
+	const {results} = await new XO({
+		cwd,
+	}).lintText(
+		dedent`
+			/* eslint-disable no-undef */
+			export const foo = bar(); // eslint-disable-line no-undef
+			\n
+		`,
+		{filePath},
+	);
+	t.true(results[0]?.errorCount === 1);
+	t.true(results[0]?.messages.some(({ruleId}) =>
+		ruleId === '@eslint-community/eslint-comments/no-duplicate-disable'));
+});
+
+test('eslint-plugin-eslint-comments no-duplicate-disable ts', async t => {
+	const {cwd} = t.context;
+	const tsFilePath = path.join(cwd, 'test.ts');
+	const {results} = await new XO({
+		cwd,
+	}).lintText(
+		dedent`
+			/* eslint-disable no-undef */
+			export const foo = 10; // eslint-disable-line no-undef
+			\n
+		`,
+		{filePath: tsFilePath},
+	);
+	t.true(results[0]?.errorCount === 1);
+	t.true(results[0]?.messages.some(({ruleId}) =>
+		ruleId === '@eslint-community/eslint-comments/no-duplicate-disable'));
+});
