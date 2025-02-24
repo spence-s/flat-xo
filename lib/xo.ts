@@ -24,6 +24,10 @@ import resolveXoConfig from './resolve-config.js';
 import {tsconfig} from './tsconfig.js';
 
 export class XO {
+	/**
+	 * static helper to convert an xo config to an eslint config
+	 * to be used in eslint.config.js
+	 */
 	static xoToEslintConfig = createConfig;
 	/**
    * Static lintText helper for backwards compat and use in editor extensions and other tools

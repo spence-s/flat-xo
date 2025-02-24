@@ -16,7 +16,7 @@ export type CreateConfigOptions = {
 /**
  * Takes a xo flat config and returns an eslint flat config
  */
-export async function createConfig(userConfigs: FlatXoConfig | undefined, {prettierOptions = {}}: CreateConfigOptions = {}): Promise<Linter.Config[]> {
+export async function xoToEslintConfig(userConfigs: FlatXoConfig | undefined, {prettierOptions = {}}: CreateConfigOptions = {}): Promise<Linter.Config[]> {
 	const baseConfig = [...config];
 	/**
    * Since configs are merged and the last config takes precedence
@@ -125,4 +125,4 @@ export async function createConfig(userConfigs: FlatXoConfig | undefined, {prett
 	return baseConfig;
 }
 
-export default createConfig;
+export default xoToEslintConfig;

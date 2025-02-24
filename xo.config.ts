@@ -1,4 +1,4 @@
-import type {FlatXoConfig} from './lib/types.js';
+import {type FlatXoConfig} from './index.js';
 
 const xoConfig: FlatXoConfig = [
 	{ignores: ['test/fixtures/**/*']},

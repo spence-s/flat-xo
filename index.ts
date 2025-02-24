@@ -9,4 +9,5 @@ export {
 	type XoConfigItem,
 } from './lib/types.js';
 
+export {default} from './lib/xo.js';
 export * from './lib/xo.js';
