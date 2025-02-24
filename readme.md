@@ -11,7 +11,7 @@
 [![Coverage Status](https://codecov.io/gh/xojs/xo/branch/main/graph/badge.svg)](https://codecov.io/gh/xojs/xo/branch/main)
 [![XO code style](https://shields.io/badge/code_style-5ed9c7?logo=xo&labelColor=gray&logoSize=auto&logoWidth=20)](https://github.com/xojs/xo)
 
-Opinionated but configurable ESLint wrapper with lots of goodies included. Enforces strict and readable code. Never discuss code style on a pull request again! No decision-making. No `.eslintrc` or `eslint.config.js` to manage. It just works!
+Opinionated but configurable ESLint wrapper with lots of goodies included. Enforces strict and readable code. Never discuss code style on a pull request again! No decision-making. No `eslint.config.js` to manage. It just works!
 
 It uses [ESLint](https://eslint.org) underneath, so issues regarding built-in rules should be opened over [there](https://github.com/eslint/eslint/issues).
 
@@ -25,7 +25,7 @@ It uses [ESLint](https://eslint.org) underneath, so issues regarding built-in ru
 - Zero-config, but [configurable when needed](#config).
 - Enforces readable code, because you read more code than you write.
 - No need to specify file paths to lint as it lints all JS/TS files except for [commonly ignored paths](#ignores).
-- [Flat config customization.](#config-overrides)
+- [Flat config customization.](#config)
 - [TypeScript supported by default.](#typescript)
 - Includes many useful ESLint plugins, like [`unicorn`](https://github.com/sindresorhus/eslint-plugin-unicorn), [`import`](https://github.com/benmosher/eslint-plugin-import), [`ava`](https://github.com/avajs/eslint-plugin-ava), [`n`](https://github.com/eslint-community/eslint-plugin-n) and more.
 - Automatically enables rules based on the [`engines`](https://docs.npmjs.com/files/package.json#engines) field in your `package.json`.
@@ -36,6 +36,7 @@ It uses [ESLint](https://eslint.org) underneath, so issues regarding built-in ru
 - Specify [indent](#space) and [semicolon](#semicolon) preferences easily without messing with the rule config.
 - Optionally use the [Prettier](https://github.com/prettier/prettier) code style or turn off all prettier rules with the 'compat' option.
 - Optionally use `eslint-config-xo-react` for easy jsx and react linting with zero config.
+- Optionally use with `eslint` [directly](#usage-as-an-eslint-configuration)
 - Great [editor plugins](#editor-plugins).
 
 ## Install
@@ -195,6 +196,42 @@ Type: `boolean`\
 Default: `false`
 
 Adds eslint-config-plugin-react, eslint-plugin-react-hooks and eslint-config-xo-react to get all the react best practices applied automatically
+
+## TypeScript
+
+XO will automatically lint TypeScript files (`.ts`, `.mts`, `.cts`, `.d.ts` and `.tsx`) with the rules defined in [eslint-config-xo-typescript#use-with-xo](https://github.com/xojs/eslint-config-xo-typescript#use-with-xo).
+
+XO will handle the [@typescript-eslint/parser `project` option](https://typescript-eslint.io/packages/parser/#project) automatically even if you don't have a `tsconfig.json` in your project.
+
+## Usage as an ESLint Configuration
+
+With the introduction of the ESLint flat config, many of the original goals of `xo` were brought into the ESLint core, and shareable configs with plugins because possible. Although we highly recommend the use of the `xo` cli, we understand that some teams need to rely on ESLint directly.
+
+For these purposes, you can still get most of the features of `xo` by using our ESLint configuration helpers.
+
+### `xoToEslintConfig`
+
+The `xoToEslintConfig` function is designed for use in an `eslint.config.js` file. It is NOT for use in an `xo.config.js` file. This function takes a `FlatXoConfig` and outputs and ESLint config object. This function will not be able to automatically handle TS integration for you nor automatic prettier integration. You are responsible for configuring your other tools appropriately. The `xo` cli, will however, handle all of these details for you.
+
+`eslint.config.js`
+
+```js
+import Xo from 'xo';
+
+export default Xo.xoToEslintConfig([{space: true, prettier: 'compat'}])
+```
+
+### xo base config
+
+As another option, you can use the base xo eslint config as a jumping off point for your eslint config.
+
+`eslint.config.js`
+
+```js
+import { config } from "xo/config";
+
+export default [...config, ...customOptions];
+```
 
 ## Tips
 

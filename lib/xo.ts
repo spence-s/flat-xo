@@ -19,7 +19,7 @@ import {
 import {
 	DEFAULT_IGNORES, CACHE_DIR_NAME, ALL_EXTENSIONS, TS_FILES_GLOB,
 } from './constants.js';
-import createConfig from './xo-to-eslint.js';
+import {xoToEslintConfig} from './xo-to-eslint.js';
 import resolveXoConfig from './resolve-config.js';
 import {tsconfig} from './tsconfig.js';
 
@@ -28,7 +28,7 @@ export class XO {
 	 * static helper to convert an xo config to an eslint config
 	 * to be used in eslint.config.js
 	 */
-	static xoToEslintConfig = createConfig;
+	static xoToEslintConfig = xoToEslintConfig;
 	/**
    * Static lintText helper for backwards compat and use in editor extensions and other tools
   */
@@ -160,7 +160,7 @@ export class XO {
 			throw new Error('"XO.setEslintConfig" failed');
 		}
 
-		this.eslintConfig ??= await createConfig([...this.xoConfig], {prettierOptions: this.prettierConfig});
+		this.eslintConfig ??= await xoToEslintConfig([...this.xoConfig], {prettierOptions: this.prettierConfig});
 	}
 
 	/**
