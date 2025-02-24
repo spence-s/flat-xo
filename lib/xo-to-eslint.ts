@@ -64,7 +64,7 @@ export async function xoToEslintConfig(flatXoConfig: FlatXoConfig | undefined, {
 
 		if (xoConfigItem.prettier) {
 			if (xoConfigItem.prettier === 'compat') {
-				baseConfig.push({files: eslintConfigItem.files, ...eslintConfigPrettier});
+				baseConfig.push({...eslintConfigPrettier, files: eslintConfigItem.files});
 			} else {
 				// validate that prettier options match other xoConfig options
 				if ((xoConfigItem.semicolon && prettierOptions.semi === false) ?? (!xoConfigItem.semicolon && prettierOptions.semi === true)) {
@@ -113,7 +113,7 @@ export async function xoToEslintConfig(flatXoConfig: FlatXoConfig | undefined, {
 
 		if (xoConfigItem.react) {
 			// ensure the files applied to the react config are the same as the config they are derived from
-			baseConfig.push({files: eslintConfigItem.files, ...configReact[0]});
+			baseConfig.push({...configReact[0], files: eslintConfigItem.files});
 		}
 
 		baseConfig.push(eslintConfigItem);

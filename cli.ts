@@ -3,11 +3,14 @@
 // https://github.com/nodejs/node/issues/30810#issuecomment-1893682691
 
 import path from 'node:path';
+import fs from 'node:fs/promises';
 import process from 'node:process';
 import {type Rule, type ESLint} from 'eslint';
 import formatterPretty from 'eslint-formatter-pretty';
 import getStdin from 'get-stdin';
 import meow from 'meow';
+import {pathExists} from 'path-exists';
+import {TS_EXTENSIONS} from './lib/constants.js';
 import type {LinterOptions, XoConfigOptions} from './lib/types.js';
 import {XO} from './lib/xo.js';
 import openReport from './lib/open-report.js';
@@ -175,6 +178,27 @@ if (cliOptions.version) {
 if (cliOptions.stdin) {
 	const stdin = await getStdin();
 
+	let shouldRemoveStdInFile = false;
+
+	if (cliOptions.stdinFilename && TS_EXTENSIONS.includes(path.extname(cliOptions.stdinFilename).slice(1))) {
+		const absoluteFilePath = path.resolve(cliOptions.cwd, cliOptions.stdinFilename);
+		if (!await pathExists(absoluteFilePath)) {
+			cliOptions.stdinFilename = path.join(cliOptions.cwd, 'node_modules', '.cache', 'xo-linter', path.basename(absoluteFilePath));
+			shouldRemoveStdInFile = true;
+			baseXoConfigOptions.ignores = [
+				'!**/node_modules/**',
+				'!node_modules/**',
+				'!node_modules/',
+				`!${path.relative(cliOptions.cwd, cliOptions.stdinFilename)}`,
+			];
+			if (!await pathExists(path.dirname(cliOptions.stdinFilename))) {
+				await fs.mkdir(path.dirname(cliOptions.stdinFilename), {recursive: true});
+			}
+
+			await fs.writeFile(cliOptions.stdinFilename, stdin);
+		}
+	}
+
 	if (cliOptions.fix) {
 		const xo = new XO(linterOptions, baseXoConfigOptions);
 		const {results: [result]} = await xo.lintText(stdin, {
@@ -186,11 +210,19 @@ if (cliOptions.stdin) {
 
 	if (cliOptions.open) {
 		console.error('The `--open` flag is not supported on stdin');
+		if (shouldRemoveStdInFile) {
+			await fs.rm(cliOptions.stdinFilename);
+		}
+
 		process.exit(1);
 	}
 
 	const xo = new XO(linterOptions, baseXoConfigOptions);
-	await log(await xo.lintText(stdin, {filePath: cliOptions.stdinFilename}));
+	await log(await xo.lintText(stdin, {filePath: cliOptions.stdinFilename, warnIgnored: true}));
+	if (shouldRemoveStdInFile) {
+		await fs.rm(cliOptions.stdinFilename);
+	}
+
 	process.exit(0);
 }
 

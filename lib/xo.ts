@@ -168,7 +168,7 @@ export class XO {
    * @private
    */
 	setIgnores() {
-		if (!this.baseXoConfig.ignores) {
+		if (this.baseXoConfig.ignores) {
 			let ignores: string[] = [];
 
 			if (typeof this.baseXoConfig.ignores === 'string') {
