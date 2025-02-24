@@ -30,15 +30,15 @@ test('xo --fix', async t => {
 	t.is(fileContent, dedent`console.log('hello');\n`);
 });
 
-test('xo --space', async t => {
+test('xo --fix --space', async t => {
 	const filePath = path.join(t.context.cwd, 'test.js');
 	await fs.writeFile(filePath, dedent`function test() {\n   return true;\n}\n`, 'utf8');
-	await t.throwsAsync($`node ./dist/cli --cwd ${t.context.cwd} --fix --space=2`);
+	await t.throwsAsync($`node ./dist/cli --cwd ${t.context.cwd} --fix --space`);
 	const fileContent = await fs.readFile(filePath, 'utf8');
 	t.is(fileContent, 'function test() {\n  return true;\n}\n');
 });
 
-test('xo --semicolon=false', async t => {
+test('xo --fix --semicolon=false', async t => {
 	const filePath = path.join(t.context.cwd, 'test.js');
 	await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
 	await t.notThrowsAsync($`node ./dist/cli --cwd ${t.context.cwd} --fix --semicolon=false`);
@@ -46,7 +46,7 @@ test('xo --semicolon=false', async t => {
 	t.is(fileContent, dedent`console.log('hello')\n`);
 });
 
-test('xo --no-semicolon', async t => {
+test('xo --fix --no-semicolon', async t => {
 	const filePath = path.join(t.context.cwd, 'test.js');
 	await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
 	await t.notThrowsAsync($`node ./dist/cli --cwd ${t.context.cwd} --fix --no-semicolon`);
@@ -54,12 +54,41 @@ test('xo --no-semicolon', async t => {
 	t.is(fileContent, dedent`console.log('hello')\n`);
 });
 
-test('xo --prettier --fix', async t => {
+test('xo --fix --prettier', async t => {
 	const filePath = path.join(t.context.cwd, 'test.js');
 	await fs.writeFile(filePath, dedent`function test(){return true}\n`, 'utf8');
 	await t.throwsAsync($`node ./dist/cli --cwd ${t.context.cwd} --fix --prettier`);
 	const fileContent = await fs.readFile(filePath, 'utf8');
 	t.is(fileContent, 'function test() {\n\treturn true;\n}\n');
+});
+
+test('xo --space', async t => {
+	const filePath = path.join(t.context.cwd, 'test.js');
+	await fs.writeFile(filePath, dedent`function test() {\n   return true;\n}\n`, 'utf8');
+	const error = await t.throwsAsync($`node ./dist/cli --cwd ${t.context.cwd} --space`);
+	t.true(error.message.includes('@stylistic/indent'));
+});
+
+test('xo --semicolon=false', async t => {
+	const filePath = path.join(t.context.cwd, 'test.js');
+	await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
+	const error = await t.throwsAsync($`node ./dist/cli --cwd ${t.context.cwd} --semicolon=false`);
+
+	t.true(error.message.includes('@stylistic/semi'));
+});
+
+test('xo --no-semicolon', async t => {
+	const filePath = path.join(t.context.cwd, 'test.js');
+	await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
+	const error = await t.throwsAsync($`node ./dist/cli --cwd ${t.context.cwd} --no-semicolon`);
+	t.true(error.message.includes('@stylistic/semi'));
+});
+
+test('xo --prettier', async t => {
+	const filePath = path.join(t.context.cwd, 'test.js');
+	await fs.writeFile(filePath, dedent`export function test(){return true}\n`, 'utf8');
+	const error = await t.throwsAsync($`node ./dist/cli --cwd ${t.context.cwd} --prettier`);
+	t.true(error.message.includes('prettier/prettier'));
 });
 
 test('xo --print-config', async t => {
@@ -104,17 +133,17 @@ test('xo --stdin --fix', async t => {
 	t.is(stdout, 'const x = true;');
 });
 
-test('xo --stdin --stdin-filename', async t => {
+test('xo --stdin --stdin-filename=test.js', async t => {
 	const {stdout} = await $`echo ${'const x = true'}`.pipe`node ./dist/cli --cwd=${t.context.cwd} --stdin --stdin-filename=test.js`;
 	t.true(stdout.includes('test.js'));
 });
 
-test('ts > xo --stdin --stdin-filename', async t => {
-	const {stdout} = await $`echo ${'const x: boolean = true'}`.pipe`node ./dist/cli --cwd=${t.context.cwd} --stdin --stdin-filename=stdio.ts`;
-	t.true(stdout.includes('stdio.ts'));
+test('xo --stdin --stdin-filename=test.ts', async t => {
+	const {stdout} = await $`echo ${'const x: boolean = true'}`.pipe`node ./dist/cli --cwd=${t.context.cwd} --stdin --stdin-filename=test.ts`;
+	t.true(stdout.includes('test.ts'));
 });
 
-test('ts > xo --stdin --stdin-filename --fix', async t => {
+test('xo --stdin --stdin-filename=test.ts --fix', async t => {
 	const {stdout} = await $`echo ${'const x: boolean = true'}`.pipe`node ./dist/cli --cwd=${t.context.cwd} --stdin --stdin-filename=test.ts --fix`;
 	t.is(stdout, 'const x = true;');
 });
