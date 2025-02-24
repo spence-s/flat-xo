@@ -260,7 +260,8 @@ export class XO {
 		globs = arrify(globs);
 
 		let files: string | string[] = await globby(globs, {
-			ignore: DEFAULT_IGNORES,
+			// merge in command line ignores
+			ignore: [...DEFAULT_IGNORES, ...arrify(this.baseXoConfig.ignores)],
 			onlyFiles: true,
 			gitignore: true,
 			absolute: true,
@@ -314,7 +315,7 @@ export class XO {
 	}
 
 	async calculateConfigForFile(filePath: string): Promise<Linter.Config> {
-		await this.initEslint();
+		await this.initEslint([filePath]);
 
 		if (!this.eslint) {
 			throw new Error('Failed to initialize ESLint');
