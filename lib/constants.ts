@@ -1,6 +1,6 @@
 import {type TsConfigJsonResolved} from 'get-tsconfig';
 
-export const DEFAULT_IGNORES = [
+export const defaultIgnores = [
 	'**/node_modules/**',
 	'**/bower_components/**',
 	'flow-typed/**',
@@ -17,21 +17,21 @@ List of options that values will be concatenanted during option merge.
 Only applies to options defined as an Array.
 */
 
-export const TS_EXTENSIONS = ['ts', 'tsx', 'cts', 'mts'];
+export const tsExtensions = ['ts', 'tsx', 'cts', 'mts'];
 
-export const JS_EXTENSIONS = ['js', 'jsx', 'mjs', 'cjs'];
+export const jsExtensions = ['js', 'jsx', 'mjs', 'cjs'];
 
-export const JS_FILES_GLOB = `**/*.{${JS_EXTENSIONS.join(',')}}`;
+export const jsFilesGlob = `**/*.{${jsExtensions.join(',')}}`;
 
-export const TS_FILES_GLOB = `**/*.{${TS_EXTENSIONS.join(',')}}`;
+export const tsFilesGlob = `**/*.{${tsExtensions.join(',')}}`;
 
-export const ALL_EXTENSIONS = [...JS_EXTENSIONS, ...TS_EXTENSIONS];
+export const allExtensions = [...jsExtensions, ...tsExtensions];
 
-export const ALL_FILES_GLOB = `**/*.{${ALL_EXTENSIONS.join(',')}}`;
+export const allFilesGlob = `**/*.{${allExtensions.join(',')}}`;
 
-export const MODULE_NAME = 'xo';
+export const moduleName = 'xo';
 
-export const TSCONFIG_DEFAULTS: TsConfigJsonResolved = {
+export const tsconfigDefaults: TsConfigJsonResolved = {
 	compilerOptions: {
 		target: 'es2018',
 		strict: true,
@@ -42,4 +42,4 @@ export const TSCONFIG_DEFAULTS: TsConfigJsonResolved = {
 	},
 };
 
-export const CACHE_DIR_NAME = 'xo-linter';
+export const cacheDirName = 'xo-linter';

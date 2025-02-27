@@ -17,15 +17,15 @@ import {
 	type XoConfigItem,
 } from './types.js';
 import {
-	DEFAULT_IGNORES, CACHE_DIR_NAME, ALL_EXTENSIONS, TS_FILES_GLOB,
+	defaultIgnores, cacheDirName, allExtensions, tsFilesGlob,
 } from './constants.js';
 import {xoToEslintConfig} from './xo-to-eslint.js';
 import resolveXoConfig from './resolve-config.js';
 import {tsconfig} from './tsconfig.js';
 
-export class XO {
+export class Xo {
 	/**
-	 * static helper to convert an xo config to an eslint config
+	 * Static helper to convert an xo config to an eslint config
 	 * to be used in eslint.config.js
 	 */
 	static xoToEslintConfig = xoToEslintConfig;
@@ -33,7 +33,7 @@ export class XO {
    * Static lintText helper for backwards compat and use in editor extensions and other tools
   */
 	static async lintText(code: string, options: LintTextOptions & LinterOptions & XoConfigOptions) {
-		const xo = new XO(
+		const xo = new Xo(
 			{
 				cwd: options.cwd,
 				fix: options.fix,
@@ -56,7 +56,7 @@ export class XO {
    * Static lintFiles helper for backwards compat and use in editor extensions and other tools
   */
 	static async lintFiles(globs: string | undefined, options: LinterOptions & XoConfigOptions) {
-		const xo = new XO(
+		const xo = new Xo(
 			{
 				cwd: options.cwd,
 				fix: options.fix,
@@ -87,24 +87,24 @@ export class XO {
    */
 	linterOptions: LinterOptions;
 	/**
-   * Base XO config options that allow configuration from cli or other sources
-   * not to be confused with the xoConfig property which is the resolved XO config from the flat config AND base config
+   * Base Xo config options that allow configuration from cli or other sources
+   * not to be confused with the xoConfig property which is the resolved Xo config from the flat config AND base config
    */
 	baseXoConfig: XoConfigOptions;
 	/**
-   * file path to the eslint cache
+   * File path to the eslint cache
    */
 	cacheLocation: string;
 	/**
-   * A re-usable ESLint instance configured with options calculated from the XO config
+   * A re-usable ESLint instance configured with options calculated from the Xo config
    */
 	eslint?: ESLint;
 	/**
-   * XO config derived from both the base config and the resolved flat config
+   * Xo config derived from both the base config and the resolved flat config
    */
 	xoConfig?: FlatXoConfig;
 	/**
-   * The ESLint config calculated from the resolved XO config
+   * The ESLint config calculated from the resolved Xo config
   */
 	eslintConfig?: Linter.Config[];
 	/**
@@ -125,18 +125,18 @@ export class XO {
 		this.linterOptions = _linterOptions;
 		this.baseXoConfig = _baseXoConfig;
 
-		// fix relative cwd paths
+		// Fix relative cwd paths
 		if (!path.isAbsolute(this.linterOptions.cwd)) {
 			this.linterOptions.cwd = path.resolve(process.cwd(), this.linterOptions.cwd);
 		}
 
-		const backupCacheLocation = path.join(os.tmpdir(), CACHE_DIR_NAME);
+		const backupCacheLocation = path.join(os.tmpdir(), cacheDirName);
 
-		this.cacheLocation = findCacheDir({name: CACHE_DIR_NAME, cwd: this.linterOptions.cwd}) ?? backupCacheLocation;
+		this.cacheLocation = findCacheDir({name: cacheDirName, cwd: this.linterOptions.cwd}) ?? backupCacheLocation;
 	}
 
 	/**
-   * setXoConfig sets the xo config on the XO instance
+   * SetXoConfig sets the xo config on the Xo instance
    * @private
    */
 	async setXoConfig() {
@@ -152,19 +152,19 @@ export class XO {
 	}
 
 	/**
-   * SetEslintConfig sets the eslint config on the XO instance
+   * SetEslintConfig sets the eslint config on the Xo instance
    * @private
    */
 	async setEslintConfig() {
 		if (!this.xoConfig) {
-			throw new Error('"XO.setEslintConfig" failed');
+			throw new Error('"Xo.setEslintConfig" failed');
 		}
 
 		this.eslintConfig ??= await xoToEslintConfig([...this.xoConfig], {prettierOptions: this.prettierConfig});
 	}
 
 	/**
-   * setIgnores sets the ignores on the XO instance
+   * SetIgnores sets the ignores on the Xo instance
    * @private
    */
 	setIgnores() {
@@ -178,7 +178,7 @@ export class XO {
 			}
 
 			if (!this.xoConfig) {
-				throw new Error('"XO.setIgnores" failed');
+				throw new Error('"Xo.setIgnores" failed');
 			}
 
 			if (ignores.length > 0) {
@@ -195,7 +195,7 @@ export class XO {
 	 */
 	async handleUnincludedTsFiles(files?: string[]) {
 		if (this.linterOptions.ts && files && files.length > 0) {
-			const tsFiles = files.filter(file => micromatch.isMatch(file, TS_FILES_GLOB, {dot: true}));
+			const tsFiles = files.filter(file => micromatch.isMatch(file, tsFilesGlob, {dot: true}));
 
 			if (tsFiles.length > 0) {
 				const {fallbackTsConfigPath, unmatchedFiles} = await tsconfig({
@@ -217,7 +217,7 @@ export class XO {
 	}
 
 	/**
-   * initEslint initializes the ESLint instance on the XO instance
+   * InitEslint initializes the ESLint instance on the Xo instance
    */
 	public async initEslint(files?: string[]) {
 		await this.setXoConfig();
@@ -229,7 +229,7 @@ export class XO {
 		await this.setEslintConfig();
 
 		if (!this.xoConfig) {
-			throw new Error('"XO.initEslint" failed');
+			throw new Error('"Xo.initEslint" failed');
 		}
 
 		const eslintOptions: ESLint.Options = {
@@ -247,21 +247,21 @@ export class XO {
 	}
 
 	/**
-   * lintFiles lints the files on the XO instance
+   * LintFiles lints the files on the Xo instance
    * @param globs glob pattern to pass to globby
    * @returns XoLintResult
    * @throws Error
    */
 	async lintFiles(globs?: string | string[]): Promise<XoLintResult> {
 		if (!globs || (Array.isArray(globs) && globs.length === 0)) {
-			globs = `**/*.{${ALL_EXTENSIONS.join(',')}}`;
+			globs = `**/*.{${allExtensions.join(',')}}`;
 		}
 
 		globs = arrify(globs);
 
 		let files: string | string[] = await globby(globs, {
-			// merge in command line ignores
-			ignore: [...DEFAULT_IGNORES, ...arrify(this.baseXoConfig.ignores)],
+			// Merge in command line ignores
+			ignore: [...defaultIgnores, ...arrify(this.baseXoConfig.ignores)],
 			onlyFiles: true,
 			gitignore: true,
 			absolute: true,
@@ -286,7 +286,7 @@ export class XO {
 	}
 
 	/**
-   * lintText lints the text on the XO instance
+   * LintText lints the text on the Xo instance
    * @param code
    * @param lintTextOptions
    * @returns XoLintResult
@@ -388,4 +388,4 @@ export class XO {
 	}
 }
 
-export default XO;
+export default Xo;

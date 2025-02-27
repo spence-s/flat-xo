@@ -1,6 +1,4 @@
 #!/usr/bin/env node
-// no-use-extend-native plugin creates an experimental warning so we silence it
-// https://github.com/nodejs/node/issues/30810#issuecomment-1893682691
 
 import path from 'node:path';
 import fs from 'node:fs/promises';
@@ -10,9 +8,9 @@ import formatterPretty from 'eslint-formatter-pretty';
 import getStdin from 'get-stdin';
 import meow from 'meow';
 import {pathExists} from 'path-exists';
-import {TS_EXTENSIONS} from './lib/constants.js';
+import {tsExtensions} from './lib/constants.js';
 import type {LinterOptions, XoConfigOptions} from './lib/types.js';
-import {XO} from './lib/xo.js';
+import {Xo} from './lib/xo.js';
 import openReport from './lib/open-report.js';
 
 const cli = meow(
@@ -162,7 +160,7 @@ const log = async (report: {
 	rulesMeta: Record<string, Rule.RuleMetaData>;
 }) => {
 	const reporter = cliOptions.reporter
-		? await new XO(linterOptions, baseXoConfigOptions).getFormatter(cliOptions.reporter)
+		? await new Xo(linterOptions, baseXoConfigOptions).getFormatter(cliOptions.reporter)
 		: {format: formatterPretty};
 
 	// @ts-expect-error the types don't quite match up here
@@ -183,7 +181,7 @@ if (cliOptions.stdin) {
 	// For ts, we need a file on the filesystem to lint it or else @typescript-eslint will blow up.
 	// We create a temporary file in the node_modules/.cache/xo-linter directory to avoid conflicts with the user's files and lint that file as if it were the stdin input as a work around.
 	// We clean up the file after linting.
-	if (cliOptions.stdinFilename && TS_EXTENSIONS.includes(path.extname(cliOptions.stdinFilename).slice(1))) {
+	if (cliOptions.stdinFilename && tsExtensions.includes(path.extname(cliOptions.stdinFilename).slice(1))) {
 		const absoluteFilePath = path.resolve(cliOptions.cwd, cliOptions.stdinFilename);
 		if (!await pathExists(absoluteFilePath)) {
 			cliOptions.stdinFilename = path.join(cliOptions.cwd, 'node_modules', '.cache', 'xo-linter', path.basename(absoluteFilePath));
@@ -203,7 +201,7 @@ if (cliOptions.stdin) {
 	}
 
 	if (cliOptions.fix) {
-		const xo = new XO(linterOptions, baseXoConfigOptions);
+		const xo = new Xo(linterOptions, baseXoConfigOptions);
 		const {results: [result]} = await xo.lintText(stdin, {
 			filePath: cliOptions.stdinFilename,
 		});
@@ -220,7 +218,7 @@ if (cliOptions.stdin) {
 		process.exit(1);
 	}
 
-	const xo = new XO(linterOptions, baseXoConfigOptions);
+	const xo = new Xo(linterOptions, baseXoConfigOptions);
 	await log(await xo.lintText(stdin, {filePath: cliOptions.stdinFilename, warnIgnored: true}));
 	if (shouldRemoveStdInFile) {
 		await fs.rm(cliOptions.stdinFilename);
@@ -235,15 +233,15 @@ if (typeof cliOptions.printConfig === 'string') {
 		process.exit(1);
 	}
 
-	const config = await new XO(linterOptions, baseXoConfigOptions).calculateConfigForFile(cliOptions.printConfig);
+	const config = await new Xo(linterOptions, baseXoConfigOptions).calculateConfigForFile(cliOptions.printConfig);
 	console.log(JSON.stringify(config, undefined, '\t'));
 } else {
-	const xo = new XO(linterOptions, baseXoConfigOptions);
+	const xo = new Xo(linterOptions, baseXoConfigOptions);
 
 	const report = await xo.lintFiles(input);
 
 	if (cliOptions.fix) {
-		await XO.outputFixes(report);
+		await Xo.outputFixes(report);
 	}
 
 	if (cliOptions.open) {

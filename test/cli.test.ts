@@ -129,7 +129,7 @@ test('xo --stdin', async t => {
 
 test('xo --stdin --fix', async t => {
 	const {stdout} = await $`echo ${'const x = true'}`.pipe`node ./dist/cli --cwd=${t.context.cwd} --stdin --fix`;
-	// not sure what these extra escaped single quotes are
+	// Not sure what these extra escaped single quotes are
 	t.is(stdout, 'const x = true;');
 });
 

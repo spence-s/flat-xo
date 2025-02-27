@@ -3,7 +3,7 @@ import path from 'node:path';
 import _test, {type TestFn} from 'ava'; // eslint-disable-line ava/use-test
 import dedent from 'dedent';
 import {type TsConfigJson} from 'get-tsconfig';
-import {XO} from '../../lib/xo.js';
+import {Xo} from '../../lib/xo.js';
 import {copyTestProject} from '../helpers/copy-test-project.js';
 
 const test = _test as TestFn<{cwd: string}>;
@@ -18,7 +18,7 @@ test.afterEach.always(async t => {
 
 test('no config > js > semi', async t => {
 	const filePath = path.join(t.context.cwd, 'test.js');
-	const {results} = await new XO({cwd: t.context.cwd}).lintText(
+	const {results} = await new Xo({cwd: t.context.cwd}).lintText(
 		dedent`console.log('hello')\n`,
 		{filePath},
 	);
@@ -28,7 +28,7 @@ test('no config > js > semi', async t => {
 
 test('no config > ts > semi', async t => {
 	const filePath = path.join(t.context.cwd, 'test.ts');
-	const {results} = await new XO({cwd: t.context.cwd}).lintText(
+	const {results} = await new Xo({cwd: t.context.cwd}).lintText(
 		dedent`console.log('hello')\n`,
 		{filePath},
 	);
@@ -50,7 +50,7 @@ test('flat config > js > semi', async t => {
 		`,
 		'utf8',
 	);
-	const xo = new XO({cwd: t.context.cwd});
+	const xo = new Xo({cwd: t.context.cwd});
 	const {results} = await xo.lintText(dedent`console.log('hello');\n`, {
 		filePath,
 	});
@@ -71,7 +71,7 @@ test('flat config > ts > semi', async t => {
 		`,
 		'utf8',
 	);
-	const xo = new XO({cwd: t.context.cwd});
+	const xo = new Xo({cwd: t.context.cwd});
 	const {results} = await xo.lintText(dedent`console.log('hello');\n`, {
 		filePath,
 	});
@@ -79,7 +79,7 @@ test('flat config > ts > semi', async t => {
 	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
 
-// test still failing on ubuntu latest github actions runner.
+// Test still failing on ubuntu latest github actions runner.
 // No idea why, cannot repro on macos. Possibly eslint or @typescript-eslint bug.
 test.skip('flat config > ts > semi > no tsconfig', async t => {
 	const filePath = path.join(t.context.cwd, 'test.ts');
@@ -98,7 +98,7 @@ test.skip('flat config > ts > semi > no tsconfig', async t => {
 		'utf8',
 	);
 
-	const {results} = await XO.lintText(dedent`console.log('hello');\n`, {
+	const {results} = await Xo.lintText(dedent`console.log('hello');\n`, {
 		cwd: t.context.cwd, ts: true,
 		filePath,
 	});
@@ -131,7 +131,7 @@ test('flat config > js > space', async t => {
 		'utf8',
 	);
 
-	const xo = new XO({cwd: t.context.cwd});
+	const xo = new Xo({cwd: t.context.cwd});
 	const {results} = await xo.lintText(
 		dedent`
 			export function foo() {
@@ -162,7 +162,7 @@ test('flat config > ts > space', async t => {
 		'utf8',
 	);
 
-	const xo = new XO({cwd: t.context.cwd});
+	const xo = new Xo({cwd: t.context.cwd});
 	const {results} = await xo.lintText(
 		dedent`
 			export function foo() {
@@ -181,7 +181,7 @@ test('flat config > ts > space', async t => {
 test('plugin > js > no-use-extend-native', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.js');
-	const {results} = await new XO({cwd}).lintText(
+	const {results} = await new Xo({cwd}).lintText(
 		dedent`
 			import {util} from 'node:util';
 
@@ -200,7 +200,7 @@ test('plugin > js > no-use-extend-native', async t => {
 test('pliugin > ts > no-use-extend-native', async t => {
 	const {cwd} = t.context;
 	const tsFilePath = path.join(t.context.cwd, 'test.ts');
-	const {results} = await new XO({cwd}).lintText(
+	const {results} = await new Xo({cwd}).lintText(
 		dedent`
 			import {util} from 'node:util';
 
@@ -220,7 +220,7 @@ test('pliugin > ts > no-use-extend-native', async t => {
 test('plugin > js > eslint-plugin-import import-x/order', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.js');
-	const {results} = await new XO({cwd}).lintText(
+	const {results} = await new Xo({cwd}).lintText(
 		dedent`
 			import foo from 'foo';
 			import {util} from 'node:util';
@@ -238,7 +238,7 @@ test('plugin > js > eslint-plugin-import import-x/order', async t => {
 test('plugin > ts > eslint-plugin-import import-x/order', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.ts');
-	const {results} = await new XO({cwd}).lintText(
+	const {results} = await new Xo({cwd}).lintText(
 		dedent`
 			import foo from 'foo';
 			import util from 'node:util';
@@ -255,7 +255,7 @@ test('plugin > ts > eslint-plugin-import import-x/order', async t => {
 test('plugin > js > eslint-plugin-import import-x/extensions', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.js');
-	const {results} = await new XO({cwd}).lintText(
+	const {results} = await new Xo({cwd}).lintText(
 		dedent`
 			import foo from './foo';
 
@@ -271,7 +271,7 @@ test('plugin > js > eslint-plugin-import import-x/extensions', async t => {
 test('plugin > ts > eslint-plugin-import import-x/extensions', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.ts');
-	const {results} = await new XO({cwd}).lintText(
+	const {results} = await new Xo({cwd}).lintText(
 		dedent`
 			import foo from './foo';
 
@@ -287,7 +287,7 @@ test('plugin > ts > eslint-plugin-import import-x/extensions', async t => {
 test('plugin > ts > eslint-plugin-import import-x/no-absolute-path', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.ts');
-	const {results} = await new XO({cwd}).lintText(
+	const {results} = await new Xo({cwd}).lintText(
 		dedent`
 			import foo from '/foo';
 
@@ -301,7 +301,7 @@ test('plugin > ts > eslint-plugin-import import-x/no-absolute-path', async t => 
 test('plugin > js > eslint-plugin-import import-x/no-anonymous-default-export', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.js');
-	const {results} = await new XO({cwd}).lintText(
+	const {results} = await new Xo({cwd}).lintText(
 		dedent`
 			export default () => {};\n
 		`,
@@ -314,7 +314,7 @@ test('plugin > js > eslint-plugin-import import-x/no-anonymous-default-export', 
 test('plugin > js > eslint-plugin-n n/prefer-global/process', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.js');
-	const {results} = await new XO({cwd}).lintText(
+	const {results} = await new Xo({cwd}).lintText(
 		dedent`
 			process.cwd();\n
 		`,
@@ -328,7 +328,7 @@ test('plugin > js > eslint-plugin-n n/prefer-global/process', async t => {
 test('plugin > ts > eslint-plugin-n n/prefer-global/process', async t => {
 	const {cwd} = t.context;
 	const tsFilePath = path.join(cwd, 'test.ts');
-	const {results} = await new XO({cwd}).lintText(
+	const {results} = await new Xo({cwd}).lintText(
 		dedent`
 			process.cwd();\n
 		`,
@@ -342,7 +342,7 @@ test('plugin > ts > eslint-plugin-n n/prefer-global/process', async t => {
 test('plugin > js > eslint-plugin-eslint-comments enable-duplicate-disable', async t => {
 	const {cwd} = t.context;
 	const filePath = path.join(cwd, 'test.js');
-	const {results} = await new XO({
+	const {results} = await new Xo({
 		cwd,
 	}).lintText(
 		dedent`
@@ -360,7 +360,7 @@ test('plugin > js > eslint-plugin-eslint-comments enable-duplicate-disable', asy
 test('plugin > ts > eslint-plugin-eslint-comments no-duplicate-disable', async t => {
 	const {cwd} = t.context;
 	const tsFilePath = path.join(cwd, 'test.ts');
-	const {results} = await new XO({
+	const {results} = await new Xo({
 		cwd,
 	}).lintText(
 		dedent`

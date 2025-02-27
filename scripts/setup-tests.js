@@ -16,10 +16,10 @@ if (await pathExists(cwd)) {
 	await fs.rm(cwd, {recursive: true, force: true});
 }
 
-// create the test project directory
+// Create the test project directory
 await fs.mkdir(cwd, {recursive: true});
 
-// create a package.json file
+// Create a package.json file
 await fs.writeFile(
 	path.join(cwd, 'package.json'),
 	JSON.stringify({
@@ -28,7 +28,7 @@ await fs.writeFile(
 	}),
 );
 
-// create a tsconfig.json file
+// Create a tsconfig.json file
 await fs.writeFile(
 	path.join(cwd, 'tsconfig.json'),
 	JSON.stringify({
@@ -43,7 +43,7 @@ await fs.writeFile(
 	}),
 );
 
-// npm install in the test project directory
+// Npm install in the test project directory
 // which we will repeatedly copy in the temp dir to test the project against
 await $({
 	cwd,

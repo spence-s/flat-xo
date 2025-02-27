@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import _test, {type TestFn} from 'ava'; // eslint-disable-line ava/use-test
 import dedent from 'dedent';
-import {XO} from '../../lib/xo.js';
+import {Xo} from '../../lib/xo.js';
 import {copyTestProject} from '../helpers/copy-test-project.js';
 
 const test = _test as TestFn<{cwd: string}>;
@@ -18,7 +18,7 @@ test.afterEach.always(async t => {
 test('no config > js > semi', async t => {
 	const filePath = path.join(t.context.cwd, 'test.js');
 	await fs.writeFile(filePath, dedent`console.log('hello')\n`, 'utf8');
-	const {results} = await new XO({cwd: t.context.cwd}).lintFiles('**/*');
+	const {results} = await new Xo({cwd: t.context.cwd}).lintFiles('**/*');
 	t.is(results?.[0]?.messages.length, 1);
 	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
@@ -26,7 +26,7 @@ test('no config > js > semi', async t => {
 test('no config > ts > semi', async t => {
 	const filePath = path.join(t.context.cwd, 'test.ts');
 	await fs.writeFile(filePath, dedent`console.log('hello')\n`, 'utf8');
-	const {results} = await new XO({cwd: t.context.cwd}).lintFiles('**/*');
+	const {results} = await new Xo({cwd: t.context.cwd}).lintFiles('**/*');
 	t.is(results?.[0]?.messages?.length, 1);
 	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
 });
@@ -45,7 +45,7 @@ test('flat config > js > semi', async t => {
 		'utf8',
 	);
 	await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
-	const xo = new XO({cwd: t.context.cwd});
+	const xo = new Xo({cwd: t.context.cwd});
 	const {results} = await xo.lintFiles();
 	t.is(results?.[0]?.messages?.length, 1);
 	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
@@ -65,7 +65,7 @@ test('flat config > ts > semi', async t => {
 		'utf8',
 	);
 	await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
-	const xo = new XO({cwd: t.context.cwd});
+	const xo = new Xo({cwd: t.context.cwd});
 	const {results} = await xo.lintFiles();
 	t.is(results?.[0]?.messages?.length, 1);
 	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
@@ -86,7 +86,7 @@ test('flat config > ts > semi > no tsconfig', async t => {
 		'utf8',
 	);
 	await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
-	const xo = new XO({cwd: t.context.cwd, ts: true});
+	const xo = new Xo({cwd: t.context.cwd, ts: true});
 	const {results} = await xo.lintFiles();
 	t.is(results?.[0]?.messages?.length, 1);
 	t.is(results?.[0]?.messages?.[0]?.ruleId, '@stylistic/semi');
@@ -107,7 +107,7 @@ test('flat config > js > space', async t => {
 		'utf8',
 	);
 
-	const xo = new XO({cwd: t.context.cwd});
+	const xo = new Xo({cwd: t.context.cwd});
 	await fs.writeFile(
 		filePath,
 
@@ -138,7 +138,7 @@ test('flat config > ts > space', async t => {
 		'utf8',
 	);
 
-	const xo = new XO({cwd: t.context.cwd});
+	const xo = new Xo({cwd: t.context.cwd});
 	await fs.writeFile(
 		filePath,
 		dedent`

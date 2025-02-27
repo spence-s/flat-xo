@@ -53,6 +53,7 @@ export async function xoToEslintConfig(flatXoConfig: FlatXoConfig | undefined, {
 			eslintConfigItem.rules['@stylistic/indent'] = [
 				'error',
 				spaces,
+				// eslint-disable-next-line @typescript-eslint/naming-convention
 				{SwitchCase: 1},
 			];
 		} else if (xoConfigItem.space === false) {
@@ -66,17 +67,17 @@ export async function xoToEslintConfig(flatXoConfig: FlatXoConfig | undefined, {
 			if (xoConfigItem.prettier === 'compat') {
 				baseConfig.push({...eslintConfigPrettier, files: eslintConfigItem.files});
 			} else {
-				// validate that prettier options match other xoConfig options
+				// Validate that prettier options match other xoConfig options
 				if ((xoConfigItem.semicolon && prettierOptions.semi === false) ?? (!xoConfigItem.semicolon && prettierOptions.semi === true)) {
-					throw new Error(`The Prettier config \`semi\` is ${prettierOptions.semi} while XO \`semicolon\` is ${xoConfigItem.semicolon}, also check your .editorconfig for inconsistencies.`);
+					throw new Error(`The Prettier config \`semi\` is ${prettierOptions.semi} while Xo \`semicolon\` is ${xoConfigItem.semicolon}, also check your .editorconfig for inconsistencies.`);
 				}
 
 				if (((xoConfigItem.space ?? typeof xoConfigItem.space === 'number') && prettierOptions.useTabs === true) || (!xoConfigItem.space && prettierOptions.useTabs === false)) {
-					throw new Error(`The Prettier config \`useTabs\` is ${prettierOptions.useTabs} while XO \`space\` is ${xoConfigItem.space}, also check your .editorconfig for inconsistencies.`);
+					throw new Error(`The Prettier config \`useTabs\` is ${prettierOptions.useTabs} while Xo \`space\` is ${xoConfigItem.space}, also check your .editorconfig for inconsistencies.`);
 				}
 
 				if (typeof xoConfigItem.space === 'number' && typeof prettierOptions.tabWidth === 'number' && xoConfigItem.space !== prettierOptions.tabWidth) {
-					throw new Error(`The Prettier config \`tabWidth\` is ${prettierOptions.tabWidth} while XO \`space\` is ${xoConfigItem.space}, also check your .editorconfig for inconsistencies.`);
+					throw new Error(`The Prettier config \`tabWidth\` is ${prettierOptions.tabWidth} while Xo \`space\` is ${xoConfigItem.space}, also check your .editorconfig for inconsistencies.`);
 				}
 
 				// Add prettier plugin
@@ -96,10 +97,11 @@ export async function xoToEslintConfig(flatXoConfig: FlatXoConfig | undefined, {
 					...prettierOptions,
 				};
 
-				// configure prettier rules
+				// Configure prettier rules
 				const rulesWithPrettier: Linter.RulesRecord = {
 					...eslintConfigItem.rules,
 					...(pluginPrettier.configs?.['recommended'] as ESLint.ConfigData)?.rules,
+					// eslint-disable-next-line @typescript-eslint/naming-convention
 					'prettier/prettier': ['error', prettierConfig],
 					...eslintConfigPrettier.rules,
 				};
@@ -112,7 +114,7 @@ export async function xoToEslintConfig(flatXoConfig: FlatXoConfig | undefined, {
 		}
 
 		if (xoConfigItem.react) {
-			// ensure the files applied to the react config are the same as the config they are derived from
+			// Ensure the files applied to the react config are the same as the config they are derived from
 			baseConfig.push({...configReact[0], files: eslintConfigItem.files});
 		}
 

@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {randomUUID} from 'node:crypto';
 import tempDir from 'temp-dir';
-// import {$} from 'execa';
+// Import {$} from 'execa';
 import {pathExists} from 'path-exists';
 import {type XoConfigItem} from '../../lib/types.js';
 
@@ -20,7 +20,7 @@ export const copyTestProject = async () => {
 
 	await fs.cp(testCwd, newCwd, {recursive: true});
 
-	// create a tsconfig.json file
+	// Create a tsconfig.json file
 	await fs.writeFile(
 		path.join(newCwd, 'tsconfig.json'),
 		JSON.stringify({

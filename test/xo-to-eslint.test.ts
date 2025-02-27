@@ -20,6 +20,7 @@ test('base config rules', async t => {
 	t.deepEqual(getJsRule(flatConfig, '@stylistic/indent'), [
 		'error',
 		'tab',
+		// eslint-disable-next-line @typescript-eslint/naming-convention
 		{SwitchCase: 1},
 	]);
 	t.deepEqual(getJsRule(flatConfig, '@stylistic/semi'), ['error', 'always']);
@@ -32,6 +33,7 @@ test('empty config rules', async t => {
 	t.deepEqual(getJsRule(flatConfig, '@stylistic/indent'), [
 		'error',
 		'tab',
+		// eslint-disable-next-line @typescript-eslint/naming-convention
 		{SwitchCase: 1},
 	]);
 	t.deepEqual(getJsRule(flatConfig, '@stylistic/semi'), ['error', 'always']);
@@ -44,6 +46,7 @@ test('config with space option', async t => {
 	t.deepEqual(getJsRule(flatConfig, '@stylistic/indent'), [
 		'error',
 		2,
+		// eslint-disable-next-line @typescript-eslint/naming-convention
 		{SwitchCase: 1},
 	]);
 });

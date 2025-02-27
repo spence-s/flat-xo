@@ -11,12 +11,12 @@ import stylisticPlugin from '@stylistic/eslint-plugin';
 import globals from 'globals';
 import {type Linter} from 'eslint';
 import {
-	DEFAULT_IGNORES,
-	TS_EXTENSIONS,
-	TS_FILES_GLOB,
-	ALL_FILES_GLOB,
-	JS_EXTENSIONS,
-	ALL_EXTENSIONS,
+	defaultIgnores,
+	tsExtensions,
+	tsFilesGlob,
+	allFilesGlob,
+	jsExtensions,
+	allExtensions,
 } from './constants.js';
 
 if (Array.isArray(pluginAva?.configs?.['recommended'])) {
@@ -33,11 +33,11 @@ if (!configXoTypescript[1]) {
 export const config: Linter.Config[] = [
 	{
 		name: 'Xo Default Ignores',
-		ignores: DEFAULT_IGNORES,
+		ignores: defaultIgnores,
 	},
 	{
-		name: 'XO',
-		files: [ALL_FILES_GLOB],
+		name: 'Xo',
+		files: [allFilesGlob],
 		plugins: {
 			'no-use-extend-native': pluginNoUseExtendNative,
 			ava: pluginAva,
@@ -46,7 +46,7 @@ export const config: Linter.Config[] = [
 			n: pluginN,
 			'@eslint-community/eslint-comments': pluginComments,
 			promise: pluginPromise,
-			'@stylistic': stylisticPlugin,
+			'@stylistic': stylisticPlugin, // eslint-disable-line @typescript-eslint/naming-convention
 		},
 		languageOptions: {
 			globals: {
@@ -60,18 +60,18 @@ export const config: Linter.Config[] = [
 			},
 		},
 		settings: {
-			'import-x/extensions': ALL_EXTENSIONS,
+			'import-x/extensions': allExtensions,
 			'import-x/core-modules': ['electron', 'atom'],
 			'import-x/parsers': {
-				espree: JS_EXTENSIONS,
-				'@typescript-eslint/parser': TS_EXTENSIONS,
+				espree: jsExtensions,
+				'@typescript-eslint/parser': tsExtensions,
 			},
 			'import-x/external-module-folders': [
 				'node_modules',
 				'node_modules/@types',
 			],
 			'import-x/resolver': {
-				node: ALL_EXTENSIONS,
+				node: allExtensions,
 			},
 		},
 		/**
@@ -328,8 +328,8 @@ export const config: Linter.Config[] = [
 				'always',
 				{
 					// TypeScript doesn't yet support using extensions and fails with error TS2691.
-					'.ts': 'never',
-					'.tsx': 'never',
+					'.ts': 'never', // eslint-disable-line @typescript-eslint/naming-convention
+					'.tsx': 'never', // eslint-disable-line @typescript-eslint/naming-convention
 				},
 			],
 			'n/no-mixed-requires': [
@@ -368,9 +368,9 @@ export const config: Linter.Config[] = [
 		},
 	},
 	{
-		name: 'XO TypeScript',
+		name: 'Xo TypeScript',
 		plugins: configXoTypescript[1]?.plugins,
-		files: [TS_FILES_GLOB],
+		files: [tsFilesGlob],
 		languageOptions: {
 			...configXoTypescript[1]?.languageOptions,
 		},

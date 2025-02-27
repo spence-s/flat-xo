@@ -3,7 +3,7 @@ import process from 'node:process';
 import {cosmiconfig, defaultLoaders} from 'cosmiconfig';
 import pick from 'lodash.pick';
 import {type LinterOptions, type FlatXoConfig} from './types.js';
-import {MODULE_NAME} from './constants.js';
+import {moduleName} from './constants.js';
 
 /**
  * Finds the xo config file
@@ -26,18 +26,18 @@ export async function resolveXoConfig(options: LinterOptions): Promise<{
 		stopDir: options.cwd,
 	});
 
-	const flatConfigExplorer = cosmiconfig(MODULE_NAME, {
+	const flatConfigExplorer = cosmiconfig(moduleName, {
 		searchPlaces: [
-			`${MODULE_NAME}.config.js`,
-			`${MODULE_NAME}.config.cjs`,
-			`${MODULE_NAME}.config.mjs`,
-			`${MODULE_NAME}.config.ts`,
-			`${MODULE_NAME}.config.cts`,
-			`${MODULE_NAME}.config.mts`,
+			`${moduleName}.config.js`,
+			`${moduleName}.config.cjs`,
+			`${moduleName}.config.mjs`,
+			`${moduleName}.config.ts`,
+			`${moduleName}.config.cts`,
+			`${moduleName}.config.mts`,
 		],
 		loaders: {
-			'.cts': defaultLoaders['.ts'],
-			'.mts': defaultLoaders['.ts'],
+			'.cts': defaultLoaders['.ts'], // eslint-disable-line @typescript-eslint/naming-convention
+			'.mts': defaultLoaders['.ts'], // eslint-disable-line @typescript-eslint/naming-convention
 		},
 		stopDir: stopDirectory,
 		cache: true,

@@ -1,7 +1,7 @@
 export {
-	ALL_FILES_GLOB,
-	JS_FILES_GLOB,
-	TS_FILES_GLOB,
+	allFilesGlob,
+	jsFilesGlob,
+	tsFilesGlob,
 } from './lib/constants.js';
 
 export {

@@ -3,7 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import {getTsconfig} from 'get-tsconfig';
 import micromatch from 'micromatch';
-import {TSCONFIG_DEFAULTS, CACHE_DIR_NAME} from './constants.js';
+import {tsconfigDefaults, cacheDirName} from './constants.js';
 /**
  * This function checks if the files are matched by the tsconfig include, exclude, and it returns the unmatched files.
  * If no tsconfig is found, it will create a fallback tsconfig file in the node_modules/.cache/xo directory.
@@ -12,7 +12,7 @@ import {TSCONFIG_DEFAULTS, CACHE_DIR_NAME} from './constants.js';
  * @returns The unmatched files.
  */
 export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
-	const {config: tsConfig = TSCONFIG_DEFAULTS, path: tsConfigPath} = getTsconfig(cwd) ?? {};
+	const {config: tsConfig = tsconfigDefaults, path: tsConfigPath} = getTsconfig(cwd) ?? {};
 
 	tsConfig.compilerOptions ??= {};
 	tsConfig.compilerOptions.rootDir = cwd;
@@ -58,7 +58,7 @@ export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
 		}
 	}
 
-	const fallbackTsConfigPath = path.join(cwd, 'node_modules', '.cache', CACHE_DIR_NAME, 'tsconfig.xo.json');
+	const fallbackTsConfigPath = path.join(cwd, 'node_modules', '.cache', cacheDirName, 'tsconfig.xo.json');
 
 	delete tsConfig.include;
 	delete tsConfig.exclude;
