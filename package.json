@@ -1,6 +1,6 @@
 {
 	"name": "@spence-s/flat-xo",
-	"version": "0.0.10",
+	"version": "0.1.0",
 	"description": "xo with eslint flat config",
 	"type": "module",
 	"exports": {
