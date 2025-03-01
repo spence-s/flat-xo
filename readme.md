@@ -58,6 +58,7 @@ $ xo --help
 
   Options
     --fix             Automagically fix issues
+    --reporter        Reporter to use
     --ignore          Ignore pattern globs, can be set multiple times
     --space           Use space indent instead of tabs [Default: 2]
     --no-semicolon    Prevent use of semicolons
