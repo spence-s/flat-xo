@@ -81,7 +81,7 @@ test('flat config > ts > semi', async t => {
 
 // Test still failing on ubuntu latest github actions runner.
 // No idea why, cannot repro on macos. Possibly eslint or @typescript-eslint bug.
-test.skip('flat config > ts > semi > no tsconfig', async t => {
+test('flat config > ts > semi > no tsconfig', async t => {
 	const filePath = path.join(t.context.cwd, 'test.ts');
 	t.log('filePath', filePath);
 	await fs.rm(path.join(t.context.cwd, 'tsconfig.json'), {force: true});
@@ -103,11 +103,7 @@ test.skip('flat config > ts > semi > no tsconfig', async t => {
 		filePath,
 	});
 
-	t.log(results[0]);
-
 	const generatedTsconfig = JSON.parse(await fs.readFile(path.join(t.context.cwd, 'node_modules', '.cache', 'xo-linter', 'tsconfig.xo.json'), 'utf8')) as TsConfigJson;
-
-	t.log(generatedTsconfig);
 
 	t.true(generatedTsconfig.files?.includes(filePath));
 

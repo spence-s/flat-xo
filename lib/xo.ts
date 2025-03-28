@@ -205,11 +205,12 @@ export class Xo {
 
 				if (this.xoConfig && unmatchedFiles.length > 0) {
 					const config: XoConfigItem = {};
-					config.files = unmatchedFiles;
+					config.files = unmatchedFiles.map(file => path.relative(this.linterOptions.cwd, file));
 					config.languageOptions ??= {};
 					config.languageOptions.parserOptions ??= {};
 					config.languageOptions.parserOptions['projectService'] = false;
 					config.languageOptions.parserOptions['project'] = fallbackTsConfigPath;
+					config.languageOptions.parserOptions['tsconfigRootDir'] = this.linterOptions.cwd;
 					this.xoConfig.push(config);
 				}
 			}

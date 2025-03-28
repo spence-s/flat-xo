@@ -15,7 +15,6 @@ export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
 	const {config: tsConfig = tsconfigDefaults, path: tsConfigPath} = getTsconfig(cwd) ?? {};
 
 	tsConfig.compilerOptions ??= {};
-	tsConfig.compilerOptions.rootDir = cwd;
 
 	const unmatchedFiles: string[] = [];
 
@@ -38,7 +37,7 @@ export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
 			// If we match on excluded, then we definitively know that there is no tsconfig match
 			if (Array.isArray(tsConfig.exclude)) {
 				const exclude = Array.isArray(tsConfig.exclude) ? tsConfig.exclude : [];
-				hasMatch = !micromatch.contains(filePath, exclude);
+				hasMatch = !micromatch.isMatch(filePath, exclude);
 			} else {
 				// Not explicitly excluded and included by tsconfig defaults
 				hasMatch = true;
@@ -50,7 +49,7 @@ export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
 			const exclude = Array.isArray(tsConfig.exclude) ? tsConfig.exclude : [];
 			// If we also have an exlcude we need to check all the arrays, (files, include, exclude)
 			// this check not excluded and included in one of the file/include array
-			hasMatch = !micromatch.contains(filePath, exclude) && micromatch.contains(filePath, [...include, ...files]);
+			hasMatch = !micromatch.isMatch(filePath, exclude) && micromatch.contains(filePath, [...include, ...files]);
 		}
 
 		if (!hasMatch) {
@@ -63,7 +62,8 @@ export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
 	delete tsConfig.include;
 	delete tsConfig.exclude;
 	delete tsConfig.files;
-	tsConfig.files = files;
+
+	tsConfig.files = unmatchedFiles;
 
 	try {
 		await fs.mkdir(path.dirname(fallbackTsConfigPath), {recursive: true});
@@ -72,5 +72,5 @@ export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
 		console.error(error);
 	}
 
-	return {unmatchedFiles: unmatchedFiles.map(fp => path.relative(cwd, fp)), fallbackTsConfigPath};
+	return {unmatchedFiles, fallbackTsConfigPath};
 }
