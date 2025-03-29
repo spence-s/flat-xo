@@ -11,18 +11,18 @@ import {tsconfigDefaults, cacheDirName} from './constants.js';
  * @param options
  * @returns The unmatched files.
  */
-export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
+export async function handleTsconfig({cwd, files}: {cwd: string; files: string[]}) {
 	const {config: tsConfig = tsconfigDefaults, path: tsConfigPath} = getTsconfig(cwd) ?? {};
 
 	tsConfig.compilerOptions ??= {};
 
-	const unmatchedFiles: string[] = [];
+	const unincludedFiles: string[] = [];
 
 	for (const filePath of files) {
 		let hasMatch = false;
 
 		if (!tsConfigPath) {
-			unmatchedFiles.push(filePath);
+			unincludedFiles.push(filePath);
 			continue;
 		}
 
@@ -37,7 +37,7 @@ export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
 			// If we match on excluded, then we definitively know that there is no tsconfig match
 			if (Array.isArray(tsConfig.exclude)) {
 				const exclude = Array.isArray(tsConfig.exclude) ? tsConfig.exclude : [];
-				hasMatch = !micromatch.isMatch(filePath, exclude);
+				hasMatch = !micromatch.isMatch(filePath, exclude, {matchBase: true});
 			} else {
 				// Not explicitly excluded and included by tsconfig defaults
 				hasMatch = true;
@@ -49,11 +49,11 @@ export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
 			const exclude = Array.isArray(tsConfig.exclude) ? tsConfig.exclude : [];
 			// If we also have an exlcude we need to check all the arrays, (files, include, exclude)
 			// this check not excluded and included in one of the file/include array
-			hasMatch = !micromatch.isMatch(filePath, exclude) && micromatch.contains(filePath, [...include, ...files]);
+			hasMatch = !micromatch.isMatch(filePath, exclude, {matchBase: true}) && micromatch.isMatch(filePath, [...include, ...files], {matchBase: true});
 		}
 
 		if (!hasMatch) {
-			unmatchedFiles.push(filePath);
+			unincludedFiles.push(filePath);
 		}
 	}
 
@@ -63,7 +63,7 @@ export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
 	delete tsConfig.exclude;
 	delete tsConfig.files;
 
-	tsConfig.files = unmatchedFiles;
+	tsConfig.files = unincludedFiles;
 
 	try {
 		await fs.mkdir(path.dirname(fallbackTsConfigPath), {recursive: true});
@@ -72,5 +72,5 @@ export async function tsconfig({cwd, files}: {cwd: string; files: string[]}) {
 		console.error(error);
 	}
 
-	return {unmatchedFiles, fallbackTsConfigPath};
+	return {unincludedFiles, fallbackTsConfigPath};
 }

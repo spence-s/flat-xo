@@ -21,7 +21,8 @@ import {
 } from './constants.js';
 import {xoToEslintConfig} from './xo-to-eslint.js';
 import resolveXoConfig from './resolve-config.js';
-import {tsconfig} from './tsconfig.js';
+import {handleTsconfig} from './handle-ts-files.js';
+// Import {handleTsconfig} from './handle-ts-files-typescript.js';
 
 export class Xo {
 	/**
@@ -198,14 +199,14 @@ export class Xo {
 			const tsFiles = files.filter(file => micromatch.isMatch(file, tsFilesGlob, {dot: true}));
 
 			if (tsFiles.length > 0) {
-				const {fallbackTsConfigPath, unmatchedFiles} = await tsconfig({
+				const {fallbackTsConfigPath, unincludedFiles} = await handleTsconfig({
 					cwd: this.linterOptions.cwd,
 					files: tsFiles,
 				});
 
-				if (this.xoConfig && unmatchedFiles.length > 0) {
+				if (this.xoConfig && unincludedFiles.length > 0) {
 					const config: XoConfigItem = {};
-					config.files = unmatchedFiles.map(file => path.relative(this.linterOptions.cwd, file));
+					config.files = unincludedFiles.map(file => path.relative(this.linterOptions.cwd, file));
 					config.languageOptions ??= {};
 					config.languageOptions.parserOptions ??= {};
 					config.languageOptions.parserOptions['projectService'] = false;
