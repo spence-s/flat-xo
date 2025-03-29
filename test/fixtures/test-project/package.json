@@ -1,0 +1,9 @@
+{
+	"name": "test-project",
+	"type": "module",
+	"devDependencies": {
+		"@sindresorhus/tsconfig": "^7.0.0",
+		"@types/node": "^22.13.14",
+		"typescript": "^5.8.2"
+	}
+}

@@ -4,7 +4,7 @@ Thumbs.db
 tmp/
 temp/
 node_modules
-!test/fixtures/node_modules
+!test/fixtures/test-project/node_modules
 coverage
 *.lcov
 .nyc_output

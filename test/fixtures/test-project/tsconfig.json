@@ -1,0 +1,10 @@
+{
+	"compilerOptions": {
+		"module": "node16",
+		"target": "ES2022",
+		"strictNullChecks": true,
+		"lib": ["DOM", "DOM.Iterable", "ES2022"]
+	},
+	"files": ["test/fixtures/test-project/test.ts"],
+	"exclude": ["node_modules"]
+}
