@@ -86,26 +86,26 @@ test('flat config > ts > semi > no tsconfig', async t => {
 
 	t.log('filePath', filePath);
 
-	await fs.rm(path.join(t.context.cwd, 'tsconfig.json'), {force: true});
+	await fs.rm(path.join(t.context.cwd, 'tsconfig.json'));
+
+	t.log('tsconfig.json removed');
 
 	await fs.writeFile(
 		path.join(t.context.cwd, 'xo.config.js'),
 		dedent`
 			export default [
-				{
-					semicolon: false
-					}
-					];\n
+			  {
+			    semicolon: false
+			  }
+			];\n
 		`,
 		'utf8',
 	);
 
+	t.log('config written');
+
 	t.log('dirFiles', await fs.readdir(t.context.cwd));
-
-	// Writing empty file to force xo to create tsconfig
-	// not exactly sure why this is needed and it may be a bug on some os, but its hard to tell
-	await fs.writeFile(filePath, '');
-
+	await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
 	const {results} = await Xo.lintText(dedent`console.log('hello');\n`, {
 		cwd: t.context.cwd,
 		ts: true,
