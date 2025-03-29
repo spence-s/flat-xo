@@ -30,7 +30,6 @@
 		]
 	},
 	"ava": {
-		"concurrency": 1,
 		"environmentVariables": {
 			"NODE_NO_WARNINGS": "1"
 		},
