@@ -42,6 +42,7 @@
 		"nodeArguments": [
 			"--enable-source-maps"
 		],
+		"serial": true,
 		"timeout": "1m",
 		"verbose": true,
 		"watchMode": {
