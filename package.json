@@ -42,7 +42,6 @@
 		"nodeArguments": [
 			"--enable-source-maps"
 		],
-		"serial": true,
 		"timeout": "1m",
 		"verbose": true,
 		"watchMode": {
@@ -97,7 +96,6 @@
 		"@types/eslint": "9.6.1",
 		"@types/lodash.pick": "^4.4.9",
 		"@types/micromatch": "^4.0.9",
-		"@types/prettier": "^3.0.0",
 		"ava": "^6.2.0",
 		"dedent": "^1.5.3",
 		"execa": "^9.5.2",
