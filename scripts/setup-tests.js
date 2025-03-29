@@ -38,7 +38,7 @@ await fs.writeFile(
 			strictNullChecks: true,
 			lib: ['DOM', 'DOM.Iterable', 'ES2022'],
 		},
-		files: [path.join(cwd, 'test.ts')],
+		files: ['./test.ts'],
 		exclude: ['node_modules'],
 	}),
 );
