@@ -83,31 +83,40 @@ test('flat config > ts > semi', async t => {
 // No idea why, cannot repro on macos. Possibly eslint or @typescript-eslint bug.
 test('flat config > ts > semi > no tsconfig', async t => {
 	const filePath = path.join(t.context.cwd, 'test.ts');
-	// T.log('filePath', filePath);
+
+	t.log('filePath', filePath);
+
 	await fs.rm(path.join(t.context.cwd, 'tsconfig.json'), {force: true});
 
 	await fs.writeFile(
 		path.join(t.context.cwd, 'xo.config.js'),
 		dedent`
 			export default [
-			  {
-			    semicolon: false
-			  }
-			];\n
+				{
+					semicolon: false
+					}
+					];\n
 		`,
 		'utf8',
 	);
 
+	t.log('dirFiles', await fs.readdir(t.context.cwd));
+
+	// Writing empty file to force xo to create tsconfig
+	// not exactly sure why this is needed and it may be a bug on some os, but its hard to tell
+	await fs.writeFile(filePath, '');
+
 	const {results} = await Xo.lintText(dedent`console.log('hello');\n`, {
-		cwd: t.context.cwd, ts: true,
+		cwd: t.context.cwd,
+		ts: true,
 		filePath,
 	});
 
-	// T.log(results[0]);
+	t.log(results[0]);
 
 	const generatedTsconfig = JSON.parse(await fs.readFile(path.join(t.context.cwd, 'node_modules', '.cache', 'xo-linter', 'tsconfig.xo.json'), 'utf8')) as TsConfigJson;
 
-	// T.log(generatedTsconfig);
+	t.log(generatedTsconfig);
 
 	t.true(generatedTsconfig.files?.includes(filePath));
 
