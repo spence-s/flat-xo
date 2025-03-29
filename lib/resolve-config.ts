@@ -2,14 +2,15 @@ import path from 'node:path';
 import process from 'node:process';
 import {cosmiconfig, defaultLoaders} from 'cosmiconfig';
 import pick from 'lodash.pick';
-import {type LinterOptions, type FlatXoConfig} from './types.js';
+import arrify from 'arrify';
+import {type FlatXoConfig, type LinterOptions, type XoConfigItem} from './types.js';
 import {moduleName} from './constants.js';
 
 /**
  * Finds the xo config file
  */
 export async function resolveXoConfig(options: LinterOptions): Promise<{
-	flatOptions: FlatXoConfig;
+	flatOptions: XoConfigItem[];
 	flatConfigPath: string;
 }> {
 	options.cwd ||= process.cwd();
@@ -22,6 +23,7 @@ export async function resolveXoConfig(options: LinterOptions): Promise<{
 
 	const flatConfigExplorer = cosmiconfig(moduleName, {
 		searchPlaces: [
+			'package.json',
 			`${moduleName}.config.js`,
 			`${moduleName}.config.cjs`,
 			`${moduleName}.config.mjs`,
@@ -58,7 +60,7 @@ export async function resolveXoConfig(options: LinterOptions): Promise<{
 		'react',
 	];
 
-	flatOptions = flatOptions.map(config => pick(config, globalKeys));
+	flatOptions = arrify(flatOptions).map(config => pick(config, globalKeys));
 
 	return {
 		flatOptions,

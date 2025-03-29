@@ -12,7 +12,6 @@ import {
 	type XoLintResult,
 	type LinterOptions,
 	type LintTextOptions,
-	type FlatXoConfig,
 	type XoConfigOptions,
 	type XoConfigItem,
 } from './types.js';
@@ -103,7 +102,7 @@ export class Xo {
 	/**
    * Xo config derived from both the base config and the resolved flat config
    */
-	xoConfig?: FlatXoConfig;
+	xoConfig?: XoConfigItem[];
 	/**
    * The ESLint config calculated from the resolved Xo config
   */

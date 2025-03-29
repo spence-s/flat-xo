@@ -78,7 +78,7 @@ export type XoConfigItem = Simplify<XoConfigOptions & Omit<Linter.Config, 'files
 	ignores?: string | string[] | undefined;
 }>;
 
-export type FlatXoConfig = XoConfigItem[];
+export type FlatXoConfig = XoConfigItem | XoConfigItem[];
 
 export type XoLintResult = {
 	errorCount: number;
