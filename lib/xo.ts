@@ -166,7 +166,7 @@ export class Xo {
 						continue;
 					}
 
-					if (rule.startsWith('@typescript-eslint/')) {
+					if (rule.startsWith('@typescript-eslint')) {
 						tsRules.push([rule, ruleValue]);
 					} else {
 						otherRules.push([rule, ruleValue]);
@@ -191,7 +191,7 @@ export class Xo {
 				// These rules should still apply to all files
 				config.files = [allFilesGlob];
 
-				return [config, tsConfig];
+				return [tsConfig, config];
 			});
 
 			this.prettier = this.xoConfig.some(config => config.prettier);
