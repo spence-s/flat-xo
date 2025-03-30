@@ -272,3 +272,51 @@ test.skip('xo does not lint ts files not found in tsconfig.json when --ts=false'
 	await fs.writeFile(tsConfigPath, tsConfig);
 	await fs.rm(xoTsConfigPath);
 });
+
+test('ts rules properly split to avoid errors with cjs files when no options.files is set', async t => {
+	// Write the test.cjs file
+	const filePath = path.join(t.context.cwd, 'test.cjs');
+	await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
+
+	// Write and xo config file with ts rules
+	const xoConfigPath = path.join(t.context.cwd, 'xo.config.js');
+	const xoConfig = dedent`
+		export default [
+			{ ignores: "xo.config.js" },
+			{
+				rules: {
+					'@typescript-eslint/no-unused-vars': 'error',
+				}
+			}
+		]
+	`;
+
+	await fs.writeFile(xoConfigPath, xoConfig, 'utf8');
+
+	await t.notThrowsAsync($`node ./dist/cli --cwd ${t.context.cwd}`);
+});
+
+test('ts rules does error in cjs files if options.files is set', async t => {
+	// Write the test.cjs file
+	const filePath = path.join(t.context.cwd, 'test.cjs');
+	await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
+
+	// Write and xo config file with ts rules
+	const xoConfigPath = path.join(t.context.cwd, 'xo.config.js');
+	const xoConfig = dedent`
+		export default [
+			{ ignores: "xo.config.js" },
+			{
+				files: ["test.cjs"],
+				rules: {
+					'@typescript-eslint/no-unused-vars': 'error',
+				}
+			}
+		]
+	`;
+
+	await fs.writeFile(xoConfigPath, xoConfig, 'utf8');
+	const error = await t.throwsAsync<ExecaError>($`node ./dist/cli --cwd ${t.context.cwd}`);
+	t.true((error.stderr as string)?.includes('Could not find plugin "@typescript-eslint"'));
+});
+
