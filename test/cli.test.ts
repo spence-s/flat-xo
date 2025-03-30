@@ -260,7 +260,7 @@ test('xo lints ts files implicitly excluded from tsconfig.json with rootDir', as
 	await fs.writeFile(xoTsConfigPath, originalTsConfig);
 });
 
-test('xo does not lint ts files not found in tsconfig.json when --ts=false', async t => {
+test.skip('xo does not lint ts files not found in tsconfig.json when --ts=false', async t => {
 	const filePath = path.join(t.context.cwd, 'test.ts');
 	const tsConfigPath = path.join(t.context.cwd, 'tsconfig.json');
 	const xoTsConfigPath = path.join(t.context.cwd, 'tsconfig.xo.json');

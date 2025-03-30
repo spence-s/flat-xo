@@ -93,10 +93,11 @@ test('flat config > ts > semi > no tsconfig', async t => {
 		`,
 		'utf8',
 	);
-	// It is required that an actual file exists for ts to apply typeaware linting when no tsconfig includes it
+	const text = dedent`console.log('hello');\n`;
+	// It is required that an actual file exists for ts to apply type-aware linting when no tsconfig includes it
 	// if the file does not exist, linting ts will fail, js lint text does not require a file to exist
-	await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
-	const {results} = await Xo.lintText(dedent`console.log('hello');\n`, {
+	await fs.writeFile(filePath, text, 'utf8');
+	const {results} = await Xo.lintText(text, {
 		cwd: t.context.cwd,
 		ts: true,
 		filePath,
