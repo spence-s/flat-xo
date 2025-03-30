@@ -320,3 +320,18 @@ test('ts rules does error in cjs files if options.files is set', async t => {
 	t.true((error.stderr as string)?.includes('Could not find plugin "@typescript-eslint"'));
 });
 
+test('gives helpful error message when config creates a circular dependency', async t => {
+	const filePath = path.join(t.context.cwd, 'test.js');
+	await fs.writeFile(filePath, dedent`console.log('hello');\n`, 'utf8');
+	const xoConfigPath = path.join(t.context.cwd, 'xo.config.js');
+	const xoConfig = dedent`
+		import xo from './dist/index.js';
+
+		export default [
+			{space: true}
+		]
+	`;
+	await fs.writeFile(xoConfigPath, xoConfig, 'utf8');
+	const error = await t.throwsAsync<ExecaError>($`node ./dist/cli --cwd ${t.context.cwd}`);
+	t.true((error.stderr as string)?.includes('Error resolving XO config'));
+});
